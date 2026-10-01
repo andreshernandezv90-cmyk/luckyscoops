@@ -1,0 +1,30 @@
+/* Tipografías incluidas en el proyecto (licencia SIL Open Font License).
+   Subconjunto latino: cubre español completo (á, é, ñ, ¿, ¡…). */
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('../assets/fonts/cinzel-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cinzel Decorative';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../assets/fonts/cinzel-decorative-700-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('../assets/fonts/eb-garamond-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('../assets/fonts/eb-garamond-italic-latin.woff2') format('woff2');
+}

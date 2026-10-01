@@ -1,0 +1,261 @@
+import { useRef, useState } from 'react'
+import { BRAND } from '../config/brand.js'
+import { getExtra } from '../data/extras.js'
+import { cartTotals, itemUnitPrice } from '../lib/pricing.js'
+import { formatPrice } from '../lib/format.js'
+import { DELIVERY_METHODS, PAYMENT_METHODS, submitOrder } from '../lib/order.js'
+import { linkTo, navigate, ROUTES } from '../lib/router.js'
+import { useShop } from '../state/ShopContext.jsx'
+import { OrderTotals } from './OrderSummary.jsx'
+import { ChapterDivider } from './illustrations/Ornaments.jsx'
+
+const EMPTY_FORM = {
+  name: '',
+  phone: '',
+  email: '',
+  street: '',
+  neighborhood: '',
+  city: '',
+  state: '',
+  zip: '',
+  notes: '',
+  deliveryMethod: 'envio',
+  paymentMethod: 'transferencia',
+}
+
+function validate(form) {
+  const errors = {}
+  if (form.name.trim().length < 3) errors.name = 'Escribe tu nombre completo.'
+  if (form.phone.replace(/\D/g, '').length < 10) errors.phone = 'Escribe un teléfono de 10 dígitos.'
+  if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = 'Revisa tu correo; parece incompleto.'
+  if (form.deliveryMethod === 'envio') {
+    if (!form.street.trim()) errors.street = 'Escribe la calle y el número.'
+    if (!form.neighborhood.trim()) errors.neighborhood = 'Escribe tu colonia.'
+    if (!form.city.trim()) errors.city = 'Escribe tu ciudad o municipio.'
+    if (!form.state.trim()) errors.state = 'Escribe tu estado.'
+    if (!/^\d{5}$/.test(form.zip.trim())) errors.zip = 'El código postal tiene 5 números.'
+  }
+  return errors
+}
+
+const FIELD_ORDER = ['name', 'phone', 'email', 'street', 'neighborhood', 'city', 'state', 'zip']
+
+/** Finalizar compra: datos de contacto, entrega y forma de pago. */
+export function Checkout() {
+  const { cart, actions } = useShop()
+  const [form, setForm] = useState(EMPTY_FORM)
+  const [errors, setErrors] = useState({})
+  const [status, setStatus] = useState('idle') // idle | sending | error | done
+  const formRef = useRef(null)
+
+  // Pedido enviado: el carrito ya se vació y estamos por pasar a la confirmación.
+  if (status === 'done') return null
+
+  if (cart.length === 0) {
+    return (
+      <section className="page page--narrow" aria-labelledby="checkout-title">
+        <h1 id="checkout-title" className="page__title">No hay nada que pagar todavía</h1>
+        <p className="page__lead">Tu encargo está vacío. Prepara una {BRAND.productNoun} o elige una ya preparada.</p>
+        <div className="page__actions">
+          <a className="btn btn--primary btn--lg" {...linkTo(ROUTES.grimorio)}>Prepara tu {BRAND.productNoun}</a>
+          <a className="btn btn--ghost" {...linkTo(ROUTES.productos)}>Ver {BRAND.productNounPlural} preparadas</a>
+        </div>
+      </section>
+    )
+  }
+
+  const totals = cartTotals(cart, form.deliveryMethod)
+  const set = (field) => (e) => {
+    const value = e.target.value
+    setForm((f) => ({ ...f, [field]: value }))
+    if (errors[field]) setErrors((errs) => ({ ...errs, [field]: undefined }))
+  }
+
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    const found = validate(form)
+    setErrors(found)
+    const first = FIELD_ORDER.find((f) => found[f])
+    if (first) {
+      formRef.current?.querySelector(`[name="${first}"]`)?.focus()
+      return
+    }
+    setStatus('sending')
+    try {
+      const customer = {
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        notes: form.notes.trim(),
+        address:
+          form.deliveryMethod === 'envio'
+            ? { street: form.street.trim(), neighborhood: form.neighborhood.trim(), city: form.city.trim(), state: form.state.trim(), zip: form.zip.trim() }
+            : null,
+      }
+      const order = await submitOrder({ items: cart, customer, deliveryMethod: form.deliveryMethod, paymentMethod: form.paymentMethod })
+      setStatus('done')
+      actions.orderPlaced(order)
+      navigate(ROUTES.confirmacion)
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  const field = (name, label, props = {}) => (
+    <div className={`field${errors[name] ? ' has-error' : ''}`}>
+      <label htmlFor={`f-${name}`}>
+        {label}
+        {props.optional && <span className="field__optional"> (opcional)</span>}
+      </label>
+      <input
+        id={`f-${name}`}
+        name={name}
+        value={form[name]}
+        onChange={set(name)}
+        aria-invalid={errors[name] ? 'true' : undefined}
+        aria-describedby={errors[name] ? `e-${name}` : props.help ? `h-${name}` : undefined}
+        required={!props.optional}
+        type={props.type ?? 'text'}
+        autoComplete={props.autoComplete}
+        inputMode={props.inputMode}
+        maxLength={props.maxLength}
+      />
+      {props.help && !errors[name] && (
+        <p className="field__help" id={`h-${name}`}>
+          {props.help}
+        </p>
+      )}
+      {errors[name] && (
+        <p className="field__error" id={`e-${name}`}>
+          {errors[name]}
+        </p>
+      )}
+    </div>
+  )
+
+  const errorCount = Object.values(errors).filter(Boolean).length
+
+  return (
+    <section className="page" aria-labelledby="checkout-title">
+      <header className="page__header">
+        <p className="page__kicker">Último paso</p>
+        <h1 id="checkout-title" className="page__title">Sella tu pedido</h1>
+        <p className="page__lead">Completa tus datos. Los campos marcados como opcionales puedes dejarlos vacíos.</p>
+        <ol className="checkout-steps" aria-label="Pasos de la compra">
+          <li className="is-done">Encargo</li>
+          <li className="is-current" aria-current="step">Datos y pago</li>
+          <li>Confirmación</li>
+        </ol>
+        <ChapterDivider className="page__divider" />
+      </header>
+
+      <div className="checkout">
+        <form ref={formRef} className="checkout__form" onSubmit={onSubmit} noValidate>
+          {errorCount > 0 && (
+            <p className="form-alert" role="alert">
+              Revisa {errorCount === 1 ? 'un dato marcado' : `${errorCount} datos marcados`} en rojo para continuar.
+            </p>
+          )}
+
+          <fieldset className="parchment-panel form-section">
+            <legend className="panel-title">1. ¿Quién recibe?</legend>
+            {field('name', 'Nombre completo', { autoComplete: 'name' })}
+            <div className="field-row">
+              {field('phone', 'Teléfono / WhatsApp', { type: 'tel', autoComplete: 'tel', inputMode: 'tel', help: 'Te escribiremos aquí para confirmar.' })}
+              {field('email', 'Correo electrónico', { type: 'email', autoComplete: 'email', optional: true })}
+            </div>
+          </fieldset>
+
+          <fieldset className="parchment-panel form-section">
+            <legend className="panel-title">2. ¿Cómo lo recibes?</legend>
+            <div className="option-list">
+              {DELIVERY_METHODS.map((m) => (
+                <label key={m.id} className={`option${form.deliveryMethod === m.id ? ' is-selected' : ''}`}>
+                  <input type="radio" name="deliveryMethod" value={m.id} checked={form.deliveryMethod === m.id} onChange={set('deliveryMethod')} />
+                  <span className="option__body">
+                    <span className="option__title">
+                      {m.name}{' '}
+                      <span className="option__price">
+                        {m.id === 'recoger' ? 'Gratis' : cartTotals(cart, 'envio').shipping === 0 ? 'Gratis' : formatPrice(cartTotals(cart, 'envio').shipping)}
+                      </span>
+                    </span>
+                    <span className="option__detail">{m.detail}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            {form.deliveryMethod === 'envio' && (
+              <div className="address">
+                {field('street', 'Calle y número', { autoComplete: 'address-line1' })}
+                <div className="field-row">
+                  {field('neighborhood', 'Colonia', { autoComplete: 'address-line2' })}
+                  {field('zip', 'Código postal', { autoComplete: 'postal-code', inputMode: 'numeric', maxLength: 5 })}
+                </div>
+                <div className="field-row">
+                  {field('city', 'Ciudad o municipio', { autoComplete: 'address-level2' })}
+                  {field('state', 'Estado', { autoComplete: 'address-level1' })}
+                </div>
+              </div>
+            )}
+          </fieldset>
+
+          <fieldset className="parchment-panel form-section">
+            <legend className="panel-title">3. ¿Cómo pagas?</legend>
+            <div className="option-list">
+              {PAYMENT_METHODS.map((m) => (
+                <label key={m.id} className={`option${form.paymentMethod === m.id ? ' is-selected' : ''}`}>
+                  <input type="radio" name="paymentMethod" value={m.id} checked={form.paymentMethod === m.id} onChange={set('paymentMethod')} />
+                  <span className="option__body">
+                    <span className="option__title">{m.name}</span>
+                    <span className="option__detail">{m.detail}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div className="field">
+              <label htmlFor="f-notes">
+                Notas para tu pedido <span className="field__optional">(opcional)</span>
+              </label>
+              <textarea id="f-notes" name="notes" rows="3" value={form.notes} onChange={set('notes')} placeholder="Por ejemplo: es un regalo, escribir “Feliz cumpleaños, Ana” en la tarjeta." />
+            </div>
+          </fieldset>
+
+          {status === 'error' && (
+            <p className="form-alert" role="alert">
+              No pudimos registrar tu pedido. Inténtalo de nuevo o escríbenos por WhatsApp al {BRAND.contact.whatsappDisplay}.
+            </p>
+          )}
+
+          <button type="submit" className="btn btn--primary btn--xl btn--block" disabled={status === 'sending'}>
+            {status === 'sending' ? 'Sellando tu pedido…' : `Confirmar pedido · ${formatPrice(totals.total)}`}
+          </button>
+          <p className="checkout__fineprint">
+            Al confirmar, registramos tu pedido y te enviamos las instrucciones de pago. Aún no se hace ningún cargo.
+          </p>
+        </form>
+
+        <aside className="checkout__summary parchment-panel" aria-labelledby="checkout-summary-title">
+          <h2 id="checkout-summary-title" className="panel-title">Tu pedido</h2>
+          <ul className="mini-summary">
+            {cart.map((item) => (
+              <li key={item.key}>
+                <span className="mini-summary__name">
+                  {item.quantity} × {item.name}
+                  <span className="mini-summary__extras">
+                    {formatPrice(itemUnitPrice(item))} c/u
+                    {item.extras.length > 0 && ` · Con ${item.extras.map((e) => getExtra(e)?.name).join(', ')}`}
+                  </span>
+                </span>
+                <span>{formatPrice(itemUnitPrice(item) * item.quantity)}</span>
+              </li>
+            ))}
+          </ul>
+          <OrderTotals totals={totals} deliveryMethod={form.deliveryMethod} />
+          <a className="btn btn--text" {...linkTo(ROUTES.carrito)}>
+            Modificar mi encargo
+          </a>
+        </aside>
+      </div>
+    </section>
+  )
+}
