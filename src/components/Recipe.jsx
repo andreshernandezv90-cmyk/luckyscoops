@@ -1,9 +1,10 @@
 import { BRAND } from '../config/brand.js'
-import { getIntention } from '../data/intentions.js'
+import { getFocus, getIntention } from '../data/intentions.js'
+import { PRICES } from '../data/prices.js'
 import { getSize } from '../data/sizes.js'
 import { getExtra } from '../data/extras.js'
 import { priceBreakdown } from '../lib/pricing.js'
-import { formatPrice } from '../lib/format.js'
+import { formatExtraPrice, formatPrice } from '../lib/format.js'
 import { useShop } from '../state/ShopContext.jsx'
 import { ChapterDivider } from './illustrations/Ornaments.jsx'
 
@@ -21,8 +22,10 @@ function InkText({ value, placeholder = 'por elegir' }) {
 export function RecipeCard() {
   const { builder, price } = useShop()
   const intention = getIntention(builder.intention)
+  const focus = getFocus(builder.intention, builder.focus)
   const size = getSize(builder.size)
   const extras = builder.extras.map(getExtra)
+  const { forWhom, message } = builder.dedication
   const breakdown = priceBreakdown(builder)
 
   return (
@@ -36,6 +39,12 @@ export function RecipeCard() {
           <dt>Intención</dt>
           <dd>
             <InkText value={intention?.name} />
+          </dd>
+        </div>
+        <div className="recipe__line">
+          <dt>Enfoque</dt>
+          <dd>
+            <InkText value={intention ? focus?.short ?? focus?.name : null} />
           </dd>
         </div>
         <div className="recipe__line">
@@ -53,11 +62,17 @@ export function RecipeCard() {
               <ul>
                 {extras.map((e) => (
                   <li key={e.id}>
-                    <InkText value={e.name} /> <span className="recipe__extra-price">+{formatPrice(e.price)}</span>
+                    <InkText value={e.name} /> <span className="recipe__extra-price">{formatExtraPrice(e.price)}</span>
                   </li>
                 ))}
               </ul>
             )}
+          </dd>
+        </div>
+        <div className="recipe__line">
+          <dt>Regalo</dt>
+          <dd>
+            <InkText value={forWhom === 'gift' ? (message ? 'Sí, con dedicatoria' : 'Sí') : 'No, es para mí'} />
           </dd>
         </div>
       </dl>
@@ -72,6 +87,7 @@ export function RecipeCard() {
           {breakdown.extrasTotal > 0 && ` + ingredientes ${formatPrice(breakdown.extrasTotal)}`}
         </p>
       )}
+      {PRICES.areDemo && <p className="demo-note">Precios de demostración (pendiente de precios reales).</p>}
     </section>
   )
 }

@@ -1,9 +1,9 @@
 {
-  "name": "lucky-scoops",
+  "name": "scoops-bruja-sabia",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Tienda esotérica con experiencia de grimorio interactivo y ritual del caldero.",
+  "description": "Scoops de la Bruja Sabia: tienda esotérica con El Grimorio de la Bruja Sabia y el ritual del caldero.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

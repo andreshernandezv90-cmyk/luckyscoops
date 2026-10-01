@@ -19,3 +19,8 @@ export function formatList(items) {
   if (items.length === 1) return items[0]
   return `${items.slice(0, -1).join(', ')} y ${items[items.length - 1]}`
 }
+
+/** Precio de un extra: "+$59 MXN" o "Sin costo". */
+export function formatExtraPrice(amount) {
+  return amount === 0 ? 'Sin costo' : `+${formatPrice(amount)}`
+}

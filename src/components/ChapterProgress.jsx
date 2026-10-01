@@ -8,7 +8,7 @@ export function ChapterProgress({ current, builder, onSelect }) {
   return (
     <nav className="chapter-progress" aria-label="Capítulos del grimorio">
       <p className="chapter-progress__status">
-        <span>Capítulo {chapter.numeral} de V</span> · <strong>{chapter.title}</strong>
+        <span>Capítulo {chapter.numeral} de {CHAPTERS.at(-1).numeral}</span> · <strong>{chapter.title}</strong>
       </p>
       <ol className="chapter-progress__list">
         {CHAPTERS.map((c, i) => {

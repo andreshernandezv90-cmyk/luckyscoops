@@ -1,35 +1,57 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react'
-import { calculateUnitPrice, cartTotals, isValidItem, itemKey, normalizeExtras, productName } from '../lib/pricing.js'
+import {
+  calculateUnitPrice,
+  cartTotals,
+  isValidItem,
+  itemKey,
+  normalizeDedication,
+  normalizeExtras,
+  normalizeFocus,
+  productName,
+  recipeTitle,
+} from '../lib/pricing.js'
 import { local, session } from '../lib/storage.js'
 
 /**
  * Estado global de la tienda.
  *
  * builder: lo que la persona está preparando en el grimorio
- *   intention · size · extras · quantity · currentChapter · animationState
+ *   intention · focus · size · extras · dedication · quantity · currentChapter · animationState
  * cart:    líneas del carrito (se guarda en localStorage)
  * lastOrder: el último pedido confirmado (para la pantalla final)
  *
  * El precio no se guarda: se deriva siempre de la tabla central de precios.
  */
 
-export const CHAPTER = { INTENCION: 0, TAMANO: 1, INGREDIENTES: 2, PREPARACION: 3, REVELACION: 4 }
+export const CHAPTER = {
+  INTENCION: 0,
+  ENFOQUE: 1,
+  TAMANO: 2,
+  INGREDIENTES: 3,
+  DEDICATORIA: 4,
+  PREPARACION: 5,
+  REVELACION: 6,
+}
 
 /** idle → playing → done (o skipped, que cuenta como terminado). */
 export const ANIMATION = { IDLE: 'idle', PLAYING: 'playing', DONE: 'done' }
 
 const EMPTY_BUILDER = {
   intention: null,
+  /** Enfoque (Capítulo II). 'bruja' = "Déjalo en manos de la Bruja Sabia". */
+  focus: null,
   size: null,
   extras: [],
+  /** Capítulo V: para quién es y dedicatoria opcional. */
+  dedication: { forWhom: 'me', message: '' },
   quantity: 1,
   currentChapter: CHAPTER.INTENCION,
   animationState: ANIMATION.IDLE,
 }
 
-const CART_KEY = 'ls-cart-v1'
-const ORDER_KEY = 'ls-last-order-v1'
-const BUILDER_KEY = 'ls-builder-v1'
+const CART_KEY = 'bs-cart-v1'
+const ORDER_KEY = 'bs-last-order-v1'
+const BUILDER_KEY = 'bs-builder-v1'
 
 function initState() {
   const cart = local.read(CART_KEY, [])
@@ -50,9 +72,11 @@ export function canEnterChapter(builder, chapter) {
   switch (chapter) {
     case CHAPTER.INTENCION:
       return true
+    case CHAPTER.ENFOQUE:
     case CHAPTER.TAMANO:
       return Boolean(builder.intention)
     case CHAPTER.INGREDIENTES:
+    case CHAPTER.DEDICATORIA:
     case CHAPTER.PREPARACION:
       return Boolean(builder.intention && builder.size)
     case CHAPTER.REVELACION:
@@ -62,13 +86,22 @@ export function canEnterChapter(builder, chapter) {
   }
 }
 
-/** Cualquier cambio en la receta obliga a repetir el ritual. */
+/** Cambiar intención, tamaño o extras obliga a repetir el ritual (cambia el caldero). */
 const changeRecipe = (builder, patch) => ({ ...builder, ...patch, animationState: ANIMATION.IDLE })
 
 function builderReducer(builder, action) {
   switch (action.type) {
     case 'setIntention':
-      return changeRecipe(builder, { intention: action.id })
+      // Los enfoques dependen de la intención: al cambiarla vuelve a "en manos de la Bruja Sabia".
+      return changeRecipe(builder, {
+        intention: action.id,
+        focus: action.id === builder.intention ? builder.focus : 'bruja',
+      })
+    // Enfoque y dedicatoria no cambian el caldero: no hace falta repetir el ritual.
+    case 'setFocus':
+      return { ...builder, focus: normalizeFocus(builder.intention, action.id) }
+    case 'setDedication':
+      return { ...builder, dedication: { ...builder.dedication, ...action.patch } }
     case 'setSize':
       return changeRecipe(builder, { size: action.id })
     case 'toggleExtra': {
@@ -86,6 +119,7 @@ function builderReducer(builder, action) {
       return {
         ...EMPTY_BUILDER,
         intention: action.recipe.intention ?? null,
+        focus: action.recipe.intention ? normalizeFocus(action.recipe.intention, action.recipe.focus) : null,
         size: action.recipe.size ?? null,
         extras: normalizeExtras(action.recipe.extras),
         currentChapter: action.chapter ?? CHAPTER.INTENCION,
@@ -106,8 +140,10 @@ function reducer(state, action) {
         productId: action.item.productId ?? null,
         name: action.item.name,
         intention: action.item.intention,
+        focus: normalizeFocus(action.item.intention, action.item.focus),
         size: action.item.size,
         extras: normalizeExtras(action.item.extras),
+        dedication: normalizeDedication(action.item.dedication),
         quantity: clampQuantity(action.item.quantity ?? 1),
       }
       const key = itemKey(line)
@@ -143,11 +179,14 @@ export function ShopProvider({ children }) {
   const { builder } = state
   const price = calculateUnitPrice(builder)
   const name = productName(builder)
+  const title = recipeTitle(builder)
   const totals = useMemo(() => cartTotals(state.cart), [state.cart])
 
   const actions = useMemo(
     () => ({
       setIntention: (id) => dispatch({ type: 'setIntention', id }),
+      setFocus: (id) => dispatch({ type: 'setFocus', id }),
+      setDedication: (patch) => dispatch({ type: 'setDedication', patch }),
       setSize: (id) => dispatch({ type: 'setSize', id }),
       toggleExtra: (id) => dispatch({ type: 'toggleExtra', id }),
       setQuantity: (quantity) => dispatch({ type: 'setQuantity', quantity }),
@@ -168,8 +207,10 @@ export function ShopProvider({ children }) {
     actions.addToCart({
       name,
       intention: builder.intention,
+      focus: builder.focus,
       size: builder.size,
       extras: builder.extras,
+      dedication: builder.dedication,
       quantity: builder.quantity,
     })
   }, [actions, builder, name])
@@ -180,13 +221,14 @@ export function ShopProvider({ children }) {
       price,
       total: price === null ? null : price * builder.quantity,
       name,
+      title,
       cart: state.cart,
       totals,
       lastOrder: state.lastOrder,
       actions,
       addBuilderToCart,
     }),
-    [builder, price, name, state.cart, totals, state.lastOrder, actions, addBuilderToCart],
+    [builder, price, name, title, state.cart, totals, state.lastOrder, actions, addBuilderToCart],
   )
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>

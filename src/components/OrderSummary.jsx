@@ -1,19 +1,34 @@
 import { BRAND } from '../config/brand.js'
-import { getIntention } from '../data/intentions.js'
+import { getFocus, getIntention } from '../data/intentions.js'
 import { getSize } from '../data/sizes.js'
 import { getExtra } from '../data/extras.js'
 import { PRICES } from '../data/prices.js'
-import { formatPrice } from '../lib/format.js'
+import { formatExtraPrice, formatPrice } from '../lib/format.js'
 import { itemUnitPrice } from '../lib/pricing.js'
+
+/** Texto corto de la dedicatoria para resúmenes. */
+export function dedicationLabel(dedication) {
+  if (dedication?.forWhom !== 'gift') return 'No (es para mí)'
+  return dedication.message ? 'Incluida' : 'Es un regalo, sin dedicatoria'
+}
 
 /**
  * Información comercial clara, sin adornos que estorben:
- * producto · intención · tamaño · extras · cantidad · precio · subtotal.
+ * producto · intención · enfoque · tamaño · extras · dedicatoria · precio · cantidad · subtotal.
  */
-export function ItemDetails({ item, unitPrice = itemUnitPrice(item), quantitySlot = null, compact = false }) {
+export function ItemDetails({
+  item,
+  unitPrice = itemUnitPrice(item),
+  quantitySlot = null,
+  compact = false,
+  totalLabel = 'Subtotal',
+  showMessage = false,
+}) {
   const intention = getIntention(item.intention)
+  const focus = getFocus(item.intention, item.focus)
   const size = getSize(item.size)
   const extras = item.extras.map(getExtra).filter(Boolean)
+  const gift = item.dedication?.forWhom === 'gift'
   return (
     <dl className={`summary-list${compact ? ' summary-list--compact' : ''}`}>
       {!compact && (
@@ -25,6 +40,10 @@ export function ItemDetails({ item, unitPrice = itemUnitPrice(item), quantitySlo
       <div>
         <dt>Intención</dt>
         <dd>{intention?.name}</dd>
+      </div>
+      <div>
+        <dt>Enfoque</dt>
+        <dd>{focus?.name ?? 'En manos de la Bruja Sabia'}</dd>
       </div>
       <div>
         <dt>Tamaño</dt>
@@ -39,9 +58,18 @@ export function ItemDetails({ item, unitPrice = itemUnitPrice(item), quantitySlo
             ? 'Sin extras'
             : extras.map((e) => (
                 <span key={e.id} className="summary-list__extra">
-                  {e.name} <span className="summary-list__muted">+{formatPrice(e.price)}</span>
+                  {e.name} <span className="summary-list__muted">{formatExtraPrice(e.price)}</span>
                 </span>
               ))}
+        </dd>
+      </div>
+      <div>
+        <dt>Dedicatoria</dt>
+        <dd>
+          {dedicationLabel(item.dedication)}
+          {showMessage && gift && item.dedication.message && (
+            <span className="summary-list__message">“{item.dedication.message}”</span>
+          )}
         </dd>
       </div>
       <div>
@@ -53,21 +81,16 @@ export function ItemDetails({ item, unitPrice = itemUnitPrice(item), quantitySlo
         <dd>{quantitySlot ?? item.quantity}</dd>
       </div>
       <div className="summary-list__subtotal">
-        <dt>Subtotal</dt>
+        <dt>{totalLabel}</dt>
         <dd>{formatPrice(unitPrice * item.quantity)}</dd>
       </div>
     </dl>
   )
 }
 
-/** Subtotal, envío y total. `deliveryMethod` null = el envío aún no se elige. */
-export function OrderTotals({ totals, deliveryMethod = null }) {
-  let shippingText
-  if (deliveryMethod === 'recoger') shippingText = 'Gratis (recoges en el taller)'
-  else if (deliveryMethod === 'envio') shippingText = totals.shipping === 0 ? 'Gratis' : formatPrice(totals.shipping)
-  else shippingText = 'Se elige al finalizar'
-
-  const total = deliveryMethod ? totals.total : totals.subtotal
+/** Subtotal, envío y total. Mientras la tarifa de envío esté pendiente se muestra "por cotizar". */
+export function OrderTotals({ totals }) {
+  const { shipping } = totals
   return (
     <div className="order-totals">
       <dl>
@@ -78,23 +101,24 @@ export function OrderTotals({ totals, deliveryMethod = null }) {
           <dd>{formatPrice(totals.subtotal)}</dd>
         </div>
         <div>
-          <dt>Envío</dt>
-          <dd>{shippingText}</dd>
+          <dt>
+            Envío
+            {shipping.label && <span className="order-totals__tier">{shipping.label}</span>}
+          </dt>
+          <dd>{shipping.pending ? 'Por cotizar' : shipping.price === 0 ? 'Gratis' : formatPrice(shipping.price)}</dd>
         </div>
         <div className="order-totals__total">
-          <dt>Total{deliveryMethod ? '' : ' sin envío'}</dt>
-          <dd>{formatPrice(total)}</dd>
+          <dt>{shipping.pending ? 'Total sin envío' : 'Total'}</dt>
+          <dd>{formatPrice(totals.total)}</dd>
         </div>
       </dl>
-      {deliveryMethod !== 'recoger' && totals.subtotal > 0 && totals.freeShippingRemaining > 0 && (
+      {shipping.pending && (
         <p className="order-totals__note">
-          Te faltan {formatPrice(totals.freeShippingRemaining)} para el envío gratis (desde{' '}
-          {formatPrice(PRICES.shipping.freeFrom)}).
+          Enviamos a toda la República Mexicana. El costo de envío depende del tamaño, el peso, las dimensiones y el
+          destino, y se confirma contigo antes de pagar.
         </p>
       )}
-      {deliveryMethod !== 'recoger' && totals.subtotal > 0 && totals.freeShippingRemaining === 0 && (
-        <p className="order-totals__note order-totals__note--good">Tu pedido tiene envío gratis.</p>
-      )}
+      {PRICES.areDemo && <p className="demo-note">Precios de demostración (pendiente de precios reales).</p>}
     </div>
   )
 }

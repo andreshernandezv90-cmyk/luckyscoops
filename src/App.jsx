@@ -13,7 +13,7 @@ import { OrderComplete } from './components/OrderComplete.jsx'
 
 const PAGES = {
   [ROUTES.grimorio]: { title: BRAND.grimoireTitle, Component: Grimorio },
-  [ROUTES.carrito]: { title: 'Tu encargo mágico', Component: Cart },
+  [ROUTES.carrito]: { title: 'Tu pedido', Component: Cart },
   [ROUTES.pago]: { title: 'Finalizar compra', Component: Checkout },
   [ROUTES.confirmacion]: { title: 'Pedido confirmado', Component: OrderComplete },
 }

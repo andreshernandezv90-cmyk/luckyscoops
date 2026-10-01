@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'motion/react'
 import { BRAND } from '../config/brand.js'
-import { BrandSigil, ChapterDivider, CornerFlourish } from './illustrations/Ornaments.jsx'
+import { ChapterDivider, CornerFlourish } from './illustrations/Ornaments.jsx'
+import { BrandMark } from './BrandMark.jsx'
 
 /**
  * Grimorio cerrado (portada de cuero con detalles dorados).
@@ -20,7 +21,7 @@ export function BookCover({ open = false, startOpen = false, onClick, className 
       <div className="closed-book__pages">
         <div className="closed-book__first-page">
           <p className="closed-book__page-kicker">Capítulo I</p>
-          <p className="closed-book__page-title">¿Qué quieres atraer?</p>
+          <p className="closed-book__page-title">¿Qué deseas atraer?</p>
           <ChapterDivider />
         </div>
       </div>
@@ -36,10 +37,10 @@ export function BookCover({ open = false, startOpen = false, onClick, className 
           <CornerFlourish className="closed-book__corner closed-book__corner--bl" />
           <CornerFlourish className="closed-book__corner closed-book__corner--br" />
           <div className="closed-book__emblem">
-            <p className="closed-book__brand">{BRAND.name}</p>
-            <BrandSigil className="closed-book__sigil" />
+            <BrandMark className="closed-book__sigil" />
             <p className="closed-book__title">{BRAND.grimoireTitle}</p>
             <ChapterDivider className="closed-book__divider" />
+            <p className="closed-book__brand">{BRAND.motto}</p>
           </div>
           <span className="closed-book__clasp" />
         </div>

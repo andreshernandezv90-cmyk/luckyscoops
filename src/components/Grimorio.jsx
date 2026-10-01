@@ -12,22 +12,32 @@ import { RecipeCard, recipeSummary } from './Recipe.jsx'
 import { PotionSelector } from './PotionSelector.jsx'
 import { SizeSelector } from './SizeSelector.jsx'
 import { ExtrasSelector } from './ExtrasSelector.jsx'
+import { FocusSelector } from './FocusSelector.jsx'
+import { DedicationSelector } from './DedicationSelector.jsx'
 import { RitualAnimation } from './RitualAnimation.jsx'
 import { Revelation } from './Revelation.jsx'
 import { ArrowIcon, ChapterDivider } from './illustrations/Ornaments.jsx'
 
 const INTROS = {
   [CHAPTER.INTENCION]: {
-    text: 'Toca la receta que más resuene contigo. Podrás cambiarla cuando quieras.',
+    text: 'Toca la botella que más resuene contigo. Podrás cambiarla cuando quieras.',
     Selector: PotionSelector,
   },
+  [CHAPTER.ENFOQUE]: {
+    text: '¿Qué buscas específicamente? Es opcional: si prefieres la sorpresa, déjalo en manos de la Bruja Sabia.',
+    Selector: FocusSelector,
+  },
   [CHAPTER.TAMANO]: {
-    text: 'Cada círculo es un tamaño de frasco: entre más alto, más piezas y más intensidad en tu mezcla.',
+    text: 'Cada círculo es un tamaño de Scoop: entre más alto, más completa la experiencia.',
     Selector: SizeSelector,
   },
   [CHAPTER.INGREDIENTES]: {
-    text: 'Son opcionales. Añade los que quieras al ritual y quítalos cuando quieras.',
+    text: 'Son opcionales. Añade los que quieras a tu ritual y quítalos cuando quieras.',
     Selector: ExtrasSelector,
+  },
+  [CHAPTER.DEDICATORIA]: {
+    text: 'Cuéntale al Grimorio si tu Scoop es para ti o para regalar.',
+    Selector: DedicationSelector,
   },
 }
 
@@ -35,22 +45,29 @@ const INTROS = {
 function nextStep(chapter, builder) {
   switch (chapter) {
     case CHAPTER.INTENCION:
-      return { label: 'Siguiente: Tamaño', short: 'Siguiente', ready: Boolean(builder.intention), hint: 'Elige una intención para continuar.' }
+      return { label: 'Siguiente: Personaliza', short: 'Siguiente', ready: Boolean(builder.intention), hint: 'Elige una intención para continuar.' }
+    case CHAPTER.ENFOQUE:
+      return { label: 'Siguiente: Tamaño', short: 'Siguiente', ready: true, hint: 'Elegir un enfoque es opcional.' }
     case CHAPTER.TAMANO:
-      return { label: 'Siguiente: Ingredientes', short: 'Siguiente', ready: Boolean(builder.size), hint: 'Elige un tamaño para continuar.' }
+      return { label: 'Siguiente: Extras', short: 'Siguiente', ready: Boolean(builder.size), hint: 'Elige un tamaño para continuar.' }
     case CHAPTER.INGREDIENTES:
-      return { label: 'Ir al ritual', short: 'Ir al ritual', ready: true, hint: 'Los ingredientes extra son opcionales.' }
+      return { label: 'Siguiente: Dedicatoria', short: 'Siguiente', ready: true, hint: 'Los ingredientes extra son opcionales.' }
+    case CHAPTER.DEDICATORIA:
+      return { label: 'Llevar al caldero', short: 'Al caldero', ready: true, hint: 'La dedicatoria es opcional.' }
     case CHAPTER.PREPARACION:
       return {
         label: `Revelar mi ${BRAND.productNoun}`,
         short: 'Revelar',
         ready: builder.animationState === ANIMATION.DONE,
-        hint: 'Inicia el ritual o sáltalo para continuar.',
+        hint: 'Prepara tu Scoop o salta la animación para continuar.',
       }
     default:
       return null
   }
 }
+
+/** Capítulos opcionales: se muestra la pista aunque se pueda avanzar. */
+const OPTIONAL_HINT = new Set([CHAPTER.ENFOQUE, CHAPTER.INGREDIENTES, CHAPTER.DEDICATORIA])
 
 const pageTurn = {
   enter: (dir) => ({ opacity: 0, x: dir > 0 ? 36 : -36, rotateY: dir > 0 ? 8 : -8 }),
@@ -60,8 +77,8 @@ const pageTurn = {
 
 /**
  * El grimorio abierto: estructura narrativa de toda la compra personalizada.
- * Capítulos I–III: página izquierda (instrucciones + receta) y derecha (opciones).
- * Capítulos IV–V: página desplegada para el ritual y la revelación.
+ * Capítulos I–V: página izquierda (instrucciones + receta) y derecha (opciones).
+ * Capítulos VI–VII: página desplegada para el caldero y la revelación.
  */
 export function Grimorio() {
   const { builder, price, actions } = useShop()
@@ -100,7 +117,7 @@ export function Grimorio() {
     if (chapter === CHAPTER.INTENCION) navigate('/')
     else goTo(chapter - 1)
   }
-  const prevLabel = chapter === CHAPTER.INTENCION ? 'Cerrar el grimorio' : `Anterior: ${CHAPTERS[chapter - 1].title}`
+  const prevLabel = chapter === CHAPTER.INTENCION ? 'Cerrar el Grimorio' : `Anterior: ${CHAPTERS[chapter - 1].title}`
 
   return (
     <section className="grimorio" ref={topRef} aria-labelledby="grimorio-title">
@@ -122,7 +139,7 @@ export function Grimorio() {
               exit="exit"
               transition={{ duration: 0.3, ease: 'easeOut' }}
             >
-              {chapter <= CHAPTER.INGREDIENTES && <SelectionSpread chapter={chapter} autoFocus={autoFocus} />}
+              {chapter <= CHAPTER.DEDICATORIA && <SelectionSpread chapter={chapter} autoFocus={autoFocus} />}
               {chapter === CHAPTER.PREPARACION && (
                 <BookPage side="full">
                   <RitualAnimation autoFocus={autoFocus} onReveal={() => goTo(CHAPTER.REVELACION)} />
@@ -143,7 +160,7 @@ export function Grimorio() {
               <ArrowIcon direction="left" className="btn__icon" /> {prevLabel}
             </button>
             <p className={`book-nav__hint${nudge && !next.ready ? ' is-nudged' : ''}`} id="book-nav-hint" role="status">
-              {!next.ready || chapter === CHAPTER.INGREDIENTES ? next.hint : ''}
+              {!next.ready || OPTIONAL_HINT.has(chapter) ? next.hint : ''}
             </p>
             <button
               type="button"

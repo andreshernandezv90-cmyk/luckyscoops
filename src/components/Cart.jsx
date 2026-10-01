@@ -10,7 +10,7 @@ import { PotionBottle } from './illustrations/PotionBottle.jsx'
 import { ChapterDivider, TrashIcon } from './illustrations/Ornaments.jsx'
 import { Cauldron } from './Cauldron.jsx'
 
-/** "Tu encargo mágico": un carrito normal con un poco de tinta y lacre. */
+/** "Tu encargo del Grimorio": un carrito normal con un poco de tinta y lacre. */
 export function Cart() {
   const { cart, totals, actions } = useShop()
   const [announcement, setAnnouncement] = useState('')
@@ -21,11 +21,11 @@ export function Cart() {
         <svg className="empty-cart__art" viewBox="40 60 320 330" aria-hidden="true" focusable="false">
           <Cauldron liquid={{}} activity="idle" spoon="stir" />
         </svg>
-        <h1 id="cart-title" className="page__title">Tu caldero está vacío</h1>
-        <p className="page__lead">{announcement || `Aún no has agregado ninguna ${BRAND.productNoun} a tu encargo.`}</p>
+        <h1 id="cart-title" className="page__title">Tu pedido está vacío</h1>
+        <p className="page__lead">{announcement || `Aún no has agregado ninguna ${BRAND.productNoun} a tu pedido.`}</p>
         <div className="page__actions">
           <a className="btn btn--primary btn--lg" {...linkTo(ROUTES.grimorio)}>
-            Prepara tu {BRAND.productNoun}
+            Abrir el Grimorio
           </a>
           <a className="btn btn--ghost" {...linkTo(ROUTES.productos)}>
             Ver {BRAND.productNounPlural} preparadas
@@ -38,9 +38,9 @@ export function Cart() {
   return (
     <section className="page" aria-labelledby="cart-title">
       <header className="page__header">
-        <p className="page__kicker">Carrito</p>
-        <h1 id="cart-title" className="page__title">Tu encargo mágico</h1>
-        <p className="page__lead">Revisa tu pedido. Puedes cambiar cantidades o quitar productos antes de pagar.</p>
+        <p className="page__kicker">Tu pedido</p>
+        <h1 id="cart-title" className="page__title">Tu encargo del Grimorio</h1>
+        <p className="page__lead">Revisa tu pedido. Puedes cambiar cantidades o quitar productos antes de continuar.</p>
         <ChapterDivider className="page__divider" />
       </header>
 
@@ -52,7 +52,7 @@ export function Cart() {
             return (
               <li key={item.key} className="cart-item">
                 <div className="cart-item__art" aria-hidden="true">
-                  <PotionBottle color={intention.colors.liquid} deep={intention.colors.deep} glow={intention.colors.glow} fill={size.fill} />
+                  <PotionBottle color={intention.colors.liquid} deep={intention.colors.deep} glow={intention.colors.glow} shape={intention.bottle} fill={size.fill} />
                 </div>
                 <div className="cart-item__body">
                   <h2 className="cart-item__name">{item.name}</h2>
@@ -60,6 +60,7 @@ export function Cart() {
                   <ItemDetails
                     item={item}
                     compact
+                    showMessage
                     quantitySlot={
                       <QuantityStepper
                         value={item.quantity}
@@ -73,7 +74,7 @@ export function Cart() {
                     className="btn btn--text cart-item__remove"
                     onClick={() => {
                       actions.removeItem(item.key)
-                      setAnnouncement(`Se quitó ${item.name} de tu encargo.`)
+                      setAnnouncement(`Se quitó ${item.name} de tu pedido.`)
                     }}
                   >
                     <TrashIcon className="btn__icon" /> Eliminar
@@ -89,13 +90,13 @@ export function Cart() {
           <OrderTotals totals={totals} />
           <div className="cart__actions">
             <a className="btn btn--primary btn--lg btn--block" {...linkTo(ROUTES.pago)}>
-              Finalizar compra
+              Finalizar pedido
             </a>
             <a className="btn btn--ghost-ink btn--block" {...linkTo(ROUTES.productos)}>
-              Continuar comprando
+              Seguir comprando
             </a>
           </div>
-          <p className="cart__note">Pagas con transferencia, tarjeta (enlace seguro) o en efectivo en OXXO.</p>
+          <p className="cart__note">Envíos a toda la República Mexicana. El envío y la forma de pago se confirman contigo antes de pagar.</p>
         </aside>
       </div>
       <p className="sr-only" role="status">

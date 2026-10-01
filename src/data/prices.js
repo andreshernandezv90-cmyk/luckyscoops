@@ -2,13 +2,19 @@
  * TABLA CENTRAL DE PRECIOS (MXN).
  *
  * Es el único lugar donde viven los montos. Intenciones, tamaños, extras,
- * productos preparados y envío leen sus precios de aquí, así que para subir
- * o bajar un precio no hace falta tocar ningún componente.
+ * Scoops preparadas y envío leen sus precios de aquí.
  *
- * precio unitario = base del tamaño + ajuste de la intención + suma de extras
+ * precio por Scoop = base del tamaño + ajuste de la intención + suma de extras
  */
 export const PRICES = {
-  /** Precio base de cada tamaño. */
+  /**
+   * TODO / PENDIENTE: precios reales.
+   * Mientras sea true, el sitio muestra un aviso discreto de "precios de
+   * demostración". Cámbialo a false cuando escribas los precios definitivos.
+   */
+  areDemo: true,
+
+  /** Precio base de cada tamaño (demostración). */
   sizes: {
     aprendiz: 149,
     hechicera: 249,
@@ -23,7 +29,10 @@ export const PRICES = {
     limpieza: 0,
   },
 
-  /** Precio adicional de cada ingrediente extra. */
+  /**
+   * Precio adicional de cada ingrediente extra (demostración).
+   * Un precio 0 se muestra como "Sin costo" (útil si el video se ofrece gratis).
+   */
   extras: {
     cristal: 59,
     amuleto: 69,
@@ -31,20 +40,27 @@ export const PRICES = {
     regalo: 45,
   },
 
-  /** Descuento fijo (en pesos) de algunas Scoops preparadas. */
+  /** Descuento fijo (en pesos) de algunas Scoops preparadas (demostración). */
   productDiscounts: {
-    'luna-de-miel': 30,
+    'corazon-propio': 0,
     'escudo-del-hogar': 0,
-    'cosecha-dorada': 40,
-    'agua-de-luna': 0,
+    'buena-fortuna': 0,
+    'nuevo-comienzo': 0,
   },
 
+  /**
+   * Envíos a toda la República Mexicana.
+   *
+   * TODO / PENDIENTE: tarifas reales. El costo dependerá del tamaño de la
+   * Scoop, los productos, el peso, las dimensiones y el destino. Mientras un
+   * rango tenga `price: null`, el envío se muestra como "por cotizar" y no se
+   * suma al total. Ver src/lib/shipping.js para la lógica de cálculo.
+   */
   shipping: {
-    /** Envío a domicilio a todo México. */
-    standard: 99,
-    /** A partir de este subtotal el envío es gratis. */
-    freeFrom: 799,
-    /** Recoger en el taller. */
-    pickup: 0,
+    tiers: {
+      pequeno: { label: 'Envío pequeño', price: null },
+      mediano: { label: 'Envío mediano', price: null },
+      grande: { label: 'Envío grande', price: null },
+    },
   },
 }

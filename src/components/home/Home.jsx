@@ -4,11 +4,14 @@ import { CraftIntro } from './CraftIntro.jsx'
 import { HowItWorks } from './HowItWorks.jsx'
 import { IntentionsShowcase } from './IntentionsShowcase.jsx'
 import { FeaturedScoops } from './FeaturedScoops.jsx'
-import { About } from './About.jsx'
+import { Meanings } from './Meanings.jsx'
+import { Videos } from './Videos.jsx'
+import { ShippingPayments } from './ShippingPayments.jsx'
+import { WiseWitch } from './WiseWitch.jsx'
 import { Faq } from './Faq.jsx'
 import { Contact } from './Contact.jsx'
 
-/** Página de inicio. `section` desplaza a una sección (Productos, Contacto…). */
+/** Página de inicio. `section` desplaza a una sección (Scoops, Significados, Contacto…). */
 export function Home({ section, stamp }) {
   useEffect(() => {
     if (!section) return
@@ -27,7 +30,10 @@ export function Home({ section, stamp }) {
       <HowItWorks />
       <IntentionsShowcase />
       <FeaturedScoops />
-      <About />
+      <Meanings />
+      <Videos />
+      <ShippingPayments />
+      <WiseWitch />
       <Faq />
       <Contact />
     </>

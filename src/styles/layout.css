@@ -7,7 +7,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(13, 10, 9, 0.92);
+  background: rgba(11, 7, 16, 0.92);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(201, 162, 74, 0.35);
 }
@@ -36,9 +36,15 @@
   height: 38px;
 }
 .brand__name {
+  max-width: 8.6em;
   font-family: var(--font-brand);
-  font-size: 1.2rem;
-  letter-spacing: 0.04em;
+  font-size: 1.05rem;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+}
+.brand-logo {
+  height: 44px;
+  width: auto;
 }
 
 .site-nav {
@@ -138,7 +144,7 @@
   cursor: pointer;
 }
 
-@media (max-width: 1099px) {
+@media (max-width: 1239px) {
   .menu-toggle {
     display: grid;
   }
@@ -153,7 +159,7 @@
     right: 0;
     margin: 0;
     padding: 12px 16px 20px;
-    background: rgba(13, 10, 9, 0.98);
+    background: rgba(11, 7, 16, 0.98);
     border-bottom: 1px solid rgba(201, 162, 74, 0.35);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   }
@@ -179,7 +185,7 @@
 
 @media (max-width: 420px) {
   .brand__name {
-    font-size: 1rem;
+    font-size: 0.92rem;
   }
   .brand__sigil {
     width: 32px;
@@ -468,10 +474,10 @@
 .closed-book__front {
   overflow: hidden;
   background:
-    radial-gradient(ellipse at 30% 18%, rgba(140, 50, 70, 0.55), transparent 55%),
+    radial-gradient(ellipse at 30% 18%, rgba(150, 70, 200, 0.55), transparent 55%),
     radial-gradient(ellipse at 75% 85%, rgba(0, 0, 0, 0.5), transparent 60%),
     repeating-radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.015) 0 2px, transparent 2px 5px),
-    linear-gradient(135deg, #4a1a26, var(--leather) 45%, var(--leather-dark));
+    linear-gradient(135deg, #4b2275, var(--leather) 45%, var(--leather-dark));
   box-shadow:
     inset 12px 0 18px -8px rgba(0, 0, 0, 0.75),
     inset -2px 0 0 rgba(255, 255, 255, 0.06),
@@ -519,14 +525,15 @@
 }
 .closed-book__brand {
   margin: 0;
-  font-family: var(--font-brand);
-  font-size: 7.6cqw;
-  letter-spacing: 0.08em;
-  color: var(--gold-bright);
+  font-family: var(--font-title);
+  font-size: 4.4cqw;
+  letter-spacing: 0.14em;
+  color: var(--pink-soft);
+  text-transform: uppercase;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
 }
 .closed-book__sigil {
-  width: 44%;
+  width: 38%;
   color: var(--gold);
   filter: drop-shadow(0 0 10px rgba(232, 198, 106, 0.35));
 }
@@ -534,8 +541,8 @@
   margin: 0;
   font-family: var(--font-title);
   font-weight: 700;
-  font-size: 6.2cqw;
-  letter-spacing: 0.12em;
+  font-size: 7cqw;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   line-height: 1.3;
   background: linear-gradient(180deg, #f6e2a4, var(--gold) 60%, var(--gold-deep));
@@ -560,11 +567,11 @@
 .closed-book__inside {
   transform: rotateY(180deg);
   background:
-    radial-gradient(circle at 30% 30%, rgba(110, 31, 48, 0.8), transparent 40%),
-    radial-gradient(circle at 70% 60%, rgba(59, 31, 74, 0.9), transparent 45%),
+    radial-gradient(circle at 30% 30%, rgba(194, 61, 138, 0.8), transparent 40%),
+    radial-gradient(circle at 70% 60%, rgba(91, 37, 145, 0.9), transparent 45%),
     radial-gradient(circle at 40% 85%, rgba(31, 74, 53, 0.8), transparent 40%),
-    #2a1218;
-  box-shadow: inset 0 0 0 6px #3a1620;
+    #1f0f33;
+  box-shadow: inset 0 0 0 6px #3b1a5a;
 }
 .closed-book--small {
   width: min(220px, 55vw);
@@ -677,7 +684,7 @@
   text-align: center;
   border: 1px solid rgba(201, 162, 74, 0.3);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(58, 22, 32, 0.35), rgba(13, 10, 9, 0.4));
+  background: linear-gradient(180deg, rgba(70, 30, 110, 0.35), rgba(11, 7, 16, 0.4));
 }
 .steps__numeral {
   display: grid;
@@ -690,7 +697,7 @@
   font-family: var(--font-title);
   font-weight: 700;
   color: var(--gold-bright);
-  box-shadow: inset 0 0 0 4px rgba(13, 10, 9, 1), inset 0 0 0 5px rgba(201, 162, 74, 0.4);
+  box-shadow: inset 0 0 0 4px rgba(11, 7, 16, 1), inset 0 0 0 5px rgba(201, 162, 74, 0.4);
 }
 .steps__title {
   font-size: 1.15rem;
@@ -739,7 +746,7 @@
   border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
   background:
     radial-gradient(ellipse at 50% 20%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
-    rgba(13, 10, 9, 0.6);
+    rgba(11, 7, 16, 0.6);
 }
 .intention-tile__art {
   position: relative;
@@ -889,7 +896,7 @@
 .about__values li {
   padding: 16px 20px;
   border-left: 3px solid var(--gold);
-  background: rgba(58, 22, 32, 0.25);
+  background: rgba(70, 30, 110, 0.25);
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 .about__values h3 {
@@ -926,11 +933,11 @@
 .faq__item {
   border: 1px solid rgba(201, 162, 74, 0.35);
   border-radius: var(--radius);
-  background: rgba(13, 10, 9, 0.55);
+  background: rgba(11, 7, 16, 0.55);
 }
 .faq__item[open] {
   border-color: var(--gold);
-  background: rgba(58, 22, 32, 0.3);
+  background: rgba(70, 30, 110, 0.3);
 }
 .faq__question {
   display: flex;

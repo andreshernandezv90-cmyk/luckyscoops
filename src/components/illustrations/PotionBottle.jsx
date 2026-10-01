@@ -5,10 +5,18 @@ import { useId } from 'react'
  * `BottleShape` devuelve un <g> centrado en (0,0) para usarlo dentro de otros
  * SVG (el caldero); `PotionBottle` lo envuelve en su propio <svg>.
  *
- * shape: 'round' (matraz de intención) · 'vial' (esencia de tamaño)
+ * shape: 'round' · 'tall' · 'flask' · 'drop' (una por intención) · 'vial' (esencia de tamaño)
  */
 const OUTLINES = {
+  /** Matraz redondo (Amor) */
   round: 'M24 14 V34.8 A24 24 0 1 0 36 34.8 V14 Z',
+  /** Botella alta de hombros rectos (Protección) */
+  tall: 'M25 14 V24 Q14 26 14 36 V78 Q14 82 18 82 H42 Q46 82 46 78 V36 Q46 26 35 24 V14 Z',
+  /** Matraz cónico (Abundancia) */
+  flask: 'M25 14 V34 L11 75 Q9 82 17 82 H43 Q51 82 49 75 L35 34 V14 Z',
+  /** Gota (Limpieza) */
+  drop: 'M25 14 V30 Q10 46 12 64 Q14 82 30 82 Q46 82 48 64 Q50 46 35 30 V14 Z',
+  /** Vial de esencia (tamaño, durante el ritual) */
   vial: 'M25 14 V28 Q16 28 16 38 V74 Q16 82 24 82 H36 Q44 82 44 74 V38 Q44 28 35 28 V14 Z',
 }
 
@@ -48,7 +56,7 @@ export function BottleShape({ color, deep, glow = '#fff', fill = 0.7, shape = 'r
       <path d={outline} fill="none" stroke="rgba(250, 240, 220, 0.75)" strokeWidth="1.6" />
       {/* Reflejo */}
       <path
-        d={shape === 'vial' ? 'M21 40 V70' : 'M15 52 Q14 64 21 72'}
+        d={shape === 'round' ? 'M15 52 Q14 64 21 72' : shape === 'flask' ? 'M22 50 L17 72' : 'M20 42 V70'}
         fill="none"
         stroke="#fff"
         strokeWidth="2.4"

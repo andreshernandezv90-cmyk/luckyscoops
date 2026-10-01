@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BRAND } from '../../config/brand.js'
 import { PRODUCTS } from '../../data/products.js'
-import { getIntention } from '../../data/intentions.js'
+import { getFocus, getIntention } from '../../data/intentions.js'
 import { getSize } from '../../data/sizes.js'
 import { getExtra } from '../../data/extras.js'
 import { calculateUnitPrice, itemUnitPrice } from '../../lib/pricing.js'
@@ -24,20 +24,26 @@ export function FeaturedScoops() {
   }, [justAdded])
 
   return (
-    <section className="section" id="productos" aria-labelledby="products-title">
+    <section className="section" id="scoops" aria-labelledby="products-title">
       <SectionTitle id="products-title" kicker="Para quien tiene prisa">
         {BRAND.productNounPlural} preparadas
       </SectionTitle>
+      {/* TODO / PENDIENTE: estas Scoops son ejemplos (src/data/products.js). */}
       <p className="section__lead">
-        Nuestras recetas favoritas, listas para agregar al carrito. Si quieres, puedes abrirlas en el grimorio y cambiar
-        lo que gustes.
+        Recetas listas para agregar a tu pedido en un clic. Si quieres, ábrelas en el Grimorio y cambia lo que gustes.
       </p>
       <ul className="product-grid">
         {PRODUCTS.map((product) => {
           const intention = getIntention(product.intention)
           const size = getSize(product.size)
           const extras = product.extras.map(getExtra)
-          const recipe = { productId: product.id, intention: product.intention, size: product.size, extras: product.extras }
+          const recipe = {
+            productId: product.id,
+            intention: product.intention,
+            focus: product.focus,
+            size: product.size,
+            extras: product.extras,
+          }
           const price = itemUnitPrice(recipe)
           const fullPrice = calculateUnitPrice(recipe)
           const added = justAdded === product.id
@@ -45,13 +51,13 @@ export function FeaturedScoops() {
             <li key={product.id} className="product-card" style={{ '--accent': intention.colors.liquid }}>
               <span className="product-card__badge">{product.badge}</span>
               <div className="product-card__art" aria-hidden="true">
-                <PotionBottle color={intention.colors.liquid} deep={intention.colors.deep} glow={intention.colors.glow} fill={size.fill} />
+                <PotionBottle color={intention.colors.liquid} deep={intention.colors.deep} glow={intention.colors.glow} shape={intention.bottle} fill={size.fill} />
               </div>
               <h3 className="product-card__name">
                 {BRAND.productNoun} {product.name}
               </h3>
               <p className="product-card__recipe">
-                {intention.name} · {size.name}
+                {intention.name} · {getFocus(product.intention, product.focus)?.name ?? 'Sorpresa'} · {size.name}
                 {extras.length > 0 && ` · ${extras.map((e) => e.name).join(' · ')}`}
               </p>
               <p className="product-card__desc">{product.description}</p>
@@ -76,7 +82,7 @@ export function FeaturedScoops() {
                     setJustAdded(product.id)
                   }}
                 >
-                  Agregar al carrito
+                  Agregar a mi pedido
                 </button>
                 <button
                   type="button"
@@ -86,14 +92,14 @@ export function FeaturedScoops() {
                     navigate(ROUTES.grimorio)
                   }}
                 >
-                  Personalizar en el grimorio
+                  Personalizar en el Grimorio
                 </button>
               </div>
               <p className="product-card__status" role="status">
                 {added && (
                   <>
-                    <CheckMark className="btn__icon" /> Agregada a tu encargo ·{' '}
-                    <a {...linkTo(ROUTES.carrito)}>Ver carrito</a>
+                    <CheckMark className="btn__icon" /> Agregada a tu pedido ·{' '}
+                    <a {...linkTo(ROUTES.carrito)}>Ver mi pedido</a>
                   </>
                 )}
               </p>

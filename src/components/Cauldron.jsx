@@ -186,11 +186,11 @@ function Liquid({ liquid, clipId, sheenId }) {
       <motion.ellipse
         cx={CX}
         cy={SURFACE_Y}
-        rx="78"
-        ry="18"
+        rx="58"
+        ry="13"
         fill={`url(#${essenceId})`}
         initial={false}
-        animate={{ opacity: liquid.swirl ? 0.75 : 0 }}
+        animate={{ opacity: liquid.swirl ? 0.6 : 0 }}
         transition={{ duration: 0.5 }}
       />
       <g transform={`translate(${CX} ${SURFACE_Y}) scale(1 0.24)`}>

@@ -1,40 +1,44 @@
-import { BRAND } from '../config/brand.js'
+import { BRAND, contactLinks } from '../config/brand.js'
 import { linkTo, ROUTES } from '../lib/router.js'
-import { BrandSigil, ChapterDivider } from './illustrations/Ornaments.jsx'
+import { BrandMark } from './BrandMark.jsx'
+import { ChapterDivider } from './illustrations/Ornaments.jsx'
+import { PendingTag } from './PendingTag.jsx'
 
 export function Footer() {
   const year = new Date().getFullYear()
-  const { contact } = BRAND
+  const links = contactLinks()
   return (
     <footer className="site-footer">
       <ChapterDivider className="site-footer__divider" />
       <div className="site-footer__inner">
         <div className="site-footer__brand">
-          <BrandSigil className="site-footer__sigil" />
+          <BrandMark className="site-footer__sigil" />
           <p className="site-footer__name">{BRAND.name}</p>
-          <p className="site-footer__tagline">{BRAND.tagline}</p>
+          <p className="site-footer__tagline">{BRAND.motto}</p>
         </div>
         <nav aria-label="Pie de página">
           <h2 className="site-footer__title">La tienda</h2>
           <ul>
-            <li><a {...linkTo(ROUTES.grimorio)}>Prepara tu {BRAND.productNoun}</a></li>
+            <li><a {...linkTo(ROUTES.grimorio)}>Abrir el Grimorio</a></li>
             <li><a {...linkTo(ROUTES.productos)}>{BRAND.productNounPlural} preparadas</a></li>
+            <li><a {...linkTo(ROUTES.significados)}>Significados</a></li>
+            <li><a {...linkTo(ROUTES.envios)}>Envíos y pagos</a></li>
             <li><a {...linkTo(ROUTES.faq)}>Preguntas frecuentes</a></li>
-            <li><a {...linkTo(ROUTES.carrito)}>Carrito</a></li>
+            <li><a {...linkTo(ROUTES.carrito)}>Tu pedido</a></li>
           </ul>
         </nav>
         <div>
-          <h2 className="site-footer__title">Contacto</h2>
+          <h2 className="site-footer__title">Síguenos y escríbenos</h2>
           <ul>
-            <li><a href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noreferrer">WhatsApp {contact.whatsappDisplay}</a></li>
-            <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
-            <li><a href={`https://instagram.com/${contact.instagram}`} target="_blank" rel="noreferrer">Instagram @{contact.instagram}</a></li>
-            <li>{contact.hours}</li>
+            <li>{links.whatsapp ? <a href={links.whatsapp} target="_blank" rel="noreferrer">WhatsApp</a> : <>WhatsApp <PendingTag /></>}</li>
+            <li>{links.tiktok ? <a href={links.tiktok} target="_blank" rel="noreferrer">TikTok @{BRAND.contact.tiktok}</a> : <>TikTok <PendingTag /></>}</li>
+            {links.instagram && <li><a href={links.instagram} target="_blank" rel="noreferrer">Instagram @{BRAND.contact.instagram}</a></li>}
+            {links.email && <li><a href={links.email}>{BRAND.contact.email}</a></li>}
           </ul>
         </div>
       </div>
       <p className="site-footer__legal">
-        © {year} {BRAND.name}. Hecho a mano en {BRAND.foundedIn}. Nuestros productos son de uso simbólico y decorativo.
+        © {year} {BRAND.name}. Nuestros productos son de uso simbólico y decorativo.
       </p>
     </footer>
   )

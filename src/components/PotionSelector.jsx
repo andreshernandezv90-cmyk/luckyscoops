@@ -6,7 +6,7 @@ import { PotionBottle } from './illustrations/PotionBottle.jsx'
 import { IntentionSigil, WaxSeal } from './illustrations/Sigils.jsx'
 import { BurstOverlay } from './ParticleBurst.jsx'
 
-/** Capítulo I: cuatro recetas de intención (funcionan como un grupo de radio). */
+/** Capítulo I: cuatro intenciones, cada una con su propia botella (grupo de radio). */
 export function PotionSelector() {
   const { builder, actions } = useShop()
   const [burst, setBurst] = useState(0)
@@ -43,13 +43,14 @@ export function PotionSelector() {
                 color={intention.colors.liquid}
                 deep={intention.colors.deep}
                 glow={intention.colors.glow}
+                shape={intention.bottle}
                 fill={0.72}
               />
               <IntentionSigil id={intention.id} className="recipe-card__sigil" />
             </span>
             <span className="recipe-card__title">{intention.name}</span>
             <span className="recipe-card__desc">{intention.description}</span>
-            <span className="recipe-card__meta">{intention.ingredients}</span>
+            <span className="recipe-card__meta">{intention.themes.join(' · ')}</span>
             <span className="recipe-card__cta" aria-hidden="true">
               {selected ? 'Elegida' : 'Elegir'}
             </span>

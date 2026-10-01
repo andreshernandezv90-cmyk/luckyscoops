@@ -4,11 +4,11 @@
 
 :root {
   /* Noche y madera */
-  --night: #0d0a09;
-  --night-2: #16100d;
-  --night-3: #21170f;
-  --leather: #3a1620;
-  --leather-dark: #1c0a0e;
+  --night: #0b0710;
+  --night-2: #140c1d;
+  --night-3: #1e1229;
+  --leather: #3b1a5a;
+  --leather-dark: #170a26;
 
   /* Pergamino y tinta */
   --parchment: #f0e3c4;
@@ -17,20 +17,23 @@
   --parchment-light: #f8f0dc;
   --ink: #2b1b12;
   --ink-soft: #5b4330;
-  --ink-wine: #5c1a2c;
+  --ink-wine: #6a1f5c;
 
   /* Acentos */
-  --wine: #6e1f30;
-  --wine-bright: #9b2c43;
-  --plum: #3b1f4a;
+  --wine: #5a2591;
+  --wine-bright: #c23d8a;
+  --plum: #3b1f5e;
+  --pink: #e85fa3;
+  --pink-soft: #f7a8cf;
+  --purple: #7b3fc4;
   --bottle: #1f4a35;
   --gold: #c9a24a;
   --gold-bright: #e8c66a;
   --gold-deep: #8a6a24;
 
   /* Texto sobre fondo oscuro */
-  --text: #efe4cc;
-  --text-muted: #c4b293;
+  --text: #f2e7dc;
+  --text-muted: #c9b8cf;
 
   --font-brand: 'Cinzel Decorative', 'Cinzel', 'Times New Roman', serif;
   --font-title: 'Cinzel', 'Times New Roman', serif;
@@ -63,9 +66,9 @@ body {
   color: var(--text);
   background-color: var(--night);
   background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(110, 31, 48, 0.22), transparent 55%),
-    radial-gradient(ellipse at 85% 30%, rgba(59, 31, 74, 0.25), transparent 50%),
-    radial-gradient(ellipse at 50% 100%, rgba(31, 74, 53, 0.18), transparent 60%);
+    radial-gradient(ellipse at 20% 0%, rgba(194, 61, 138, 0.22), transparent 55%),
+    radial-gradient(ellipse at 85% 30%, rgba(91, 37, 145, 0.25), transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(232, 95, 163, 0.1), transparent 60%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
 }
@@ -245,15 +248,15 @@ dd {
 
 .btn--primary {
   color: #fff6e3;
-  background: linear-gradient(180deg, var(--wine-bright), var(--wine) 60%, #4d1220);
+  background: linear-gradient(180deg, var(--wine-bright), var(--wine) 60%, #3d1670);
   border-color: var(--gold);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 6px 18px -6px rgba(155, 44, 67, 0.7);
+    0 6px 18px -6px rgba(194, 61, 138, 0.7);
   text-transform: uppercase;
 }
 .btn--primary:hover {
-  background: linear-gradient(180deg, #b23852, var(--wine-bright) 60%, #5e1626);
+  background: linear-gradient(180deg, #d64a9a, var(--wine-bright) 60%, #4a1d84);
   border-color: var(--gold-bright);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
@@ -269,7 +272,7 @@ dd {
 
 .btn--ghost {
   color: var(--text);
-  background: rgba(13, 10, 9, 0.35);
+  background: rgba(11, 7, 16, 0.35);
   border-color: rgba(201, 162, 74, 0.7);
 }
 .btn--ghost:hover {

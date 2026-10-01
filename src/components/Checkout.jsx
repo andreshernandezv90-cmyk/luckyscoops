@@ -1,12 +1,14 @@
 import { useRef, useState } from 'react'
 import { BRAND } from '../config/brand.js'
 import { getExtra } from '../data/extras.js'
+import { getFocus } from '../data/intentions.js'
 import { cartTotals, itemUnitPrice } from '../lib/pricing.js'
 import { formatPrice } from '../lib/format.js'
 import { DELIVERY_METHODS, PAYMENT_METHODS, submitOrder } from '../lib/order.js'
 import { linkTo, navigate, ROUTES } from '../lib/router.js'
 import { useShop } from '../state/ShopContext.jsx'
-import { OrderTotals } from './OrderSummary.jsx'
+import { dedicationLabel, OrderTotals } from './OrderSummary.jsx'
+import { PendingTag } from './PendingTag.jsx'
 import { ChapterDivider } from './illustrations/Ornaments.jsx'
 
 const EMPTY_FORM = {
@@ -55,16 +57,16 @@ export function Checkout() {
     return (
       <section className="page page--narrow" aria-labelledby="checkout-title">
         <h1 id="checkout-title" className="page__title">No hay nada que pagar todavía</h1>
-        <p className="page__lead">Tu encargo está vacío. Prepara una {BRAND.productNoun} o elige una ya preparada.</p>
+        <p className="page__lead">Tu pedido está vacío. Prepara una {BRAND.productNoun} o elige una ya preparada.</p>
         <div className="page__actions">
-          <a className="btn btn--primary btn--lg" {...linkTo(ROUTES.grimorio)}>Prepara tu {BRAND.productNoun}</a>
+          <a className="btn btn--primary btn--lg" {...linkTo(ROUTES.grimorio)}>Abrir el Grimorio</a>
           <a className="btn btn--ghost" {...linkTo(ROUTES.productos)}>Ver {BRAND.productNounPlural} preparadas</a>
         </div>
       </section>
     )
   }
 
-  const totals = cartTotals(cart, form.deliveryMethod)
+  const totals = cartTotals(cart, { zip: form.zip })
   const set = (field) => (e) => {
     const value = e.target.value
     setForm((f) => ({ ...f, [field]: value }))
@@ -142,8 +144,8 @@ export function Checkout() {
         <h1 id="checkout-title" className="page__title">Sella tu pedido</h1>
         <p className="page__lead">Completa tus datos. Los campos marcados como opcionales puedes dejarlos vacíos.</p>
         <ol className="checkout-steps" aria-label="Pasos de la compra">
-          <li className="is-done">Encargo</li>
-          <li className="is-current" aria-current="step">Datos y pago</li>
+          <li className="is-done">Tu pedido</li>
+          <li className="is-current" aria-current="step">Datos y envío</li>
           <li>Confirmación</li>
         </ol>
         <ChapterDivider className="page__divider" />
@@ -168,22 +170,16 @@ export function Checkout() {
 
           <fieldset className="parchment-panel form-section">
             <legend className="panel-title">2. ¿Cómo lo recibes?</legend>
-            <div className="option-list">
-              {DELIVERY_METHODS.map((m) => (
-                <label key={m.id} className={`option${form.deliveryMethod === m.id ? ' is-selected' : ''}`}>
-                  <input type="radio" name="deliveryMethod" value={m.id} checked={form.deliveryMethod === m.id} onChange={set('deliveryMethod')} />
-                  <span className="option__body">
-                    <span className="option__title">
-                      {m.name}{' '}
-                      <span className="option__price">
-                        {m.id === 'recoger' ? 'Gratis' : cartTotals(cart, 'envio').shipping === 0 ? 'Gratis' : formatPrice(cartTotals(cart, 'envio').shipping)}
-                      </span>
-                    </span>
-                    <span className="option__detail">{m.detail}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
+            {DELIVERY_METHODS.map((m) => (
+              <div key={m.id} className="shipping-box">
+                <p className="option__title">{m.name}</p>
+                <p className="option__detail">{m.detail}</p>
+                <p className="shipping-box__tier">
+                  Tamaño estimado del paquete: <strong>{totals.shipping.label}</strong> ·{' '}
+                  {totals.shipping.pending ? 'costo por cotizar' : formatPrice(totals.shipping.price)}
+                </p>
+              </div>
+            ))}
             {form.deliveryMethod === 'envio' && (
               <div className="address">
                 {field('street', 'Calle y número', { autoComplete: 'address-line1' })}
@@ -200,13 +196,18 @@ export function Checkout() {
           </fieldset>
 
           <fieldset className="parchment-panel form-section">
-            <legend className="panel-title">3. ¿Cómo pagas?</legend>
+            <legend className="panel-title">3. ¿Cómo prefieres pagar?</legend>
+            <p className="form-section__help">
+              Estamos configurando las formas de pago. Elige tu preferencia y te confirmaremos cómo pagar.
+            </p>
             <div className="option-list">
               {PAYMENT_METHODS.map((m) => (
                 <label key={m.id} className={`option${form.paymentMethod === m.id ? ' is-selected' : ''}`}>
                   <input type="radio" name="paymentMethod" value={m.id} checked={form.paymentMethod === m.id} onChange={set('paymentMethod')} />
                   <span className="option__body">
-                    <span className="option__title">{m.name}</span>
+                    <span className="option__title">
+                      {m.name} {!m.ready && <PendingTag>Por confirmar</PendingTag>}
+                    </span>
                     <span className="option__detail">{m.detail}</span>
                   </span>
                 </label>
@@ -216,21 +217,22 @@ export function Checkout() {
               <label htmlFor="f-notes">
                 Notas para tu pedido <span className="field__optional">(opcional)</span>
               </label>
-              <textarea id="f-notes" name="notes" rows="3" value={form.notes} onChange={set('notes')} placeholder="Por ejemplo: es un regalo, escribir “Feliz cumpleaños, Ana” en la tarjeta." />
+              <textarea id="f-notes" name="notes" rows="3" value={form.notes} onChange={set('notes')} placeholder="Por ejemplo: un horario para recibir o alguna preferencia." />
             </div>
           </fieldset>
 
           {status === 'error' && (
             <p className="form-alert" role="alert">
-              No pudimos registrar tu pedido. Inténtalo de nuevo o escríbenos por WhatsApp al {BRAND.contact.whatsappDisplay}.
+              No pudimos registrar tu pedido. Inténtalo de nuevo en unos minutos.
             </p>
           )}
 
           <button type="submit" className="btn btn--primary btn--xl btn--block" disabled={status === 'sending'}>
-            {status === 'sending' ? 'Sellando tu pedido…' : `Confirmar pedido · ${formatPrice(totals.total)}`}
+            {status === 'sending' ? 'Sellando tu pedido…' : `Registrar mi pedido · ${formatPrice(totals.total)}`}
           </button>
           <p className="checkout__fineprint">
-            Al confirmar, registramos tu pedido y te enviamos las instrucciones de pago. Aún no se hace ningún cargo.
+            Aún no se hace ningún cargo. Te confirmaremos el costo de envío y la forma de pago antes de preparar tu{' '}
+            {BRAND.productNoun}.
           </p>
         </form>
 
@@ -242,17 +244,18 @@ export function Checkout() {
                 <span className="mini-summary__name">
                   {item.quantity} × {item.name}
                   <span className="mini-summary__extras">
-                    {formatPrice(itemUnitPrice(item))} c/u
+                    {formatPrice(itemUnitPrice(item))} c/u · {getFocus(item.intention, item.focus)?.name ?? 'Sorpresa'}
                     {item.extras.length > 0 && ` · Con ${item.extras.map((e) => getExtra(e)?.name).join(', ')}`}
+                    {item.dedication?.forWhom === 'gift' && ` · Regalo (dedicatoria: ${dedicationLabel(item.dedication).toLowerCase()})`}
                   </span>
                 </span>
                 <span>{formatPrice(itemUnitPrice(item) * item.quantity)}</span>
               </li>
             ))}
           </ul>
-          <OrderTotals totals={totals} deliveryMethod={form.deliveryMethod} />
+          <OrderTotals totals={totals} />
           <a className="btn btn--text" {...linkTo(ROUTES.carrito)}>
-            Modificar mi encargo
+            Modificar mi pedido
           </a>
         </aside>
       </div>

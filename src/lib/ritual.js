@@ -7,18 +7,18 @@ import { normalizeExtras } from './pricing.js'
  * Convierte la receta en el guion del ritual del caldero.
  *
  * items: lo que entra al caldero (esencia de intención, poción de tamaño, extras)
- * steps: secuencia de fases cortas (0.25–0.7 s) que la animación interpreta:
+ * steps: secuencia de fases cortas (0.2–0.6 s) que la animación interpreta:
  *   intro · fly · tilt · pour · bubble · stir · drop · shimmer
  */
 export const STEP_MS = {
-  intro: 300,
-  fly: 400,
-  tilt: 250,
-  pour: 500,
+  intro: 250,
+  fly: 350,
+  tilt: 220,
+  pour: 450,
   bubble: 300,
-  stir: 550,
-  drop: 400,
-  shimmer: 700,
+  stir: 450,
+  drop: 350,
+  shimmer: 600,
 }
 
 export function buildRitual({ intention, size, extras = [] }) {
@@ -31,7 +31,7 @@ export function buildRitual({ intention, size, extras = [] }) {
     items.push({
       id: 'intention',
       kind: 'bottle',
-      shape: 'round',
+      shape: i.bottle ?? 'round',
       name: `Esencia ${i.of}`,
       color: i.colors.liquid,
       deep: i.colors.deep,
@@ -94,11 +94,10 @@ export function buildRitual({ intention, size, extras = [] }) {
         line: item.line,
         burst: { effect: 'sparkles', colors: [item.color, '#fff4d6'] },
       })
+      // La cuchara vuelve a revolver después de cada ingrediente.
+      steps.push({ phase: 'stir', duration: STEP_MS.stir, line: 'La cuchara mezcla nuevamente.' })
     }
   })
-  if (extrasData.length) {
-    steps.push({ phase: 'stir', duration: STEP_MS.stir, line: 'La cuchara mezcla nuevamente.' })
-  }
   steps.push({
     phase: 'shimmer',
     duration: STEP_MS.shimmer,

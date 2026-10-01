@@ -8,7 +8,7 @@ import { PotionBottle } from './illustrations/PotionBottle.jsx'
 import { MoonPhase, WaxSeal } from './illustrations/Sigils.jsx'
 import { BurstOverlay } from './ParticleBurst.jsx'
 
-/** Capítulo II: tres tamaños presentados como niveles de intensidad. */
+/** Capítulo III: tres tamaños presentados como niveles de intensidad. */
 export function SizeSelector() {
   const { builder, actions } = useShop()
   const [burst, setBurst] = useState(0)
@@ -41,7 +41,7 @@ export function SizeSelector() {
                 deep={colors.deep}
                 glow={size.essence}
                 fill={size.fill}
-                shape="round"
+                shape={intention?.bottle ?? 'round'}
               />
             </span>
             <span className="size-card__body">
@@ -50,7 +50,7 @@ export function SizeSelector() {
               </span>
               <span className={`size-card__name${selected ? ' ink-gild' : ''}`}>{size.name}</span>
               <span className="size-card__desc">{size.description}</span>
-              <span className="size-card__meta">{size.contents}</span>
+              {size.contents && <span className="size-card__meta">{size.contents}</span>}
             </span>
             <span className="size-card__price">{formatPrice(size.price)}</span>
             <span className="size-card__intensity" aria-hidden="true">

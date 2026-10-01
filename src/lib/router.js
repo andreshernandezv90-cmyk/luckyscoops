@@ -7,8 +7,11 @@ import { useEffect, useState } from 'react'
 export const ROUTES = {
   inicio: '/',
   grimorio: '/grimorio',
-  productos: '/productos',
-  nosotros: '/nosotros',
+  productos: '/scoops',
+  significados: '/significados',
+  bruja: '/la-bruja-sabia',
+  videos: '/videos',
+  envios: '/envios-y-pagos',
   faq: '/preguntas',
   contacto: '/contacto',
   carrito: '/carrito',
@@ -16,10 +19,13 @@ export const ROUTES = {
   confirmacion: '/confirmacion',
 }
 
-/** Rutas que muestran la página de inicio desplazada a una sección. */
+/** Rutas que muestran la página de inicio desplazada a una sección (valor = id de la sección). */
 export const HOME_SECTIONS = {
-  [ROUTES.productos]: 'productos',
-  [ROUTES.nosotros]: 'nosotros',
+  [ROUTES.productos]: 'scoops',
+  [ROUTES.significados]: 'significados',
+  [ROUTES.bruja]: 'bruja-sabia',
+  [ROUTES.videos]: 'videos',
+  [ROUTES.envios]: 'envios-y-pagos',
   [ROUTES.faq]: 'preguntas',
   [ROUTES.contacto]: 'contacto',
 }

@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react'
 import { BRAND } from '../config/brand.js'
 import { linkTo, ROUTES } from '../lib/router.js'
 import { useShop } from '../state/ShopContext.jsx'
-import { BrandSigil, CartIcon, MenuIcon } from './illustrations/Ornaments.jsx'
+import { CartIcon, MenuIcon } from './illustrations/Ornaments.jsx'
+import { BrandMark } from './BrandMark.jsx'
 
 const LINKS = [
   { path: ROUTES.inicio, label: 'Inicio' },
-  { path: ROUTES.grimorio, label: `Prepara tu ${BRAND.productNoun}`, featured: true },
-  { path: ROUTES.productos, label: 'Productos' },
-  { path: ROUTES.nosotros, label: 'Sobre nosotros' },
-  { path: ROUTES.faq, label: 'Preguntas frecuentes' },
+  { path: ROUTES.grimorio, label: 'Abrir Grimorio', featured: true },
+  { path: ROUTES.productos, label: BRAND.productNounPlural },
+  { path: ROUTES.significados, label: 'Significados' },
+  { path: ROUTES.bruja, label: 'La Bruja Sabia' },
+  { path: ROUTES.videos, label: 'Videos' },
+  { path: ROUTES.faq, label: 'Preguntas' },
   { path: ROUTES.contacto, label: 'Contacto' },
 ]
 
@@ -30,7 +33,7 @@ export function Header({ path }) {
     <header className="site-header">
       <div className="site-header__inner">
         <a className="brand" {...linkTo(ROUTES.inicio)}>
-          <BrandSigil className="brand__sigil" />
+          <BrandMark className="brand__sigil" />
           <span className="brand__name">{BRAND.name}</span>
         </a>
 
@@ -54,11 +57,11 @@ export function Header({ path }) {
           <a
             className="cart-link"
             aria-current={path === ROUTES.carrito ? 'page' : undefined}
-            aria-label={`Carrito, ${totals.count} ${totals.count === 1 ? 'producto' : 'productos'}`}
+            aria-label={`Carrito: tu pedido, ${totals.count} ${totals.count === 1 ? 'producto' : 'productos'}`}
             {...linkTo(ROUTES.carrito)}
           >
             <CartIcon className="cart-link__icon" />
-            <span className="cart-link__label">Carrito</span>
+            <span className="cart-link__label">Tu pedido</span>
             {totals.count > 0 && (
               <span key={totals.count} className="cart-link__badge" aria-hidden="true">
                 {totals.count}

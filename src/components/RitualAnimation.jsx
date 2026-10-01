@@ -9,6 +9,9 @@ import { ParticleBurst } from './ParticleBurst.jsx'
 import { BottleShape } from './illustrations/PotionBottle.jsx'
 import { ExtraIcon } from './illustrations/Sigils.jsx'
 import { CheckMark } from './illustrations/Ornaments.jsx'
+import { getFocus, getIntention } from '../data/intentions.js'
+import { getSize } from '../data/sizes.js'
+import { getExtra } from '../data/extras.js'
 import { ChapterHeading } from './ChapterHeading.jsx'
 
 /** Posición donde el frasco se inclina para verter (su boca queda sobre el caldero). */
@@ -17,7 +20,7 @@ const DROP_START = { x: 200, y: 100 }
 const SHELF_Y = 46
 
 /**
- * Capítulo IV: el ritual del caldero.
+ * Capítulo VI: preparación en el caldero.
  * Cada decisión de la receta se convierte en un frasco o ingrediente que vuela,
  * se vierte y cambia el color del líquido. Siempre se puede saltar.
  */
@@ -66,7 +69,7 @@ export function RitualAnimation({ onReveal, autoFocus }) {
 
   const caption = seq.finished
     ? `Tu preparación está lista. Pulsa “Revelar mi ${BRAND.productNoun}”.`
-    : seq.step?.line ?? 'Todo está listo sobre la mesa. Cuando quieras, inicia el ritual.'
+    : seq.step?.line ?? `Todo está listo sobre la mesa. Cuando quieras, pulsa “Preparar mi ${BRAND.productNoun}”.`
 
   const activeItem = seq.step?.item !== undefined ? ritual.items[seq.step.item] : null
   const n = ritual.items.length
@@ -74,8 +77,8 @@ export function RitualAnimation({ onReveal, autoFocus }) {
   return (
     <div className="ritual">
       <header className="chapter-intro chapter-intro--center">
-        <p className="chapter-intro__kicker">Capítulo IV · Preparación</p>
-        <ChapterHeading autoFocus={autoFocus}>El ritual del caldero</ChapterHeading>
+        <p className="chapter-intro__kicker">Capítulo VI · Preparación</p>
+        <ChapterHeading autoFocus={autoFocus}>Preparación en el Caldero</ChapterHeading>
         <p className="chapter-intro__text">
           Mira cómo cada elección entra al caldero. Dura unos segundos y puedes saltarlo cuando quieras.
         </p>
@@ -143,22 +146,28 @@ export function RitualAnimation({ onReveal, autoFocus }) {
           </svg>
         </div>
 
-        <aside className="ritual__side" aria-label="Ingredientes del ritual">
-          <h3 className="ritual__side-title">Ingredientes del ritual</h3>
-          <ol className="ritual__ingredients">
-            {ritual.items.map((item, i) => (
-              <li key={item.id} className={applied.has(i) ? 'is-in' : ''}>
-                <span className="ritual__swatch" style={{ background: item.color }} aria-hidden="true" />
-                <span>{item.name}</span>
-                {applied.has(i) && (
-                  <span className="ritual__in">
-                    <CheckMark className="btn__icon" />
-                    <span className="sr-only">(ya en el caldero)</span>
-                  </span>
-                )}
-              </li>
-            ))}
-          </ol>
+        <aside className="ritual__side" aria-label="Tu receta en el caldero">
+          {!seq.started && !seq.finished ? (
+            <ReceivedRecipe builder={builder} />
+          ) : (
+            <>
+              <h3 className="ritual__side-title">Ingredientes del ritual</h3>
+              <ol className="ritual__ingredients">
+                {ritual.items.map((item, i) => (
+                  <li key={item.id} className={applied.has(i) ? 'is-in' : ''}>
+                    <span className="ritual__swatch" style={{ background: item.color }} aria-hidden="true" />
+                    <span>{item.name}</span>
+                    {applied.has(i) && (
+                      <span className="ritual__in">
+                        <CheckMark className="btn__icon" />
+                        <span className="sr-only">(ya en el caldero)</span>
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
 
           <p className="ritual__caption" aria-live="polite">
             {caption}
@@ -168,7 +177,7 @@ export function RitualAnimation({ onReveal, autoFocus }) {
             {!seq.started && !seq.finished && (
               <>
                 <button type="button" className="btn btn--primary btn--lg" onClick={begin}>
-                  Iniciar el ritual
+                  Preparar mi {BRAND.productNoun}
                 </button>
                 <button type="button" className="btn btn--text" onClick={seq.skip}>
                   Saltar animación
@@ -196,6 +205,41 @@ export function RitualAnimation({ onReveal, autoFocus }) {
         </aside>
       </div>
     </div>
+  )
+}
+
+/** "La Bruja Sabia ha recibido tu receta": resumen antes de empezar. */
+function ReceivedRecipe({ builder }) {
+  const { forWhom, message } = builder.dedication
+  const extras = builder.extras.map((e) => getExtra(e)?.name).filter(Boolean)
+  return (
+    <>
+      <h3 className="ritual__side-title">La Bruja Sabia ha recibido tu receta</h3>
+      <dl className="received-recipe">
+        <div>
+          <dt>Intención</dt>
+          <dd>{getIntention(builder.intention)?.name}</dd>
+        </div>
+        <div>
+          <dt>Personalización</dt>
+          <dd>{getFocus(builder.intention, builder.focus)?.name ?? 'En manos de la Bruja Sabia'}</dd>
+        </div>
+        <div>
+          <dt>Tamaño</dt>
+          <dd>{getSize(builder.size)?.name}</dd>
+        </div>
+        <div>
+          <dt>Extras</dt>
+          <dd>{extras.length ? extras.join(', ') : 'Sin extras'}</dd>
+        </div>
+        {forWhom === 'gift' && (
+          <div>
+            <dt>Dedicatoria</dt>
+            <dd>{message ? `“${message}”` : 'Es un regalo (sin dedicatoria)'}</dd>
+          </div>
+        )}
+      </dl>
+    </>
   )
 }
 

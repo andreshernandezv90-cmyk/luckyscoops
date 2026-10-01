@@ -1,12 +1,15 @@
-# Lucky Scoops · Grimorio de las Scoops
+# Scoops de la Bruja Sabia
 
-Tienda esotérica artesanal escondida dentro de un grimorio. La persona abre el libro, recorre sus capítulos para preparar su propia **Scoop** (frasco de cristales, hierbas y amuletos), ve cómo sus elecciones caen en el caldero y termina con un carrito y un proceso de compra normales y claros.
+**Magia · Energía · Conexión**
+
+Tienda esotérica con una experiencia central llamada **El Grimorio de la Bruja Sabia**: la persona abre el libro, recorre sus capítulos para preparar su propia **Scoop**, ve cómo su receta cae en el caldero y termina con un pedido claro y fácil de completar.
 
 ```
-Portada → I Intención → II Tamaño → III Ingredientes → IV Preparación (caldero) → V Revelación → Carrito → Pago → Pedido completado
+Portada → I Intención → II Personaliza → III Tamaño → IV Extras → V Dedicatoria
+        → VI Preparación en el Caldero → VII Revelación → Tu pedido → Datos y envío → Pedido registrado
 ```
 
-También hay **Scoops preparadas** que se agregan al carrito en un clic, sin pasar por el ritual.
+También hay **Scoops preparadas** que se agregan al pedido en un clic, y secciones de Significados, Videos ("Desde el Caldero de la Bruja"), Envíos y pagos, "Conoce a la Bruja Sabia", Preguntas frecuentes y Contacto.
 
 ## Cómo ejecutarlo
 
@@ -15,82 +18,96 @@ npm install
 npm run dev       # servidor de desarrollo en http://localhost:5173
 npm run build     # versión de producción en dist/
 npm run preview   # sirve dist/ localmente
-npm test          # pruebas de precios, carrito y guion del ritual
+npm test          # pruebas de precios, envío, carrito, Grimorio y ritual
 ```
 
-Requiere Node 18 o superior. El sitio usa rutas con `#` (`#/grimorio`, `#/carrito`…), así que `dist/` se puede publicar en cualquier hosting estático (Netlify, Vercel, GitHub Pages, un servidor propio) sin configurar nada más.
+Requiere Node 18 o superior. El sitio usa rutas con `#` (`#/grimorio`, `#/carrito`…), así que `dist/` se puede publicar en cualquier hosting estático (Netlify, Vercel, GitHub Pages…).
+
+## Datos pendientes (TODO / PENDIENTE)
+
+El sitio **no inventa datos del negocio**. Lo que aún no existe está en `null` y se muestra en la página con una etiqueta "Pendiente". Búscalo en el código con `PENDIENTE`.
+
+| Pendiente | Dónde se completa |
+| --- | --- |
+| Logo oficial | `src/config/brand.js` → `logo` (pon el archivo en `public/`) |
+| WhatsApp, TikTok, Instagram, correo, horario | `src/config/brand.js` → `contact` |
+| Precios reales (hoy son de demostración) | `src/data/prices.js` → precios y `areDemo: false` |
+| Tarifas de envío (pequeño, mediano, grande) | `src/data/prices.js` → `shipping.tiers` y `src/lib/shipping.js` |
+| Formas de pago (tarjeta, transferencia, Mercado Pago, WhatsApp) | `src/lib/order.js` → `PAYMENT_METHODS` (`ready: true`) |
+| Historia y fotografía de la Bruja Sabia | `src/data/about.js` |
+| Significados de los productos reales | `src/data/meanings.js` |
+| Videos de TikTok | `src/data/videos.js` (`tiktokId` de cada video) |
+| Scoops preparadas reales | `src/data/products.js` |
+
+En cuanto se escribe el número de WhatsApp, la pantalla final muestra el botón **Enviar mi pedido por WhatsApp** con todo el pedido ya redactado (intención, enfoque, tamaño, extras, dedicatoria, datos de envío y forma de pago preferida).
 
 ## Dónde cambiar cada cosa
 
-| Quiero cambiar…                                   | Archivo |
-| ------------------------------------------------- | ------- |
-| Nombre de la marca, título del grimorio, contacto, datos bancarios | `src/config/brand.js` |
-| **Precios** (tamaños, intenciones, extras, descuentos, envío) | `src/data/prices.js` |
-| Intenciones (textos, colores de poción, efectos)  | `src/data/intentions.js` |
-| Tamaños (Aprendiz, Hechicera, Gran Bruja)         | `src/data/sizes.js` |
-| Ingredientes extra                                | `src/data/extras.js` |
-| Scoops preparadas                                 | `src/data/products.js` |
-| Preguntas frecuentes                              | `src/data/faq.js` |
-| Formas de entrega y de pago                       | `src/lib/order.js` |
-| Ritmo del ritual (duración de cada paso)          | `src/lib/ritual.js` (`STEP_MS`) |
+| Quiero cambiar… | Archivo |
+| --- | --- |
+| Nombre, lema, texto de portada | `src/config/brand.js` |
+| Precios | `src/data/prices.js` |
+| Intenciones, sus botellas, colores y enfoques (Capítulo II) | `src/data/intentions.js` |
+| Tamaños (Aprendiz, Hechicera, Gran Bruja) | `src/data/sizes.js` |
+| Extras | `src/data/extras.js` |
+| Recomendaciones del Grimorio (Capítulo IV) | `src/data/recommendations.js` |
+| Capítulos y sus títulos | `src/data/chapters.js` |
+| Preguntas frecuentes | `src/data/faq.js` |
+| Ritmo del ritual del caldero | `src/lib/ritual.js` (`STEP_MS`) |
+| Fases de la revelación final | `src/components/Revelation.jsx` (`REVEAL_STEPS`, `ScoopBloom`) |
 
-Los precios solo existen en `src/data/prices.js`. Todo lo demás (receta, revelación, productos, carrito, pago) los calcula con `src/lib/pricing.js`:
+Los precios solo existen en `src/data/prices.js`; todo lo demás los calcula con `src/lib/pricing.js`:
 
 ```
 precio por Scoop = base del tamaño + ajuste de la intención + suma de extras (− descuento si es preparada)
 ```
 
-Si cambia el nombre de la marca, edita `src/config/brand.js` y el `<title>` por defecto de `index.html` (que de todos modos se reemplaza al cargar).
+## Envíos
 
-## Pagos: punto de integración
+Envíos a toda la República Mexicana. Hoy el sitio estima el **rango del paquete** (pequeño, mediano o grande) según los tamaños de Scoop del pedido y muestra el costo como **"por cotizar"**; no se suma al total hasta que exista una tarifa real. `estimateShipping()` en `src/lib/shipping.js` ya recibe el código postal para conectarlo después con tarifas reales o una paquetería.
 
-Hoy el pedido se registra en el navegador y el pago se coordina después (transferencia con CLABE, enlace de pago con tarjeta o referencia OXXO), un flujo habitual para talleres pequeños. **No se cobra en línea ni se piden datos de tarjeta.**
+## Pedidos y pagos: punto de integración
 
-Para cobrar en línea, reemplaza el cuerpo de `submitOrder()` en `src/lib/order.js` por la llamada a tu backend o pasarela (Mercado Pago, Stripe, Conekta…). La pantalla de pago ya maneja el estado de envío y los errores.
+Hoy el pedido se registra en el navegador y se envía a la Bruja Sabia por WhatsApp; **no se cobra en línea ni se piden datos de tarjeta**. Para recibir pedidos automáticamente o cobrar en línea, reemplaza `submitOrder()` en `src/lib/order.js` por la llamada a tu backend o pasarela (Mercado Pago, Stripe…).
+
+## Revelación final
+
+La revelación ya hace: brillo y partículas → la cuchara entra al caldero → sale una cucharada → la Scoop se revela con un halo. Para una animación más elaborada, añade fases en `REVEAL_STEPS` y reemplaza el componente `ScoopBloom` en `src/components/Revelation.jsx`; el resto del capítulo no cambia.
 
 ## Estructura
 
 ```
 src/
-  config/brand.js          Marca y contacto
-  data/                    Catálogo y precios (una sola fuente de verdad)
+  config/brand.js          Marca, lema, logo y contacto (pendientes en null)
+  data/                    Catálogo, precios, enfoques, recomendaciones, significados, videos, historia
   lib/
-    pricing.js             Cálculo de precios, totales y envío
+    pricing.js             Precios, claves del carrito y totales
+    shipping.js            Rango y costo de envío (pendiente de tarifas)
     ritual.js              Convierte la receta en el guion del caldero
-    order.js               Entrega, pago y registro del pedido
+    order.js               Entrega, formas de pago, registro y mensaje de WhatsApp
     router.js              Enrutador mínimo por hash
-  state/ShopContext.jsx    Estado global: intention, size, extras, quantity,
+  state/ShopContext.jsx    Estado: intention, focus, size, extras, dedication, quantity,
                            currentChapter, animationState, cart, lastOrder
-  hooks/useSequence.js     Reproduce pasos con duración (y permite saltarlos)
   components/
-    Grimorio.jsx           Libro abierto, capítulos y navegación
-    BookCover.jsx          Grimorio cerrado (portada y pantalla final)
-    BookPage.jsx           Página de pergamino con adornos
-    ChapterProgress.jsx    Indicador de capítulos
-    PotionSelector.jsx     Capítulo I
-    SizeSelector.jsx       Capítulo II
-    ExtrasSelector.jsx     Capítulo III
-    RitualAnimation.jsx    Capítulo IV (caldero)
-    Revelation.jsx         Capítulo V
-    Cauldron.jsx           Caldero en capas SVG: fuego, líquido, burbujas, humo, cuchara
-    Recipe.jsx             Receta anotada en la página izquierda
-    OrderSummary.jsx       Detalle comercial y totales
-    Cart.jsx · Checkout.jsx · OrderComplete.jsx
-    Header.jsx · Footer.jsx · home/…
-    illustrations/         Frascos, sigilos, fases lunares, sellos, velas, cristales
-  styles/                  base, layout, grimorio, ritual, shop, animations, fonts
+    Grimorio.jsx           Libro abierto, siete capítulos y navegación
+    PotionSelector · FocusSelector · SizeSelector · ExtrasSelector · DedicationSelector
+    RitualAnimation.jsx    Capítulo VI (caldero)
+    Revelation.jsx         Capítulo VII
+    Cauldron.jsx           Caldero en capas SVG
+    Cart · Checkout · OrderComplete · OrderSummary
+    home/                  Portada y secciones del inicio
+    illustrations/         Botellas, sigilos, sellos, velas, cristales (todo SVG)
+  styles/                  base, layout, grimorio, ritual, shop, sections, animations, fonts
 ```
 
-Todas las ilustraciones son SVG hechos para la marca; no se usan emojis ni imágenes externas.
+## Accesibilidad y rendimiento
 
-## Accesibilidad y movimiento
-
-- Opciones con controles nativos (radios) o botones con `aria-pressed`, que se recorren con teclado.
-- Al pasar de capítulo, el foco va al título nuevo; el precio y el avance del ritual se anuncian con regiones `aria-live`.
-- Botones de al menos 44–48 px, textos importantes en serif legible y alto contraste sobre pergamino.
-- `prefers-reduced-motion`: el ritual y la revelación muestran el resultado final sin animar y se desactivan las animaciones decorativas. Siempre existe **Saltar animación**.
-- Si se intenta avanzar sin elegir, el botón explica qué falta en lugar de quedarse inerte.
+- Opciones con controles nativos (radios) o botones con `aria-pressed`; todo se usa con teclado.
+- Al pasar de capítulo, el foco va al título nuevo; el precio y el ritual se anuncian con `aria-live`.
+- `prefers-reduced-motion`: el caldero y la revelación muestran el resultado sin animar; siempre existe **Saltar animación**.
+- Los videos de TikTok solo se cargan cuando la persona pulsa "Ver video".
+- Sin imágenes pesadas: las ilustraciones son SVG y las tipografías (Cinzel, Cinzel Decorative, EB Garamond, licencia SIL OFL) van incluidas en `src/assets/fonts`.
 
 ## Tecnologías
 
-React 19, Vite, CSS sin frameworks y [Motion for React](https://motion.dev) para las animaciones. Tipografías Cinzel, Cinzel Decorative y EB Garamond (SIL Open Font License), incluidas en `src/assets/fonts`.
+React 19, Vite, CSS sin frameworks y [Motion for React](https://motion.dev).

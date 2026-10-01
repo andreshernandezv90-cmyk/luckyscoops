@@ -4,6 +4,9 @@ import { PRICES } from '../src/data/prices.js'
 import {
   calculateUnitPrice,
   cartTotals,
+  normalizeDedication,
+  normalizeFocus,
+  recipeTitle,
   itemKey,
   itemUnitPrice,
   normalizeExtras,
@@ -33,14 +36,15 @@ test('los extras desconocidos o repetidos se ignoran y se ordenan', () => {
   )
 })
 
-test('nombre del producto', () => {
+test('nombre del producto y título de la receta', () => {
   assert.equal(productName({ intention: 'amor', size: 'gran_bruja' }), 'Scoop Gran Bruja del Amor')
   assert.equal(productName({ intention: 'proteccion', size: 'aprendiz' }), 'Scoop Aprendiz de la Protección')
+  assert.equal(recipeTitle({ intention: 'amor', size: 'gran_bruja' }), 'Gran Bruja del Amor')
 })
 
 test('las Scoops preparadas aplican su descuento', () => {
-  const item = { productId: 'luna-de-miel', intention: 'amor', size: 'hechicera', extras: ['cristal'] }
-  assert.equal(itemUnitPrice(item), calculateUnitPrice(item) - PRICES.productDiscounts['luna-de-miel'])
+  const item = { productId: 'corazon-propio', intention: 'amor', size: 'hechicera', extras: ['cristal'] }
+  assert.equal(itemUnitPrice(item), calculateUnitPrice(item) - PRICES.productDiscounts['corazon-propio'])
 })
 
 test('la misma receta genera la misma clave del carrito', () => {
@@ -48,20 +52,39 @@ test('la misma receta genera la misma clave del carrito', () => {
     itemKey({ intention: 'amor', size: 'hechicera', extras: ['regalo', 'cristal'] }),
     itemKey({ intention: 'amor', size: 'hechicera', extras: ['cristal', 'regalo'] }),
   )
-  assert.notEqual(itemKey({ intention: 'amor', size: 'hechicera' }), itemKey({ productId: 'luna-de-miel', intention: 'amor', size: 'hechicera' }))
+  assert.notEqual(itemKey({ intention: 'amor', size: 'hechicera' }), itemKey({ productId: 'corazon-propio', intention: 'amor', size: 'hechicera' }))
 })
 
-test('totales del carrito y envío', () => {
-  const small = [{ intention: 'amor', size: 'aprendiz', extras: [], quantity: 1 }]
-  const t = cartTotals(small, 'envio')
-  assert.equal(t.subtotal, PRICES.sizes.aprendiz)
-  assert.equal(t.shipping, PRICES.shipping.standard)
-  assert.equal(t.total, PRICES.sizes.aprendiz + PRICES.shipping.standard)
-  assert.equal(cartTotals(small, 'recoger').shipping, 0)
+test('enfoque y dedicatoria distinguen líneas del carrito', () => {
+  const base = { intention: 'amor', size: 'hechicera', extras: [] }
+  assert.notEqual(itemKey({ ...base, focus: 'pareja' }), itemKey({ ...base, focus: 'amor_propio' }))
+  assert.equal(itemKey({ ...base }), itemKey({ ...base, focus: 'bruja' }), 'sin enfoque = en manos de la Bruja Sabia')
+  assert.notEqual(
+    itemKey({ ...base, dedication: { forWhom: 'gift', message: 'Para Luz' } }),
+    itemKey({ ...base, dedication: { forWhom: 'gift', message: 'Para Sol' } }),
+  )
+})
 
-  const big = [{ intention: 'amor', size: 'gran_bruja', extras: [], quantity: 3 }]
-  assert.equal(cartTotals(big, 'envio').shipping, 0, 'envío gratis desde el mínimo')
-  assert.equal(cartTotals(big).count, 3)
+test('normalización de enfoque y dedicatoria', () => {
+  assert.equal(normalizeFocus('amor', 'pareja'), 'pareja')
+  assert.equal(normalizeFocus('amor', 'dinero'), 'bruja', 'un enfoque de otra intención no es válido')
+  assert.deepEqual(normalizeDedication({ forWhom: 'me', message: 'hola' }), { forWhom: 'me', message: '' })
+  assert.equal(normalizeDedication({ forWhom: 'gift', message: 'x'.repeat(300) }).message.length, 200)
+})
+
+test('el envío queda por cotizar mientras no haya tarifas reales', () => {
+  const small = [{ intention: 'amor', size: 'aprendiz', extras: [], quantity: 1 }]
+  const t = cartTotals(small)
+  assert.equal(t.subtotal, PRICES.sizes.aprendiz)
+  assert.equal(t.shipping.tier, 'pequeno')
+  assert.equal(t.shipping.pending, true)
+  assert.equal(t.total, t.subtotal, 'el envío pendiente no se suma')
+
+  assert.equal(cartTotals([{ ...small[0], size: 'hechicera' }]).shipping.tier, 'mediano')
+  const big = [{ intention: 'amor', size: 'gran_bruja', extras: [], quantity: 2 }]
+  assert.equal(cartTotals(big).shipping.tier, 'grande')
+  assert.equal(cartTotals(big).count, 2)
+  assert.equal(cartTotals([]).shipping.tier, null)
 })
 
 test('formato de precio en pesos', () => {

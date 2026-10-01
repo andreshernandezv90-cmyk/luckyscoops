@@ -4,43 +4,49 @@ import { PRICES } from './prices.js'
  * Scoops preparadas: combinaciones listas para comprar sin hacer el ritual.
  * Su precio se calcula con la misma lógica que las personalizadas
  * (ver src/lib/pricing.js), menos el descuento definido en prices.js.
+ *
+ * TODO / PENDIENTE: son ejemplos. Reemplázalos por las Scoops reales del negocio.
  */
 export const PRODUCTS = [
   {
-    id: 'luna-de-miel',
-    name: 'Luna de Miel',
-    badge: 'La más pedida',
+    id: 'corazon-propio',
+    name: 'Corazón Propio',
+    badge: 'Amor propio',
     intention: 'amor',
+    focus: 'amor_propio',
     size: 'hechicera',
     extras: ['cristal'],
-    description: 'Cuarzo rosa, pétalos secos y un cristal sorpresa para cuidar los lazos que importan.',
+    description: 'Una Scoop de amor dedicada a ti, con un cristal sorpresa extra.',
   },
   {
     id: 'escudo-del-hogar',
     name: 'Escudo del Hogar',
     badge: 'Para la casa',
     intention: 'proteccion',
+    focus: 'resguardo',
     size: 'gran_bruja',
     extras: ['amuleto'],
-    description: 'Turmalina, romero y un amuleto de bronce para la entrada de tu hogar.',
+    description: 'Protección para tu espacio, con un amuleto sorpresa.',
   },
   {
-    id: 'cosecha-dorada',
-    name: 'Cosecha Dorada',
-    badge: 'Edición completa',
+    id: 'buena-fortuna',
+    name: 'Buena Fortuna',
+    badge: 'Abundancia',
     intention: 'abundancia',
-    size: 'gran_bruja',
-    extras: ['cristal', 'amuleto'],
-    description: 'Pirita, citrino y laurel con cristal y amuleto sorpresa. Nuestra mezcla más generosa.',
+    focus: 'buena_fortuna',
+    size: 'hechicera',
+    extras: ['amuleto'],
+    description: 'Una Scoop para atraer la buena suerte, con amuleto sorpresa.',
   },
   {
-    id: 'agua-de-luna',
-    name: 'Agua de Luna',
+    id: 'nuevo-comienzo',
+    name: 'Nuevo Comienzo',
     badge: 'Para empezar',
     intention: 'limpieza',
+    focus: 'nuevos_comienzos',
     size: 'aprendiz',
     extras: [],
-    description: 'Selenita, lavanda y salvia en un frasco pequeño para renovar tu espacio.',
+    description: 'Una Scoop pequeña para renovar tu energía y empezar de nuevo.',
   },
 ].map((product) => ({ ...product, discount: PRICES.productDiscounts[product.id] ?? 0 }))
 
