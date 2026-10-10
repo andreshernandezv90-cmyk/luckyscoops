@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { EXTRAS, getExtra } from '../data/extras.js'
 import { recommendExtra } from '../data/recommendations.js'
 import { formatExtraPrice } from '../lib/format.js'
 import { useShop } from '../state/ShopContext.jsx'
-import { ExtraIcon, WaxSeal } from './illustrations/Sigils.jsx'
+import { SelectionSeal } from './SelectionSeal.jsx'
+import { playSound } from '../lib/sound.js'
+import { ExtraIcon } from './illustrations/Sigils.jsx'
 import { BrandSigil, CheckMark } from './illustrations/Ornaments.jsx'
 import { BurstOverlay } from './ParticleBurst.jsx'
 
@@ -18,7 +20,10 @@ export function ExtrasSelector() {
   const toggle = (id) => {
     const wasAdded = builder.extras.includes(id)
     actions.toggleExtra(id)
-    if (!wasAdded) setAdded((a) => ({ id, n: a.n + 1 }))
+    if (!wasAdded) {
+      setAdded((a) => ({ id, n: a.n + 1 }))
+      playSound('select')
+    }
   }
 
   return (
@@ -67,7 +72,26 @@ function IngredientCard({ extra, added, recommended, justAdded, onToggle }) {
     <li className={`ingredient-card${added ? ' is-added' : ''}`} style={{ '--accent': extra.color }}>
       {recommended && <span className="ingredient-card__ribbon">Recomendado</span>}
       <span className="ingredient-card__art">
-        <ExtraIcon id={extra.id} color={extra.color} className="ingredient-card__icon" />
+        {/* Tinta del sello: se extiende detrás del símbolo y queda como mancha tenue */}
+        {added && (
+          <motion.span
+            key={`ink-${justAdded}`}
+            className="ingredient-card__ink"
+            initial={reduce || !justAdded ? false : { scale: 0.3, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            aria-hidden="true"
+          />
+        )}
+        <motion.span
+          key={`icon-${added ? justAdded : 'off'}`}
+          className="ingredient-card__stamp"
+          initial={added && justAdded && !reduce ? { scale: 1.35, rotate: -10, opacity: 0.4 } : false}
+          animate={{ scale: 1, rotate: 0, opacity: 1 }}
+          transition={{ duration: 0.32, ease: [0.3, 1.5, 0.5, 1] }}
+        >
+          <ExtraIcon id={extra.id} color={extra.color} className="ingredient-card__icon" />
+        </motion.span>
         {/* Al añadirlo, una copia del ingrediente cae hacia el ritual */}
         {added && justAdded > 0 && !reduce && (
           <motion.span
@@ -99,19 +123,7 @@ function IngredientCard({ extra, added, recommended, justAdded, onToggle }) {
           'Añadir ingrediente al ritual'
         )}
       </button>
-      <AnimatePresence>
-        {added && (
-          <motion.span
-            className="ingredient-card__seal"
-            initial={{ scale: 1.8, opacity: 0, rotate: -30 }}
-            animate={{ scale: 1, opacity: 1, rotate: 12 }}
-            exit={{ scale: 0.6, opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.3, 1.4, 0.5, 1] }}
-          >
-            <WaxSeal color="#5a2591" glyph="star" />
-          </motion.span>
-        )}
-      </AnimatePresence>
+      <SelectionSeal show={added} className="ingredient-card__seal" color="#5a2591" glyph="star" rotate={12} />
       {added && justAdded > 0 && <BurstOverlay key={justAdded} effect="sparkles" colors={[extra.color, '#fff4d6']} />}
     </li>
   )

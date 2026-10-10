@@ -132,7 +132,7 @@
     inset 0 0 0 4px rgba(201, 162, 74, 0.35),
     0 40px 80px -30px rgba(0, 0, 0, 0.95),
     0 0 0 1px rgba(201, 162, 74, 0.15);
-  perspective: 2000px;
+  perspective: 2800px;
 }
 .book::after {
   /* Canto de las hojas bajo las páginas */

@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useId, useMemo, useRef } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { BRAND } from '../config/brand.js'
 import { appliedItems, buildRitual, liquidFor } from '../lib/ritual.js'
+import { arcKeyframes } from '../lib/motion.js'
+import { playSound } from '../lib/sound.js'
 import { useSequence } from '../hooks/useSequence.js'
 import { ANIMATION, useShop } from '../state/ShopContext.jsx'
-import { Cauldron } from './Cauldron.jsx'
+import { Cauldron, IMPACT, Splash } from './Cauldron.jsx'
 import { ParticleBurst } from './ParticleBurst.jsx'
 import { BottleShape } from './illustrations/PotionBottle.jsx'
 import { ExtraIcon } from './illustrations/Sigils.jsx'
@@ -16,8 +18,14 @@ import { ChapterHeading } from './ChapterHeading.jsx'
 
 /** Posición donde el frasco se inclina para verter (su boca queda sobre el caldero). */
 const POUR = { x: 166, y: 134 }
+/** Boca del frasco inclinado (118°) en esa posición: de aquí sale el chorro. */
+const MOUTH = { x: 194, y: 149 }
+const TILT = 118
 const DROP_START = { x: 200, y: 100 }
 const SHELF_Y = 46
+
+/** Sonido sutil de cada fase (solo si la persona activó el sonido). */
+const PHASE_SOUND = { tilt: 'bottle', pour: 'pour', bubble: 'bubble', stir: 'spoon', drop: 'splash', shimmer: 'bubble' }
 
 /**
  * Capítulo VI: preparación en el caldero.
@@ -74,6 +82,15 @@ export function RitualAnimation({ onReveal, autoFocus }) {
   const activeItem = seq.step?.item !== undefined ? ritual.items[seq.step.item] : null
   const n = ritual.items.length
 
+  // El frasco que acaba de vaciarse se endereza y se deshace en destellos.
+  const vanishing = seq.playing
+    ? ritual.items.findIndex((item, i) => item.kind === 'bottle' && lastStepOf[i] === seq.index - 1)
+    : -1
+
+  useEffect(() => {
+    if (seq.playing && PHASE_SOUND[phase]) playSound(PHASE_SOUND[phase])
+  }, [seq.index])
+
   return (
     <div className="ritual">
       <header className="chapter-intro chapter-intro--center">
@@ -104,23 +121,25 @@ export function RitualAnimation({ onReveal, autoFocus }) {
             {/* Chorro de poción y salpicadura */}
             {phase === 'pour' && activeItem && (
               <>
-                <motion.rect
-                  key={`stream-${seq.index}`}
-                  x="196"
-                  y="148"
-                  width="8"
-                  height="58"
-                  rx="4"
-                  fill={activeItem.color}
-                  initial={{ scaleY: 0, opacity: 1 }}
-                  animate={{ scaleY: [0, 1, 1], opacity: [1, 1, 0] }}
-                  transition={{ duration: 0.5, times: [0, 0.35, 1] }}
-                  style={{ transformBox: 'fill-box', transformOrigin: '50% 0%' }}
-                />
-                <Splash key={`splash-${seq.index}`} color={activeItem.glow} delay={0.15} />
+                <PourStream key={`stream-${seq.index}`} color={activeItem.color} glow={activeItem.glow} reduce={reduce} />
+                <Splash key={`splash-${seq.index}`} color={activeItem.glow} delay={0.12} />
               </>
             )}
-            {phase === 'drop' && activeItem && <Splash key={`splash-${seq.index}`} color={activeItem.glow} delay={0.3} />}
+            {phase === 'drop' && activeItem && <Splash key={`splash-${seq.index}`} color={activeItem.glow} delay={0.28} size={0.8} />}
+            {vanishing >= 0 && (
+              <ParticleBurst
+                key={`vanish-${seq.index}`}
+                cx={POUR.x}
+                cy={POUR.y - 18}
+                count={8}
+                spread={34}
+                rise={30}
+                scale={1}
+                duration={0.9}
+                effect="sparkles"
+                colors={[ritual.items[vanishing].glow, '#fff4d6']}
+              />
+            )}
 
             {/* Estante con los ingredientes que esperan su turno */}
             {ritual.items.map((item, i) => {
@@ -248,19 +267,26 @@ function RitualItem({ item, state, shelfX }) {
   const shelf = { x: shelfX, y: SHELF_Y, scale: 0.5, rotate: 0, opacity: 1 }
   let animate = shelf
   let transition = { duration: 0.35, ease: 'easeOut' }
+  const tilted = state === 'tilt' || state === 'pour'
 
   if (state === 'fly') {
-    animate = isBottle ? { ...POUR, scale: 0.95, rotate: 0, opacity: 1 } : { ...DROP_START, scale: 0.95, rotate: 0, opacity: 1 }
-    transition = { duration: 0.38, ease: [0.3, 0.7, 0.3, 1] }
-  } else if (state === 'tilt' || state === 'pour') {
-    animate = { ...POUR, scale: 0.95, rotate: 118, opacity: 1 }
-    transition = { duration: 0.24, ease: 'easeInOut' }
+    // Vuelo con peso: se agacha, sube, describe un arco, se pasa un poco y se estabiliza.
+    const arc = arcKeyframes({ x: shelfX, y: SHELF_Y }, isBottle ? POUR : DROP_START, { lift: isBottle ? 34 : 26 })
+    animate = { x: arc.x, y: arc.y, scale: arc.scale, rotate: arc.rotate, opacity: 1 }
+    transition = { duration: isBottle ? 0.52 : 0.4, times: arc.times, ease: arc.ease }
+  } else if (tilted) {
+    // Se inclina con una pequeña sobrepasada, como un frasco lleno.
+    // (En 'pour' el valor ya no cambia, así que la inclinación no se repite.)
+    animate = { ...POUR, scale: 0.95, rotate: state === 'tilt' ? [0, TILT + 9, TILT] : TILT, opacity: 1 }
+    transition = { duration: 0.3, times: [0, 0.7, 1], ease: ['easeIn', 'easeOut'] }
   } else if (state === 'drop') {
-    animate = { x: 200, y: 200, scale: 0.3, rotate: 50, opacity: 0 }
-    transition = { duration: 0.38, ease: 'easeIn' }
+    // Cae acelerando hacia el líquido.
+    animate = { x: IMPACT.x, y: IMPACT.y - 4, scale: 0.3, rotate: 50, opacity: [1, 1, 0] }
+    transition = { duration: 0.34, ease: [0.5, 0, 1, 1] }
   } else if (state === 'gone') {
-    animate = { opacity: 0, scale: 0.6 }
-    transition = { duration: 0.3 }
+    // Ya vertido: se endereza, sube un poco y se desvanece en destellos.
+    animate = isBottle ? { x: POUR.x, y: POUR.y - 26, rotate: 20, scale: 0.6, opacity: 0 } : { opacity: 0, scale: 0.3 }
+    transition = { duration: 0.45, ease: 'easeOut' }
   }
 
   return (
@@ -271,7 +297,14 @@ function RitualItem({ item, state, shelfX }) {
       style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
     >
       {isBottle ? (
-        <BottleShape color={item.color} deep={item.deep} glow={item.glow} shape={item.shape} fill={0.78} />
+        <BottleShape
+          color={item.color}
+          deep={item.deep}
+          glow={item.glow}
+          shape={item.shape}
+          fill={state === 'pour' || state === 'gone' ? 0.14 : 0.78}
+          tilt={tilted ? TILT : 0}
+        />
       ) : (
         <g style={{ color: '#f1e6cc' }}>
           <circle r="30" fill={item.color} opacity="0.18" />
@@ -282,21 +315,62 @@ function RitualItem({ item, state, shelfX }) {
   )
 }
 
-function Splash({ color, delay = 0 }) {
+/**
+ * Chorro de poción en SVG: sale de la boca del frasco, se estrecha, oscila un
+ * poco, tiene un brillo en el borde y suelta gotas. Al final se corta desde
+ * arriba y cae.
+ */
+const STREAM_D = `M${MOUTH.x - 3.5} ${MOUTH.y} C${MOUTH.x - 2} 162 197.5 174 197.6 ${IMPACT.y} L202.4 ${IMPACT.y} C202.6 172 ${MOUTH.x + 3} 160 ${MOUTH.x + 2.5} ${MOUTH.y} Z`
+
+function PourStream({ color, glow, reduce }) {
+  const clipId = `stream-clip-${useId().replace(/:/g, '')}`
+  const length = IMPACT.y - MOUTH.y + 4
   return (
-    <motion.ellipse
-      cx="200"
-      cy="204"
-      rx="12"
-      ry="3"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      initial={{ scale: 0.3, opacity: 0 }}
-      animate={{ scale: [0.3, 3.2], opacity: [0.9, 0] }}
-      transition={{ duration: 0.6, delay, ease: 'easeOut' }}
-      style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
-    />
+    <g aria-hidden="true">
+      <defs>
+        <clipPath id={clipId}>
+          <motion.rect
+            x="180"
+            width="40"
+            initial={{ attrY: MOUTH.y, height: 0 }}
+            animate={reduce ? { attrY: MOUTH.y, height: length } : { attrY: [MOUTH.y, MOUTH.y, MOUTH.y, IMPACT.y], height: [0, length, length, 0] }}
+            transition={{ duration: 0.52, times: [0, 0.22, 0.78, 1], ease: ['easeIn', 'linear', 'easeIn'] }}
+          />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${clipId})`}>
+        {/* Oscila apenas: se tuerce y se estrecha desde la boca del frasco */}
+        <motion.path
+          d={STREAM_D}
+          fill={color}
+          animate={reduce ? undefined : { skewX: [0, 2.5, -1.5, 0], scaleX: [1, 0.86, 1.06, 1] }}
+          transition={{ duration: 0.28, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ transformBox: 'fill-box', transformOrigin: '50% 0%' }}
+        />
+        {/* Brillo del borde */}
+        <path
+          d={`M${MOUTH.x - 1.5} ${MOUTH.y + 2} C${MOUTH.x} 163 198.6 176 198.8 ${IMPACT.y - 2}`}
+          fill="none"
+          stroke={glow}
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          opacity="0.8"
+        />
+      </g>
+      {/* Gotas que se desprenden del chorro */}
+      {!reduce &&
+        [0, 1, 2].map((i) => (
+          <motion.circle
+            key={i}
+            cx={196 + i * 3.5}
+            r={1.3 + (i % 2) * 0.5}
+            fill={color}
+            initial={{ cy: MOUTH.y + 8, opacity: 0 }}
+            animate={{ cy: [MOUTH.y + 8, IMPACT.y], x: [0, (i - 1) * 5], opacity: [0, 1, 0] }}
+            transition={{ duration: 0.3, delay: 0.1 + i * 0.11, ease: 'easeIn' }}
+          />
+        ))}
+    </g>
   )
 }
 

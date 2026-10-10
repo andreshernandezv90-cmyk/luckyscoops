@@ -3,11 +3,14 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { BRAND } from '../config/brand.js'
 import { getIntention } from '../data/intentions.js'
 import { buildRitual, liquidFor, scoopColors } from '../lib/ritual.js'
+import { REVEAL_STEPS, revealScene } from '../lib/motion.js'
+import { playSound } from '../lib/sound.js'
 import { formatPrice } from '../lib/format.js'
 import { linkTo } from '../lib/router.js'
 import { useSequence } from '../hooks/useSequence.js'
 import { CHAPTER, useShop } from '../state/ShopContext.jsx'
-import { Cauldron } from './Cauldron.jsx'
+import { Cauldron, Splash } from './Cauldron.jsx'
+import { ScoopReveal } from './ScoopReveal.jsx'
 import { MagicCircle } from './RitualAnimation.jsx'
 import { ParticleBurst } from './ParticleBurst.jsx'
 import { ItemDetails } from './OrderSummary.jsx'
@@ -16,28 +19,29 @@ import { ChapterHeading } from './ChapterHeading.jsx'
 import { WaxSeal } from './illustrations/Sigils.jsx'
 import { CheckMark } from './illustrations/Ornaments.jsx'
 
-/**
- * Guion de la revelación. Cada fase dura poco y todo se puede saltar.
- *   glow  humo, brillo y partículas sobre el caldero
- *   dip   la cuchara entra al caldero
- *   lift  sale una cucharada con la Scoop
- *   (fin) la Scoop se revela desde la cucharada (ver ScoopBloom)
- *
- * Para una animación final más elaborada, agrega fases aquí y dibújalas en
- * <ScoopBloom> o en el SVG de abajo; el resto del capítulo no cambia.
- */
-export const REVEAL_STEPS = [
-  { phase: 'glow', duration: 450 },
-  { phase: 'dip', duration: 600 },
-  { phase: 'lift', duration: 850 },
-]
-
 /** Posición del cazo cuando la cuchara sale del caldero (coordenadas del lienzo 400×400). */
 const SPOON_UP = { x: 198, y: 128 }
 
+// El guion (fases y tiempos) vive en src/lib/motion.js; se reexporta por comodidad.
+export { REVEAL_STEPS }
+
+const HEADINGS = {
+  hush: 'El caldero guarda silencio…',
+  glow: 'Una luz nace dentro del caldero…',
+  dip: 'La cuchara entra al caldero…',
+  lift: 'La cuchara sube con tu receta…',
+  summon: `Tu ${BRAND.productNoun} está siendo invocada…`,
+  name: `Tu ${BRAND.productNoun} está siendo invocada…`,
+}
+
+const PHASE_SOUND = { dip: 'spoon', lift: 'splash', summon: 'reveal' }
+
 /**
- * Capítulo VII: la cuchara entra al caldero y sale con la Scoop.
- * Después se muestra el resultado con toda la información de compra.
+ * Capítulo VII: el momento de la revelación (ver REVEAL_STEPS).
+ * El caldero se calma, nace una luz, la cuchara baja y sube con una cucharada
+ * brillante, la Scoop se invoca sobre ella (<ScoopReveal>) y aparece su nombre.
+ * Después la escena se recoge y entra la tarjeta con toda la información de
+ * compra. Saltar o el movimiento reducido llevan directo al resultado.
  */
 export function Revelation({ autoFocus }) {
   const { builder, price, total, name, title, actions, addBuilderToCart } = useShop()
@@ -55,56 +59,78 @@ export function Revelation({ autoFocus }) {
     // Arranca una sola vez al abrir el capítulo.
   }, [])
 
-  const phase = seq.finished ? 'reveal' : seq.step?.phase ?? 'glow'
-  const spoon = phase === 'dip' ? 'dip' : phase === 'lift' || phase === 'reveal' ? 'lift' : 'rest'
-  const effect = getIntention(builder.intention)?.effect ?? 'sparkles'
+  const phase = seq.finished ? 'reveal' : seq.step?.phase ?? 'hush'
+  const scene = revealScene(phase)
+  const intention = getIntention(builder.intention)
+  const effect = intention?.effect ?? 'sparkles'
+  const glowColor = ritual.items[0]?.glow ?? '#fff4d6'
   const glowColors = ritual.items.map((i) => i.glow).concat('#fff4d6')
-  const showScoop = phase === 'lift' || phase === 'reveal'
+
+  useEffect(() => {
+    if (seq.playing && PHASE_SOUND[phase]) playSound(PHASE_SOUND[phase])
+  }, [seq.index])
 
   return (
     <div className={`revelation is-${phase}`}>
-      <div className="revelation__stage">
+      <div className="revelation__visual">
         <motion.div
-          className="revelation__dim"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: reduce ? 0 : 0.35 }}
-          aria-hidden="true"
-        />
-        <svg viewBox="0 0 400 400" role="img" aria-label={`El caldero burbujea y la cuchara sostiene tu ${name}.`}>
-          <MagicCircle spinning={!reduce} />
-          <Cauldron liquid={liquid} activity="boil" spoon={spoon} scoop={showScoop ? scoopColors(ritual) : null} />
-          {phase === 'glow' && (
-            <ParticleBurst key="glow" cx={200} cy={196} count={16} spread={120} rise={60} scale={1.3} effect="sparkles" colors={glowColors} />
+          className="revelation__stage"
+          initial={false}
+          // Después de disfrutar la Scoop, la escena se recoge un poco y deja paso a la compra.
+          animate={{ scale: seq.finished && !reduce ? 0.95 : 1 }}
+          transition={{ duration: 0.6, ease: [0.3, 0, 0.2, 1] }}
+        >
+          <motion.div
+            className="revelation__dim"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: phase === 'hush' ? 0.6 : 1 }}
+            transition={{ duration: reduce ? 0 : 0.4 }}
+            aria-hidden="true"
+          />
+          <svg viewBox="0 0 400 400" role="img" aria-label={`El caldero brilla y la cuchara sostiene tu ${name}.`}>
+            <MagicCircle spinning={!reduce && phase !== 'hush'} />
+            <Cauldron
+              liquid={liquid}
+              activity={scene.activity}
+              spoon={scene.spoon}
+              spoonful={scene.spoonful ? glowColor : null}
+              innerGlow={scene.innerGlow}
+              drips={scene.drips}
+            />
+            {phase === 'glow' && (
+              <ParticleBurst key="glow" cx={200} cy={200} count={10} spread={90} rise={50} scale={1.2} effect="sparkles" colors={glowColors} />
+            )}
+            {phase === 'dip' && <Splash key="dip" color={glowColor} delay={0.45} x={192} y={206} size={1.3} />}
+            {scene.scoop && <ScoopReveal x={SPOON_UP.x} y={SPOON_UP.y} colors={scoopColors(ritual)} glow={glowColor} />}
+            {phase === 'summon' && (
+              <ParticleBurst key="summon" cx={SPOON_UP.x} cy={SPOON_UP.y - 20} count={18} spread={110} rise={40} scale={1.5} effect={effect} colors={glowColors} />
+            )}
+          </svg>
+          {!seq.finished && (
+            <button type="button" className="btn btn--text btn--on-dark revelation__skip" onClick={seq.skip}>
+              Saltar animación
+            </button>
           )}
-          {phase === 'reveal' && (
-            <>
-              <ScoopBloom color={ritual.items[0]?.glow ?? '#fff4d6'} reduce={reduce} />
-              <ParticleBurst
-                key="reveal"
-                cx={SPOON_UP.x}
-                cy={SPOON_UP.y - 20}
-                count={20}
-                spread={110}
-                rise={40}
-                scale={1.5}
-                effect={effect}
-                colors={glowColors}
-              />
-            </>
+        </motion.div>
+        <AnimatePresence>
+          {scene.name && (
+            <motion.p
+              className="revelation__name"
+              initial={reduce ? false : { opacity: 0, letterSpacing: '0.45em', y: 6 }}
+              animate={{ opacity: 1, letterSpacing: '0.12em', y: 0 }}
+              transition={{ duration: 0.7, ease: [0.2, 0.7, 0.3, 1] }}
+              aria-hidden="true"
+            >
+              {title}
+            </motion.p>
           )}
-        </svg>
-        {!seq.finished && (
-          <button type="button" className="btn btn--text btn--on-dark revelation__skip" onClick={seq.skip}>
-            Saltar animación
-          </button>
-        )}
+        </AnimatePresence>
       </div>
 
       <div className="revelation__result">
         <p className="chapter-intro__kicker">Capítulo VII · Revelación</p>
         <ChapterHeading autoFocus={autoFocus} className={seq.finished ? 'revelation__title' : 'revelation__heading'}>
-          {seq.finished ? `Tu ${BRAND.productNoun} ha sido revelada` : 'La cuchara entra al caldero…'}
+          {seq.finished ? `Tu ${BRAND.productNoun} ha sido revelada` : HEADINGS[phase]}
         </ChapterHeading>
         <p className="sr-only" role="status">
           {seq.finished ? `Tu ${BRAND.productNoun} ha sido revelada: ${title}, ${formatPrice(price)} cada una.` : ''}
@@ -113,9 +139,9 @@ export function Revelation({ autoFocus }) {
         <AnimatePresence>
           {seq.finished && (
             <motion.div
-              initial={reduce ? false : { opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
+              initial={reduce ? false : { opacity: 0, y: 26, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.55, ease: [0.2, 0.8, 0.3, 1] }}
             >
               {added ? (
                 <div className="result-card result-card--added" role="status">
@@ -193,24 +219,3 @@ const EDIT_LINKS = [
   [CHAPTER.INGREDIENTES, 'Extras'],
   [CHAPTER.DEDICATORIA, 'Dedicatoria'],
 ]
-
-/**
- * La Scoop se revela desde la cucharada: un halo que se abre sobre el cazo.
- * PUNTO DE EXTENSIÓN: reemplaza este componente por la ilustración o
- * animación final (por ejemplo, el frasco de la Scoop saliendo de la luz).
- */
-function ScoopBloom({ color, reduce }) {
-  return (
-    <motion.circle
-      cx={SPOON_UP.x}
-      cy={SPOON_UP.y - 14}
-      r="44"
-      fill={color}
-      initial={reduce ? false : { scale: 0.2, opacity: 0 }}
-      animate={{ scale: 1, opacity: 0.28 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      style={{ transformBox: 'fill-box', transformOrigin: 'center', mixBlendMode: 'screen' }}
-      aria-hidden="true"
-    />
-  )
-}

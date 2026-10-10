@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
 import { INTENTIONS } from '../data/intentions.js'
 import { useShop } from '../state/ShopContext.jsx'
+import { SelectionSeal } from './SelectionSeal.jsx'
+import { playSound } from '../lib/sound.js'
 import { PotionBottle } from './illustrations/PotionBottle.jsx'
-import { IntentionSigil, WaxSeal } from './illustrations/Sigils.jsx'
+import { IntentionSigil } from './illustrations/Sigils.jsx'
 import { BurstOverlay } from './ParticleBurst.jsx'
 
 /** Capítulo I: cuatro intenciones, cada una con su propia botella (grupo de radio). */
@@ -34,6 +35,7 @@ export function PotionSelector() {
               onChange={() => {
                 actions.setIntention(intention.id)
                 setBurst((b) => b + 1)
+                playSound('select')
               }}
               className="sr-only"
             />
@@ -45,6 +47,7 @@ export function PotionSelector() {
                 glow={intention.colors.glow}
                 shape={intention.bottle}
                 fill={0.72}
+                sloshKey={selected ? burst : 0}
               />
               <IntentionSigil id={intention.id} className="recipe-card__sigil" />
             </span>
@@ -54,19 +57,7 @@ export function PotionSelector() {
             <span className="recipe-card__cta" aria-hidden="true">
               {selected ? 'Elegida' : 'Elegir'}
             </span>
-            <AnimatePresence>
-              {selected && (
-                <motion.span
-                  className="recipe-card__seal"
-                  initial={{ scale: 1.8, opacity: 0, rotate: -30 }}
-                  animate={{ scale: 1, opacity: 1, rotate: -10 }}
-                  exit={{ scale: 0.6, opacity: 0 }}
-                  transition={{ duration: 0.35, ease: [0.3, 1.4, 0.5, 1] }}
-                >
-                  <WaxSeal color={intention.colors.deep} glyph="check" />
-                </motion.span>
-              )}
-            </AnimatePresence>
+            <SelectionSeal show={selected} className="recipe-card__seal" color={intention.colors.deep} glyph="check" rotate={-10} />
             {selected && burst > 0 && (
               <BurstOverlay key={burst} effect={intention.effect} colors={[intention.colors.glow, intention.colors.liquid, '#fff4d6']} />
             )}

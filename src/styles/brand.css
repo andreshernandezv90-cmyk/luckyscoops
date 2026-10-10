@@ -1,0 +1,192 @@
+/* ==========================================================================
+   Logo oficial. Cada SVG se usa como máscara: el logo toma el color
+   (currentColor) o el degradado del lugar donde aparece.
+   ========================================================================== */
+
+.brand-logo {
+  display: inline-block;
+  flex: none;
+  background: currentColor;
+  -webkit-mask: var(--logo-src) center / contain no-repeat;
+  mask: var(--logo-src) center / contain no-repeat;
+}
+.brand-logo--full {
+  aspect-ratio: 925.77 / 1010.77;
+}
+.brand-logo--mark {
+  aspect-ratio: 1;
+}
+.brand-logo--text {
+  aspect-ratio: 942 / 284;
+}
+
+/* Dorado de hoja de oro: degradado con vetas, sin imágenes */
+.brand-logo--gilded,
+.emboss__gold {
+  background:
+    linear-gradient(115deg, transparent 38%, rgba(255, 248, 220, 0.75) 48%, transparent 58%) var(--sheen-x, 160%) 0 / 260% 100% no-repeat,
+    linear-gradient(170deg, #fbe9b0 0%, #e2c06a 22%, #a8822f 46%, #e8c86e 64%, #8c6a24 86%, #c9a24a 100%);
+}
+
+/* Encabezado: isotipo dorado junto al nombre */
+.brand .brand__sigil.brand-logo {
+  width: 40px;
+  height: 40px;
+  color: var(--gold-bright);
+  filter: drop-shadow(0 0 6px rgba(232, 198, 106, 0.25));
+  transition: transform 0.4s cubic-bezier(0.3, 1.4, 0.5, 1), filter 0.4s;
+}
+.brand:hover .brand__sigil.brand-logo,
+.brand:focus-visible .brand__sigil.brand-logo {
+  transform: rotate(-6deg) scale(1.06);
+  filter: drop-shadow(0 0 10px rgba(232, 198, 106, 0.5));
+}
+
+/* Pie de página: logo completo discreto */
+.site-footer__logo.brand-logo {
+  width: 120px;
+  color: var(--gold);
+  opacity: 0.85;
+  margin-bottom: 10px;
+}
+
+/* ---------- Logo grabado en el cuero de la portada ----------
+   Tres capas de la misma máscara: sombra (hundido en el cuero), luz del
+   borde y hoja de oro. Parece estampado, no una imagen encima. */
+.emboss {
+  position: relative;
+  display: block;
+  aspect-ratio: 925.77 / 1010.77;
+}
+.emboss > .brand-logo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+.emboss__shadow {
+  background: rgba(10, 2, 18, 0.85);
+  transform: translate(0.5%, 0.9%);
+  filter: blur(0.6px);
+}
+.emboss__light {
+  background: rgba(255, 214, 240, 0.28);
+  transform: translate(-0.35%, -0.5%);
+}
+.emboss__gold {
+  filter: drop-shadow(0 0 5px rgba(232, 198, 106, 0.18));
+}
+
+@media (max-width: 420px) {
+  .brand .brand__sigil.brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* "Déjalo en manos de la Bruja Sabia": la mano del isotipo */
+.focus-card__logo.brand-logo {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Botón de sonido (apagado por defecto) ---------- */
+.sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+  color: var(--gold-bright);
+  border-color: rgba(201, 162, 74, 0.45);
+}
+.sound-toggle.is-on {
+  color: var(--gold-bright);
+}
+.sound-toggle__icon {
+  width: 22px;
+  height: 22px;
+}
+@media (max-width: 1500px) {
+  .sound-toggle__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .sound-toggle {
+    padding: 0;
+  }
+}
+
+/* Menú en una sola línea por enlace (con el botón de sonido, el espacio es justo) */
+@media (min-width: 1240px) {
+  .site-nav__link,
+  .cart-link__label {
+    white-space: nowrap;
+  }
+  .site-nav__link {
+    padding: 0 8px;
+    letter-spacing: 0.04em;
+  }
+}
+.cart-link__icon,
+.sound-toggle__icon {
+  flex: none;
+}
+
+/* Con el botón de sonido, en celulares el carrito muestra solo su ícono */
+@media (max-width: 520px) {
+  .cart-link__label {
+    display: none;
+  }
+  .site-header__actions {
+    gap: 2px;
+  }
+  .cart-link {
+    gap: 4px;
+    padding: 0 8px;
+  }
+}
+@media (max-width: 400px) {
+  .sound-toggle {
+    min-width: 38px;
+  }
+  .brand {
+    gap: 6px;
+  }
+  .brand__name {
+    font-size: 0.86rem;
+  }
+}
+
+/* Mientras llega una página que se carga aparte (normalmente no se ve: se precarga) */
+.page-loading {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-title);
+  letter-spacing: 0.12em;
+  color: var(--gold);
+}
+
+/* El sello cae desde grande: que nunca genere scroll horizontal en celulares */
+.order-complete {
+  overflow-x: clip;
+}

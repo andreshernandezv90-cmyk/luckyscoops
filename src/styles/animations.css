@@ -96,21 +96,23 @@
 .mote--7 { animation-delay: -1.8s; }
 .mote--8 { animation-delay: -3.6s; animation-duration: 9s; }
 
-/* El libro cerrado respira levemente para invitar a abrirlo */
+/* El libro cerrado respira levemente para invitar a abrirlo (solo opacidad) */
 @keyframes book-breathe {
   0%,
   100% {
-    filter: drop-shadow(0 0 0 rgba(232, 198, 106, 0));
+    opacity: 0.25;
   }
   50% {
-    filter: drop-shadow(0 0 22px rgba(232, 198, 106, 0.35));
+    opacity: 1;
   }
 }
-.table-scene__book .closed-book__cover {
-  animation: book-breathe 3.2s ease-in-out infinite;
+.table-scene__book .closed-book__aura {
+  animation: book-breathe 3.6s ease-in-out infinite;
 }
-.table-scene__book.is-open .closed-book__cover {
+.table-scene__book.is-open .closed-book__aura {
   animation: none;
+  opacity: 1;
+  transition: opacity 0.4s;
 }
 
 /* Contador del carrito */

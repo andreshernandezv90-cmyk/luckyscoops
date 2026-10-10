@@ -29,7 +29,7 @@ El sitio **no inventa datos del negocio**. Lo que aún no existe está en `null`
 
 | Pendiente | Dónde se completa |
 | --- | --- |
-| Logo oficial | `src/config/brand.js` → `logo` (pon el archivo en `public/`) |
+| Audios definitivos (opcional) | `src/lib/sound.js` → `SOUND_FILES` (archivos en `public/sounds/`) |
 | WhatsApp, TikTok, Instagram, correo, horario | `src/config/brand.js` → `contact` |
 | Precios reales (hoy son de demostración) | `src/data/prices.js` → precios y `areDemo: false` |
 | Tarifas de envío (pequeño, mediano, grande) | `src/data/prices.js` → `shipping.tiers` y `src/lib/shipping.js` |
@@ -53,8 +53,10 @@ En cuanto se escribe el número de WhatsApp, la pantalla final muestra el botón
 | Recomendaciones del Grimorio (Capítulo IV) | `src/data/recommendations.js` |
 | Capítulos y sus títulos | `src/data/chapters.js` |
 | Preguntas frecuentes | `src/data/faq.js` |
+| Logo (rutas de los archivos) | `src/config/brand.js` → `logo`, `logoMark`, `logoText` |
 | Ritmo del ritual del caldero | `src/lib/ritual.js` (`STEP_MS`) |
-| Fases de la revelación final | `src/components/Revelation.jsx` (`REVEAL_STEPS`, `ScoopBloom`) |
+| Apertura del libro, pase de página, vuelo de frascos, cuchara y revelación | `src/lib/motion.js` |
+| Ilustración de la Scoop revelada | `src/components/ScoopReveal.jsx` |
 
 Los precios solo existen en `src/data/prices.js`; todo lo demás los calcula con `src/lib/pricing.js`:
 
@@ -70,9 +72,33 @@ Envíos a toda la República Mexicana. Hoy el sitio estima el **rango del paquet
 
 Hoy el pedido se registra en el navegador y se envía a la Bruja Sabia por WhatsApp; **no se cobra en línea ni se piden datos de tarjeta**. Para recibir pedidos automáticamente o cobrar en línea, reemplaza `submitOrder()` en `src/lib/order.js` por la llamada a tu backend o pasarela (Mercado Pago, Stripe…).
 
-## Revelación final
+## Logo
 
-La revelación ya hace: brillo y partículas → la cuchara entra al caldero → sale una cucharada → la Scoop se revela con un halo. Para una animación más elaborada, añade fases en `REVEAL_STEPS` y reemplaza el componente `ScoopBloom` en `src/components/Revelation.jsx`; el resto del capítulo no cambia.
+Los archivos están en `public/branding/`:
+
+| Archivo | Uso |
+| --- | --- |
+| `logo.svg` | Logo completo: portada del Grimorio (estampado en oro) y pie de página |
+| `logo-isotipo.svg` | Luna, mano y cuchara: encabezado, marca grabada en el caldero, sello de lacre del pedido, "Déjalo en manos de la Bruja Sabia" |
+| `logo-texto.svg` | Solo las letras (disponible para usos futuros) |
+| `favicon.svg`, `apple-touch-icon.png` | Ícono del sitio |
+| `original/` | Los dos archivos tal como se entregaron |
+
+`BrandMark` usa cada SVG como máscara CSS, así el mismo archivo se pinta dorado, en tinta o con relieve según el lugar. Si `BRAND.logo` vuelve a `null`, el sitio usa el sigilo provisional.
+
+## Movimiento
+
+Todos los tiempos y fotogramas de las animaciones principales están en `src/lib/motion.js` (con pruebas en `tests/motion.test.js`):
+
+- **Abrir el Grimorio** (`BOOK_OPEN`, ~1.15 s): anticipación, arranque lento, aceleración, pequeña sobrepasada; sombra de la tapa sobre las páginas, brillo sobre el oro y hojas que se mueven con el aire. `BOOK_CLOSE` cierra el libro al terminar el pedido.
+- **Pasar página** (`pageTurnPlan`, `PageTurnTransition.jsx`): en escritorio una hoja se levanta, se curva, cruza el lomo y se asienta (0.68 s); en celular la hoja gira sobre el lomo y se desvanece; con movimiento reducido, solo un fundido.
+- **Ritual**: los frascos vuelan en arco (`arcKeyframes`) y se inclinan con el líquido nivelado dentro; el chorro es SVG, el color nuevo entra desde el punto de impacto y la cuchara recorre una elipse (`stirKeyframes`). Fuego, humo, burbujas y destellos son animaciones CSS en `src/styles/motion.css`.
+- **Revelación** (`REVEAL_STEPS`): silencio → luz desde el líquido → la cuchara baja → sube con una cucharada brillante → la Scoop se invoca (`ScoopReveal`) → aparece el nombre → entra la tarjeta de compra.
+- **Partículas** (`ParticleBurst.jsx`): cada intención tiene su propio movimiento (corazones que flotan, runas en anillo, brillos que suben, bocanadas).
+
+## Sonido
+
+Opcional y **apagado por defecto**: el botón "Sonido" del encabezado lo activa y la preferencia se recuerda. No hay música de fondo. Mientras no haya audios definitivos, los efectos (página, libro, frasco, vertido, burbuja, cuchara, revelación) se sintetizan con Web Audio a volumen bajo; para usar archivos reales, escribe sus rutas en `SOUND_FILES` (`src/lib/sound.js`).
 
 ## Estructura
 
@@ -84,6 +110,8 @@ src/
     pricing.js             Precios, claves del carrito y totales
     shipping.js            Rango y costo de envío (pendiente de tarifas)
     ritual.js              Convierte la receta en el guion del caldero
+    motion.js              Tiempos y fotogramas: libro, páginas, frascos, cuchara, revelación
+    sound.js               Efectos de sonido opcionales (apagados por defecto)
     order.js               Entrega, formas de pago, registro y mensaje de WhatsApp
     router.js              Enrutador mínimo por hash
   state/ShopContext.jsx    Estado: intention, focus, size, extras, dedication, quantity,
@@ -91,20 +119,24 @@ src/
   components/
     Grimorio.jsx           Libro abierto, siete capítulos y navegación
     PotionSelector · FocusSelector · SizeSelector · ExtrasSelector · DedicationSelector
+    PageTurnTransition.jsx Pasar página del Grimorio
     RitualAnimation.jsx    Capítulo VI (caldero)
     Revelation.jsx         Capítulo VII
+    ScoopReveal.jsx        La Scoop invocada sobre la cuchara
+    BrandMark.jsx          Logo (completo, isotipo o texto)
     Cauldron.jsx           Caldero en capas SVG
     Cart · Checkout · OrderComplete · OrderSummary
     home/                  Portada y secciones del inicio
     illustrations/         Botellas, sigilos, sellos, velas, cristales (todo SVG)
-  styles/                  base, layout, grimorio, ritual, shop, sections, animations, fonts
+  styles/                  base, layout, grimorio, ritual, shop, sections, brand, motion, animations, fonts
 ```
 
 ## Accesibilidad y rendimiento
 
 - Opciones con controles nativos (radios) o botones con `aria-pressed`; todo se usa con teclado.
 - Al pasar de capítulo, el foco va al título nuevo; el precio y el ritual se anuncian con `aria-live`.
-- `prefers-reduced-motion`: el caldero y la revelación muestran el resultado sin animar; siempre existe **Saltar animación**.
+- `prefers-reduced-motion`: sin vuelos, giros 3D ni partículas; el libro y las páginas cambian con un fundido, y el caldero y la revelación muestran el resultado directamente. Siempre existe **Saltar animación**.
+- Rendimiento: las animaciones usan `transform` y `opacity`; los ciclos continuos (fuego, humo, burbujas) son CSS y el humo usa degradados en lugar de filtros de desenfoque.
 - Los videos de TikTok solo se cargan cuando la persona pulsa "Ver video".
 - Sin imágenes pesadas: las ilustraciones son SVG y las tipografías (Cinzel, Cinzel Decorative, EB Garamond, licencia SIL OFL) van incluidas en `src/assets/fonts`.
 

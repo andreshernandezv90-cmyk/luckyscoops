@@ -24,11 +24,16 @@ export const BRAND = {
   witch: 'la Bruja Sabia',
 
   /**
-   * TODO / PENDIENTE: logo oficial.
-   * Coloca el archivo en /public (por ejemplo public/logo.svg) y escribe aquí
-   * './logo.svg'. Mientras sea null se usa el sigilo provisional.
+   * Logo oficial (archivos en public/branding/). Las rutas son relativas para
+   * que el sitio funcione en la raíz de un dominio o en una subcarpeta.
+   *   logo      logo completo: isotipo + "SCOOOPS de la Bruja Sabia"
+   *   logoMark  isotipo (luna, mano y cuchara): encabezado, sellos, favicon
+   *   logoText  solo el texto del logo
+   * Si `logo` vuelve a ser null, el sitio usa el sigilo provisional.
    */
-  logo: null,
+  logo: './branding/logo.svg',
+  logoMark: './branding/logo-isotipo.svg',
+  logoText: './branding/logo-texto.svg',
 
   /** Prefijo de los números de pedido, p. ej. BS-1025-4821. */
   orderPrefix: 'BS',

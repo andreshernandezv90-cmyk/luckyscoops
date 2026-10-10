@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { motion } from 'motion/react'
 
 /**
  * Frasco de poción dibujado en SVG.
@@ -6,6 +7,12 @@ import { useId } from 'react'
  * SVG (el caldero); `PotionBottle` lo envuelve en su propio <svg>.
  *
  * shape: 'round' · 'tall' · 'flask' · 'drop' (una por intención) · 'vial' (esencia de tamaño)
+ *
+ * El líquido reacciona como líquido:
+ *   tilt      grados que está inclinado el frasco; la superficie se mantiene
+ *             horizontal (gira al revés) con un vaivén elástico
+ *   fill      nivel (0–1); al cambiar, baja o sube con suavidad (al verter)
+ *   sloshKey  al cambiar, el líquido se mece y un destello recorre el vidrio
  */
 const OUTLINES = {
   /** Matraz redondo (Amor) */
@@ -20,7 +27,7 @@ const OUTLINES = {
   vial: 'M25 14 V28 Q16 28 16 38 V74 Q16 82 24 82 H36 Q44 82 44 74 V38 Q44 28 35 28 V14 Z',
 }
 
-export function BottleShape({ color, deep, glow = '#fff', fill = 0.7, shape = 'round', showGlow = true }) {
+export function BottleShape({ color, deep, glow = '#fff', fill = 0.7, shape = 'round', showGlow = true, tilt = 0, sloshKey = 0 }) {
   const uid = useId().replace(/:/g, '')
   const clipId = `bottle-clip-${uid}`
   const liquidId = `bottle-liquid-${uid}`
@@ -35,7 +42,7 @@ export function BottleShape({ color, deep, glow = '#fff', fill = 0.7, shape = 'r
         <clipPath id={clipId}>
           <path d={outline} />
         </clipPath>
-        <linearGradient id={liquidId} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={liquidId} x1="0" y1="30" x2="0" y2="96" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor={color} />
           <stop offset="1" stopColor={deep ?? color} />
         </linearGradient>
@@ -48,10 +55,50 @@ export function BottleShape({ color, deep, glow = '#fff', fill = 0.7, shape = 'r
       {/* Vidrio */}
       <path d={outline} fill="rgba(240, 230, 210, 0.16)" />
       <g clipPath={`url(#${clipId})`}>
-        <rect x="0" y={liquidTop} width="60" height="90" fill={`url(#${liquidId})`} />
-        <ellipse cx="30" cy={liquidTop} rx="30" ry="2.4" fill={glow} opacity="0.45" />
-        <circle cx="24" cy={Math.max(liquidTop + 10, 60)} r="2" fill="#fff" opacity="0.35" />
-        <circle cx="35" cy={Math.max(liquidTop + 18, 68)} r="1.4" fill="#fff" opacity="0.3" />
+        {/* Gira alrededor del centro del frasco (30, 56): el rectángulo invisible fija ese centro. */}
+        <motion.g
+          key={sloshKey}
+          initial={false}
+          animate={{ rotate: sloshKey ? [-tilt, -tilt + 11, -tilt - 7, -tilt + 3, -tilt] : -tilt }}
+          transition={sloshKey ? { duration: 0.75, ease: 'easeOut' } : { type: 'spring', stiffness: 90, damping: 7 }}
+          style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
+        >
+          <rect x="-120" y="-94" width="300" height="300" fill="none" />
+          <motion.rect
+            x="-40"
+            width="140"
+            height="120"
+            initial={false}
+            animate={{ attrY: liquidTop }}
+            transition={{ duration: 0.45, ease: 'easeInOut' }}
+            fill={`url(#${liquidId})`}
+          />
+          <motion.ellipse
+            cx="30"
+            rx="40"
+            ry="2.4"
+            initial={false}
+            animate={{ cy: liquidTop }}
+            transition={{ duration: 0.45, ease: 'easeInOut' }}
+            fill={glow}
+            opacity="0.45"
+          />
+          <circle cx="24" cy={Math.max(liquidTop + 10, 60)} r="2" fill="#fff" opacity="0.35" />
+          <circle cx="35" cy={Math.max(liquidTop + 18, 68)} r="1.4" fill="#fff" opacity="0.3" />
+        </motion.g>
+        {sloshKey > 0 && (
+          <motion.rect
+            key={`glint-${sloshKey}`}
+            y="-10"
+            width="9"
+            height="110"
+            fill="#fff"
+            transform="rotate(18 30 45)"
+            initial={{ attrX: -20, opacity: 0 }}
+            animate={{ attrX: 70, opacity: [0, 0.75, 0] }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+          />
+        )}
       </g>
       <path d={outline} fill="none" stroke="rgba(250, 240, 220, 0.75)" strokeWidth="1.6" />
       {/* Reflejo */}

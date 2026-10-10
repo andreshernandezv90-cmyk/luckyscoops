@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { motion } from 'motion/react'
 import { SIZES } from '../data/sizes.js'
 import { getIntention } from '../data/intentions.js'
 import { formatPrice } from '../lib/format.js'
 import { useShop } from '../state/ShopContext.jsx'
+import { SelectionSeal } from './SelectionSeal.jsx'
+import { playSound } from '../lib/sound.js'
 import { PotionBottle } from './illustrations/PotionBottle.jsx'
-import { MoonPhase, WaxSeal } from './illustrations/Sigils.jsx'
+import { MoonPhase } from './illustrations/Sigils.jsx'
 import { BurstOverlay } from './ParticleBurst.jsx'
 
 /** Capítulo III: tres tamaños presentados como niveles de intensidad. */
@@ -30,11 +32,25 @@ export function SizeSelector() {
               onChange={() => {
                 actions.setSize(size.id)
                 setBurst((b) => b + 1)
+                playSound('select')
               }}
               className="sr-only"
             />
             <span className="size-card__art">
               <MoonPhase phase={size.moon} className="size-card__moon" />
+              {selected && (
+                <svg className="size-card__ring" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                  <motion.circle
+                    cx="32"
+                    cy="32"
+                    r="29"
+                    initial={{ pathLength: 0, opacity: 0, rotate: -90 }}
+                    animate={{ pathLength: 1, opacity: 1, rotate: -90 }}
+                    transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+                    style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
+                  />
+                </svg>
+              )}
               <PotionBottle
                 className="size-card__bottle"
                 color={colors.liquid}
@@ -42,6 +58,7 @@ export function SizeSelector() {
                 glow={size.essence}
                 fill={size.fill}
                 shape={intention?.bottle ?? 'round'}
+                sloshKey={selected ? burst : 0}
               />
             </span>
             <span className="size-card__body">
@@ -58,19 +75,7 @@ export function SizeSelector() {
                 <span key={i} className={i <= index ? 'is-on' : ''} />
               ))}
             </span>
-            <AnimatePresence>
-              {selected && (
-                <motion.span
-                  className="size-card__seal"
-                  initial={{ scale: 1.8, opacity: 0, rotate: -30 }}
-                  animate={{ scale: 1, opacity: 1, rotate: -8 }}
-                  exit={{ scale: 0.6, opacity: 0 }}
-                  transition={{ duration: 0.35, ease: [0.3, 1.4, 0.5, 1] }}
-                >
-                  <WaxSeal color="#7a5a1c" glyph="check" />
-                </motion.span>
-              )}
-            </AnimatePresence>
+            <SelectionSeal show={selected} className="size-card__seal" color="#7a5a1c" glyph="check" rotate={-8} />
             {selected && burst > 0 && <BurstOverlay key={burst} effect="sparkles" colors={[size.essence, '#fff4d6']} />}
           </label>
         )

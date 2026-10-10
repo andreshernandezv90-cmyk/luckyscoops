@@ -38,13 +38,14 @@ export function OrderComplete() {
     <section className="page order-complete" aria-labelledby="done-title">
       <div className="order-complete__art" aria-hidden="true">
         <BookCover startOpen className="closed-book--small" />
+        {/* Cuando la tapa termina de caer, el sello con la marca se estampa sobre el libro */}
         <motion.div
           className="order-complete__seal"
           initial={reduce ? false : { scale: 2.2, opacity: 0, rotate: -40 }}
-          animate={{ scale: 1, opacity: 1, rotate: -12 }}
-          transition={{ delay: reduce ? 0 : 0.95, duration: 0.4, ease: [0.3, 1.4, 0.5, 1] }}
+          animate={reduce ? { opacity: 1, rotate: -12 } : { scale: [2.2, 0.88, 1.04, 1], opacity: 1, rotate: -12 }}
+          transition={{ delay: reduce ? 0 : 1.2, duration: 0.45, times: [0, 0.55, 0.8, 1], ease: 'easeOut' }}
         >
-          <WaxSeal color="#6a1f5c" glyph="check" />
+          <WaxSeal color="#b0306f" glyph={BRAND.logoMark ? 'brand' : 'check'} />
         </motion.div>
       </div>
 

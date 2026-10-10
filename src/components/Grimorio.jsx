@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useReducedMotion } from 'motion/react'
 import { BRAND } from '../config/brand.js'
 import { CHAPTERS } from '../data/chapters.js'
 import { formatPrice } from '../lib/format.js'
 import { navigate } from '../lib/router.js'
+import { playSound } from '../lib/sound.js'
 import { ANIMATION, CHAPTER, canEnterChapter, useShop } from '../state/ShopContext.jsx'
 import { BookPage } from './BookPage.jsx'
+import { PageTurnTransition } from './PageTurnTransition.jsx'
 import { ChapterProgress } from './ChapterProgress.jsx'
 import { ChapterHeading } from './ChapterHeading.jsx'
 import { RecipeCard, recipeSummary } from './Recipe.jsx'
@@ -69,12 +71,6 @@ function nextStep(chapter, builder) {
 /** Capítulos opcionales: se muestra la pista aunque se pueda avanzar. */
 const OPTIONAL_HINT = new Set([CHAPTER.ENFOQUE, CHAPTER.INGREDIENTES, CHAPTER.DEDICATORIA])
 
-const pageTurn = {
-  enter: (dir) => ({ opacity: 0, x: dir > 0 ? 36 : -36, rotateY: dir > 0 ? 8 : -8 }),
-  center: { opacity: 1, x: 0, rotateY: 0 },
-  exit: (dir) => ({ opacity: 0, x: dir > 0 ? -36 : 36, rotateY: dir > 0 ? -8 : 8 }),
-}
-
 /**
  * El grimorio abierto: estructura narrativa de toda la compra personalizada.
  * Capítulos I–V: página izquierda (instrucciones + receta) y derecha (opciones).
@@ -95,6 +91,7 @@ export function Grimorio() {
   useEffect(() => {
     if (mounted.current && prevChapter.current !== chapter) {
       setNudge(false)
+      playSound('pageTurn')
       const top = topRef.current?.getBoundingClientRect().top ?? 0
       if (top < 0) topRef.current.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
     }
@@ -128,30 +125,23 @@ export function Grimorio() {
         <ChapterProgress current={chapter} builder={builder} onSelect={goTo} />
 
         <div className={`book book--chapter-${chapter}`}>
-          <AnimatePresence mode="wait" initial={false} custom={direction}>
-            <motion.div
-              key={chapter}
-              className={`book__spread${chapter >= CHAPTER.PREPARACION ? ' book__spread--full' : ''}`}
-              custom={direction}
-              variants={pageTurn}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-            >
-              {chapter <= CHAPTER.DEDICATORIA && <SelectionSpread chapter={chapter} autoFocus={autoFocus} />}
-              {chapter === CHAPTER.PREPARACION && (
-                <BookPage side="full">
-                  <RitualAnimation autoFocus={autoFocus} onReveal={() => goTo(CHAPTER.REVELACION)} />
-                </BookPage>
-              )}
-              {chapter === CHAPTER.REVELACION && (
-                <BookPage side="full" tone="night">
-                  <Revelation autoFocus={autoFocus} />
-                </BookPage>
-              )}
-            </motion.div>
-          </AnimatePresence>
+          <PageTurnTransition
+            pageKey={chapter}
+            direction={direction}
+            className={`book__spread${chapter >= CHAPTER.PREPARACION ? ' book__spread--full' : ''}`}
+          >
+            {chapter <= CHAPTER.DEDICATORIA && <SelectionSpread chapter={chapter} autoFocus={autoFocus} />}
+            {chapter === CHAPTER.PREPARACION && (
+              <BookPage side="full">
+                <RitualAnimation autoFocus={autoFocus} onReveal={() => goTo(CHAPTER.REVELACION)} />
+              </BookPage>
+            )}
+            {chapter === CHAPTER.REVELACION && (
+              <BookPage side="full" tone="night">
+                <Revelation autoFocus={autoFocus} />
+              </BookPage>
+            )}
+          </PageTurnTransition>
         </div>
 
         {next && (

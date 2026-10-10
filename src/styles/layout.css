@@ -42,10 +42,6 @@
   line-height: 1.1;
   letter-spacing: 0.03em;
 }
-.brand-logo {
-  height: 44px;
-  width: auto;
-}
 
 .site-nav {
   margin-left: auto;
@@ -405,10 +401,26 @@
   position: relative;
   container-type: inline-size;
   aspect-ratio: 3 / 4;
-  perspective: 1800px;
   cursor: pointer;
 }
+/* Capa que se desplaza un poco al abrir; su perspectiva da profundidad a la tapa. */
+.closed-book__body {
+  position: absolute;
+  inset: 0;
+  perspective: 1800px;
+  perspective-origin: 40% 50%;
+}
+/* Resplandor que "respira" detrás del libro cerrado (solo opacidad: barato) */
+.closed-book__aura {
+  position: absolute;
+  inset: -10%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(232, 198, 106, 0.28), rgba(194, 61, 138, 0.1) 55%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
 .closed-book__shadow {
+  transform-origin: 70% 50%;
   position: absolute;
   left: -8%;
   right: -12%;
@@ -432,7 +444,30 @@
 .closed-book.is-open .closed-book__pages {
   box-shadow: 0 0 80px 10px rgba(255, 214, 130, 0.45);
 }
+.closed-book__page-shade {
+  /* Sombra que la tapa proyecta sobre la primera página mientras se abre */
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(20, 8, 4, 0.85), rgba(20, 8, 4, 0.55) 45%, rgba(20, 8, 4, 0.25));
+  pointer-events: none;
+}
+.closed-book__leaf {
+  /* Hojas sueltas: el aire de la tapa las levanta un poco */
+  position: absolute;
+  inset: 1.6% 0.4% 1.6% 2.5%;
+  border-radius: 2px 6px 6px 2px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, #cdb98e, var(--parchment) 18%, #efe2c2 70%, #d9c79f);
+  box-shadow: 1px 0 3px rgba(60, 35, 10, 0.25);
+  opacity: 0.9;
+}
+.closed-book__leaf--late {
+  inset: 2.2% 1.2% 2.2% 2.5%;
+  opacity: 0.75;
+}
 .closed-book__first-page {
+  position: relative;
   padding: 12%;
   text-align: center;
   opacity: 0;
@@ -515,18 +550,18 @@
 
 .closed-book__emblem {
   position: absolute;
-  inset: 16% 14% 16% 17%;
+  inset: 12% 13% 12% 16%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6%;
+  gap: 4%;
   text-align: center;
 }
 .closed-book__brand {
   margin: 0;
   font-family: var(--font-title);
-  font-size: 4.4cqw;
+  font-size: 3.6cqw;
   letter-spacing: 0.14em;
   color: var(--pink-soft);
   text-transform: uppercase;
@@ -541,10 +576,10 @@
   margin: 0;
   font-family: var(--font-title);
   font-weight: 700;
-  font-size: 7cqw;
-  letter-spacing: 0.1em;
+  font-size: 4.4cqw;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  line-height: 1.3;
+  line-height: 1.35;
   background: linear-gradient(180deg, #f6e2a4, var(--gold) 60%, var(--gold-deep));
   -webkit-background-clip: text;
   background-clip: text;
@@ -564,7 +599,28 @@
   background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright), var(--gold-deep));
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
+.closed-book__glint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 32%, rgba(255, 236, 200, 0.2) 46%, rgba(255, 250, 230, 0.32) 50%, transparent 64%);
+  mix-blend-mode: screen;
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+.closed-book__face-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.45));
+  opacity: 0;
+  pointer-events: none;
+}
+.closed-book__logo {
+  width: 62%;
+  flex: none;
+}
 .closed-book__inside {
+  overflow: hidden;
   transform: rotateY(180deg);
   background:
     radial-gradient(circle at 30% 30%, rgba(194, 61, 138, 0.8), transparent 40%),

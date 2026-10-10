@@ -4,6 +4,7 @@ import { linkTo, ROUTES } from '../lib/router.js'
 import { useShop } from '../state/ShopContext.jsx'
 import { CartIcon, MenuIcon } from './illustrations/Ornaments.jsx'
 import { BrandMark } from './BrandMark.jsx'
+import { SoundToggle } from './SoundToggle.jsx'
 
 const LINKS = [
   { path: ROUTES.inicio, label: 'Inicio' },
@@ -54,6 +55,7 @@ export function Header({ path }) {
         </nav>
 
         <div className="site-header__actions">
+          <SoundToggle />
           <a
             className="cart-link"
             aria-current={path === ROUTES.carrito ? 'page' : undefined}

@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { BRAND } from '../../config/brand.js'
 import { linkTo, navigate, ROUTES } from '../../lib/router.js'
+import { BOOK_OPEN_NAVIGATE_MS } from '../../lib/motion.js'
+import { playSound } from '../../lib/sound.js'
 import { TableScene } from '../TableScene.jsx'
 
 /** Pantalla inicial: nombre, lema, el Grimorio cerrado sobre la mesa y el botón para abrirlo. */
@@ -16,7 +18,8 @@ export function Hero() {
       return
     }
     setOpening(true)
-    window.setTimeout(() => navigate(ROUTES.grimorio), 1000)
+    playSound('bookOpen')
+    window.setTimeout(() => navigate(ROUTES.grimorio), BOOK_OPEN_NAVIGATE_MS)
   }
 
   return (

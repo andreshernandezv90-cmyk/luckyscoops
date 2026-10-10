@@ -12,8 +12,17 @@ export function Footer() {
       <ChapterDivider className="site-footer__divider" />
       <div className="site-footer__inner">
         <div className="site-footer__brand">
-          <BrandMark className="site-footer__sigil" />
-          <p className="site-footer__name">{BRAND.name}</p>
+          {BRAND.logo ? (
+            <>
+              <BrandMark variant="full" className="site-footer__logo" />
+              <p className="sr-only">{BRAND.name}</p>
+            </>
+          ) : (
+            <>
+              <BrandMark className="site-footer__sigil" />
+              <p className="site-footer__name">{BRAND.name}</p>
+            </>
+          )}
           <p className="site-footer__tagline">{BRAND.motto}</p>
         </div>
         <nav aria-label="Pie de página">

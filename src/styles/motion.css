@@ -1,0 +1,361 @@
+/* Motion design: libro, páginas, ritual y revelación. */
+
+/* ==========================================================================
+   Pasar página (PageTurnTransition)
+   ========================================================================== */
+
+.page-leaf {
+  position: absolute;
+  z-index: 5;
+  top: 14px;
+  bottom: 14px;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+.page-leaf--next {
+  left: 50%;
+  right: 14px;
+  transform-origin: left center;
+}
+.page-leaf--prev {
+  left: 14px;
+  right: 50%;
+  transform-origin: right center;
+}
+.page-leaf__face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background:
+    radial-gradient(ellipse at 70% 20%, rgba(255, 255, 255, 0.35), transparent 55%),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(120, 80, 30, 0.05) 31px 32px),
+    var(--parchment);
+}
+.page-leaf--next .page-leaf__face--front,
+.page-leaf--prev .page-leaf__face--back {
+  border-radius: 3px 8px 8px 3px;
+  /* Curva de la hoja: más clara al centro y con sombra junto al lomo */
+  box-shadow: inset 28px 0 32px -22px rgba(70, 40, 10, 0.55), inset -40px 0 50px -30px rgba(255, 255, 255, 0.5);
+}
+.page-leaf--next .page-leaf__face--back,
+.page-leaf--prev .page-leaf__face--front {
+  border-radius: 8px 3px 3px 8px;
+  box-shadow: inset -28px 0 32px -22px rgba(70, 40, 10, 0.55), inset 40px 0 50px -30px rgba(255, 255, 255, 0.5);
+}
+.page-leaf__face--back {
+  transform: rotateY(180deg);
+}
+.page-leaf__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(40, 20, 5, 0.55), rgba(40, 20, 5, 0.15) 60%, rgba(255, 250, 230, 0.15));
+}
+.page-leaf--prev .page-leaf__shade {
+  background: linear-gradient(270deg, rgba(40, 20, 5, 0.55), rgba(40, 20, 5, 0.15) 60%, rgba(255, 250, 230, 0.15));
+}
+/* Sombra junto al lomo mientras la hoja está en el aire */
+.page-spine-shadow {
+  position: absolute;
+  z-index: 4;
+  top: 14px;
+  bottom: 14px;
+  left: calc(50% - 70px);
+  width: 140px;
+  background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(30, 12, 4, 0.5), transparent 70%);
+  pointer-events: none;
+}
+/* Celular: una sola página; la hoja gira sobre el lomo y se desvanece */
+.page-leaf--compact {
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  right: 6px;
+  transform-origin: left center;
+}
+.page-leaf--compact .page-leaf__face {
+  border-radius: 8px;
+  box-shadow: inset 24px 0 30px -20px rgba(70, 40, 10, 0.5), inset -60px 0 60px -40px rgba(255, 255, 255, 0.5);
+}
+
+/* El contenido nuevo aparece cuando la hoja lo deja ver */
+@keyframes page-ink-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.book__spread[data-turn] .book-page__content {
+  animation: page-ink-in 0.26s ease-out both;
+}
+.book__spread[data-turn='none'] .book-page__content,
+.book__spread[data-turn='fade'] .book-page__content {
+  animation: none;
+}
+/* Avanzar: la hoja deja libre la página derecha y aterriza en la izquierda */
+.book__spread[data-turn='leaf-next'] .book-page--right .book-page__content { animation-delay: 0.08s; }
+.book__spread[data-turn='leaf-next'] .book-page--left .book-page__content { animation-delay: 0.4s; }
+.book__spread[data-turn='leaf-next'] .book-page--full .book-page__content { animation-delay: 0.22s; }
+/* Retroceder: al revés */
+.book__spread[data-turn='leaf-prev'] .book-page--left .book-page__content { animation-delay: 0.08s; }
+.book__spread[data-turn='leaf-prev'] .book-page--right .book-page__content { animation-delay: 0.4s; }
+.book__spread[data-turn='leaf-prev'] .book-page--full .book-page__content { animation-delay: 0.22s; }
+/* Celular */
+.book__spread[data-turn='flip-next'] .book-page__content { animation-delay: 0.04s; }
+.book__spread[data-turn='flip-prev'] .book-page__content { animation-delay: 0.22s; }
+
+/* ==========================================================================
+   Microinteracciones al elegir (150–450 ms)
+   ========================================================================== */
+
+/* Anillo de tinta que deja el sello al caer */
+.seal-ink {
+  position: absolute;
+  inset: 6%;
+  z-index: -1;
+  border-radius: 50%;
+  border: 2px solid var(--seal-ink, var(--ink-wine));
+  pointer-events: none;
+}
+
+/* Pociones: la botella elegida se eleva un poco y brilla */
+.recipe-card__bottle {
+  transition: transform 0.35s cubic-bezier(0.3, 1.5, 0.5, 1), filter 0.35s;
+}
+.recipe-card.is-selected .recipe-card__bottle {
+  transform: translateY(-6px);
+  filter: drop-shadow(0 8px 10px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+
+/* Tamaños: un anillo dorado se dibuja alrededor de la luna */
+.size-card {
+  transition: border-color 0.25s, box-shadow 0.3s, transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1), background 0.25s;
+}
+.size-card.is-selected {
+  transform: translateY(-2px);
+}
+.size-card__ring {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 56px;
+  height: 56px;
+  z-index: 3;
+  overflow: visible;
+  fill: none;
+  stroke: var(--gold-bright);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(232, 198, 106, 0.7));
+  pointer-events: none;
+}
+
+/* Extras: el símbolo se estampa en tinta */
+.ingredient-card__stamp {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+.ingredient-card__ink {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: 46% 54% 50% 50% / 52% 46% 54% 48%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 35%, transparent), color-mix(in srgb, var(--accent) 12%, transparent) 60%, transparent 72%);
+  pointer-events: none;
+}
+/* Check que se dibuja con un trazo de pluma */
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.ingredient-card.is-added .ingredient-card__button .btn__icon path,
+.recommendation__done .btn__icon path {
+  stroke-dasharray: 24;
+  animation: check-draw 0.35s 0.1s ease-out both;
+}
+
+/* Dedicatoria: la tarjeta de regalo se despliega desde arriba */
+.dedication {
+  perspective: 900px;
+}
+.dedication__gift {
+  transform-origin: 50% 0;
+}
+
+/* ==========================================================================
+   Caldero: ciclos continuos en CSS (fuego, humo, burbujas, destellos)
+   ========================================================================== */
+
+/* Fuego: tres deformaciones distintas con duraciones distintas por llama */
+.fire__flames {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 0.6s ease-out;
+}
+.fire--idle .fire__flames { transform: scale(0.92, 0.85); }
+.fire--boil .fire__flames { transform: scale(1.06, 1.22); }
+.flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flame-a 0.9s ease-in-out infinite;
+}
+.flame--b { animation-name: flame-b; }
+.flame--c { animation-name: flame-c; }
+@keyframes flame-a {
+  0%, 100% { transform: scale(1, 1) skewX(0deg); }
+  23% { transform: scale(0.93, 1.16) skewX(-3deg); }
+  51% { transform: scale(1.05, 0.9) skewX(2deg); }
+  78% { transform: scale(0.97, 1.08) skewX(-1deg); }
+}
+@keyframes flame-b {
+  0%, 100% { transform: scale(1, 1) skewX(0deg); }
+  31% { transform: scale(1.06, 0.88) skewX(3deg); }
+  62% { transform: scale(0.9, 1.2) skewX(-2deg); }
+  84% { transform: scale(1.02, 0.95) skewX(1deg); }
+}
+@keyframes flame-c {
+  0%, 100% { transform: scale(1, 1.04) skewX(1deg); }
+  18% { transform: scale(0.95, 0.92) skewX(-2deg); }
+  44% { transform: scale(1.03, 1.18) skewX(2.5deg); }
+  70% { transform: scale(0.92, 0.97) skewX(-1.5deg); }
+}
+.fire__glow {
+  opacity: 0.25;
+  animation: fire-glow 1.37s ease-in-out infinite;
+}
+.fire--boil .fire__glow { animation-duration: 0.97s; }
+@keyframes fire-glow {
+  0%, 100% { opacity: 0.22; }
+  37% { opacity: 0.32; }
+  61% { opacity: 0.2; }
+  83% { opacity: 0.29; }
+}
+
+/* Burbujas: suben, crecen y revientan; las inactivas se apagan suavemente */
+.bubble {
+  transition: opacity 0.5s;
+}
+.bubble.is-off {
+  opacity: 0;
+}
+.bubble__ball {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bubble-rise 1.2s ease-out infinite;
+}
+@keyframes bubble-rise {
+  0% { transform: translateY(0) scale(0.3); opacity: 0; }
+  25% { opacity: 1; }
+  80% { transform: translateY(-12px) scale(1.1); opacity: 0.9; }
+  100% { transform: translateY(-15px) scale(1.5); opacity: 0; }
+}
+
+/* Humo: las bocanadas suben, se abren y se disuelven */
+.smoke {
+  transition: opacity 0.8s;
+}
+.smoke__puff {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: smoke-rise 4s ease-out infinite;
+}
+.smoke__puff--near {
+  animation-name: smoke-rise-near;
+}
+@keyframes smoke-rise {
+  0% { transform: translate(0, 10px) scale(0.5); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translate(14px, -120px) scale(1.7); opacity: 0; }
+}
+@keyframes smoke-rise-near {
+  0% { transform: translate(0, 8px) scale(0.45); opacity: 0; }
+  25% { opacity: 1; }
+  60% { transform: translate(-6px, -50px) scale(1); }
+  100% { transform: translate(8px, -96px) scale(1.4); opacity: 0; }
+}
+
+/* Destellos de los extras dentro del líquido */
+.liquid-fleck {
+  animation: fleck-twinkle 1.6s ease-in-out infinite;
+}
+@keyframes fleck-twinkle {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flame,
+  .fire__glow,
+  .liquid-fleck {
+    animation: none;
+  }
+  .liquid-fleck {
+    opacity: 0.8;
+  }
+}
+
+/* ==========================================================================
+   Revelación
+   ========================================================================== */
+.revelation__name {
+  position: absolute;
+  z-index: 1;
+  /* Dentro del círculo del escenario, sobre la Scoop */
+  left: 18%;
+  right: 18%;
+  top: 10.5%;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: clamp(0.8rem, 2.4vw, 1.1rem);
+  line-height: 1.25;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #fff3c8, var(--gold-bright) 50%, var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgba(232, 198, 106, 0.45));
+  pointer-events: none;
+}
+.revelation__stage {
+  will-change: transform;
+}
+.scoop-reveal__star {
+  animation: fleck-twinkle 1.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scoop-reveal__star {
+    animation: none;
+  }
+}
+/* El nombre vive junto al escenario: encima (escritorio) o debajo (celular) */
+.revelation__visual {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+@media (max-width: 899px) {
+  .revelation__visual {
+    max-width: 340px;
+  }
+  .revelation__name {
+    position: static;
+    margin-top: 14px;
+    font-size: 1rem;
+  }
+}

@@ -2,7 +2,9 @@ import { AnimatePresence, motion } from 'motion/react'
 import { getExtra } from '../data/extras.js'
 import { formatExtraPrice } from '../lib/format.js'
 import { useShop } from '../state/ShopContext.jsx'
-import { ExtraIcon, WaxSeal } from './illustrations/Sigils.jsx'
+import { SelectionSeal } from './SelectionSeal.jsx'
+import { playSound } from '../lib/sound.js'
+import { ExtraIcon } from './illustrations/Sigils.jsx'
 import { CheckMark } from './illustrations/Ornaments.jsx'
 
 const MAX_LENGTH = 200
@@ -32,7 +34,10 @@ export function DedicationSelector() {
                 name="forWhom"
                 value={option.id}
                 checked={selected}
-                onChange={() => actions.setDedication({ forWhom: option.id })}
+                onChange={() => {
+                  actions.setDedication({ forWhom: option.id })
+                  playSound('select')
+                }}
                 className="sr-only"
               />
               <span className="focus-card__icon" aria-hidden="true">
@@ -42,19 +47,7 @@ export function DedicationSelector() {
                 <span className="focus-card__name">{option.name}</span>
                 <span className="focus-card__desc">{option.description}</span>
               </span>
-              <AnimatePresence>
-                {selected && (
-                  <motion.span
-                    className="focus-card__seal"
-                    initial={{ scale: 1.8, opacity: 0, rotate: -30 }}
-                    animate={{ scale: 1, opacity: 1, rotate: -10 }}
-                    exit={{ scale: 0.6, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: [0.3, 1.4, 0.5, 1] }}
-                  >
-                    <WaxSeal color="#6a1f5c" glyph="check" />
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              <SelectionSeal show={selected} className="focus-card__seal" color="#6a1f5c" glyph="check" rotate={-10} />
             </label>
           )
         })}
@@ -64,10 +57,10 @@ export function DedicationSelector() {
         {forWhom === 'gift' && (
           <motion.div
             className="dedication__gift"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, height: 0, rotateX: -70 }}
+            animate={{ opacity: 1, height: 'auto', rotateX: 0 }}
+            exit={{ opacity: 0, height: 0, rotateX: -40 }}
+            transition={{ duration: 0.42, ease: [0.25, 0.8, 0.3, 1], opacity: { duration: 0.25 } }}
           >
             <div className="field dedication__field">
               <label htmlFor="dedication-message">

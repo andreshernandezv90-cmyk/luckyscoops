@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { BRAND } from '../../config/brand.js'
 
 /**
  * Iconografía de la tienda: sigilos de intención, fases lunares (tamaños)
@@ -171,6 +172,16 @@ export function WaxSeal({ color = '#7d1d3a', className = '', glyph = 'star' }) {
           stroke="rgba(255,255,255,0.22)"
           strokeWidth="0.8"
         />
+      )}
+      {/* Isotipo de la marca hundido en el lacre (sello del Grimorio) */}
+      {glyph === 'brand' && BRAND.logoMark && (
+        <>
+          <mask id={`seal-mark-${uid}`} maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64" style={{ maskType: 'alpha' }}>
+            <image href={BRAND.logoMark} x="17" y="17" width="30" height="30" />
+          </mask>
+          <rect width="64" height="64" fill="rgba(255,255,255,0.3)" mask={`url(#seal-mark-${uid})`} transform="translate(0.6 0.8)" />
+          <rect width="64" height="64" fill="rgba(0,0,0,0.42)" mask={`url(#seal-mark-${uid})`} />
+        </>
       )}
       {glyph === 'check' && (
         <path d="M23 32.5 L29.5 39 L42 25" fill="none" stroke="rgba(255,240,220,0.85)" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />

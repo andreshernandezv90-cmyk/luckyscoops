@@ -9,15 +9,22 @@ import { normalizeExtras } from './pricing.js'
  * items: lo que entra al caldero (esencia de intención, poción de tamaño, extras)
  * steps: secuencia de fases cortas (0.2–0.6 s) que la animación interpreta:
  *   intro · fly · tilt · pour · bubble · stir · drop · shimmer
+ *
+ * Algunos movimientos duran un poco más que su paso y se encadenan con el
+ * siguiente (la cuchara termina su vuelta mientras llega el próximo frasco):
+ * así el ritual se siente continuo sin alargarse.
  */
 export const STEP_MS = {
   intro: 250,
-  fly: 350,
-  tilt: 220,
-  pour: 450,
+  /** Vuelo en arco de un frasco (con anticipación y sobrepasada). */
+  fly: 520,
+  /** Vuelo más corto de un ingrediente extra. */
+  toss: 400,
+  tilt: 240,
+  pour: 520,
   bubble: 300,
-  stir: 450,
-  drop: 350,
+  stir: 500,
+  drop: 340,
   shimmer: 600,
 }
 
@@ -85,7 +92,7 @@ export function buildRitual({ intention, size, extras = [] }) {
       }
       steps.push({ phase: 'stir', duration: STEP_MS.stir, line: 'La cuchara revuelve la mezcla.' })
     } else {
-      steps.push({ phase: 'fly', item: index, duration: STEP_MS.fly, line: item.line })
+      steps.push({ phase: 'fly', item: index, duration: STEP_MS.toss, line: item.line })
       steps.push({
         phase: 'drop',
         item: index,
