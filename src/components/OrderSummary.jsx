@@ -3,6 +3,7 @@ import { getFocus, getIntention } from '../data/intentions.js'
 import { getSize } from '../data/sizes.js'
 import { getExtra } from '../data/extras.js'
 import { PRICES } from '../data/prices.js'
+import { SHOW_PENDING } from '../config/env.js'
 import { formatExtraPrice, formatPrice } from '../lib/format.js'
 import { itemUnitPrice } from '../lib/pricing.js'
 
@@ -118,7 +119,7 @@ export function OrderTotals({ totals }) {
           destino, y se confirma contigo antes de pagar.
         </p>
       )}
-      {PRICES.areDemo && <p className="demo-note">Precios de demostración (pendiente de precios reales).</p>}
+      {SHOW_PENDING && PRICES.areDemo && <p className="demo-note">Precios de demostración (pendiente de precios reales).</p>}
     </div>
   )
 }

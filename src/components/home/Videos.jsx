@@ -3,6 +3,7 @@ import { BRAND, contactLinks } from '../../config/brand.js'
 import { VIDEOS } from '../../data/videos.js'
 import { linkTo, ROUTES } from '../../lib/router.js'
 import { ExtraIcon } from '../illustrations/Sigils.jsx'
+import { SHOW_PENDING } from '../../config/env.js'
 import { PendingTag } from '../PendingTag.jsx'
 import { SectionTitle } from './SectionTitle.jsx'
 
@@ -54,19 +55,25 @@ function VideoCard({ video }) {
 /** "Desde el Caldero de la Bruja": TikToks, preparaciones, empaques y novedades. */
 export function Videos() {
   const { tiktok } = contactLinks()
+  // En la versión publicada solo se muestran los videos que ya tienen enlace.
+  const videos = VIDEOS.filter((video) => SHOW_PENDING || video.tiktokId || video.url)
   return (
     <section className="section" id="videos" aria-labelledby="videos-title">
       <SectionTitle id="videos-title" kicker="Mira cómo se hace la magia">
         Desde el Caldero de la Bruja
       </SectionTitle>
-      <p className="section__lead">
-        Preparaciones de Scoops, empaques, nuevos productos y pedidos reales, directo desde nuestras redes.
-      </p>
-      <ul className="video-grid">
-        {VIDEOS.map((video) => (
-          <VideoCard key={video.id} video={video} />
-        ))}
-      </ul>
+      {videos.length > 0 && (
+        <>
+          <p className="section__lead">
+            Preparaciones de Scoops, empaques, nuevos productos y pedidos reales, directo desde nuestras redes.
+          </p>
+          <ul className="video-grid">
+            {videos.map((video) => (
+              <VideoCard key={video.id} video={video} />
+            ))}
+          </ul>
+        </>
+      )}
 
       <aside className="ritual-video parchment-panel" aria-labelledby="ritual-video-title">
         <ExtraIcon id="video" color="#8cc8e6" className="ritual-video__icon" />
@@ -82,17 +89,19 @@ export function Videos() {
         </div>
       </aside>
 
-      <p className="section__cta">
-        {tiktok ? (
-          <a className="btn btn--primary btn--lg" href={tiktok} target="_blank" rel="noreferrer">
-            Síguenos en TikTok
-          </a>
-        ) : (
-          <span className="pending-line">
-            TikTok de {BRAND.name} <PendingTag />
-          </span>
-        )}
-      </p>
+      {(tiktok || SHOW_PENDING) && (
+        <p className="section__cta">
+          {tiktok ? (
+            <a className="btn btn--primary btn--lg" href={tiktok} target="_blank" rel="noreferrer">
+              Síguenos en TikTok
+            </a>
+          ) : (
+            <span className="pending-line">
+              TikTok de {BRAND.name} <PendingTag />
+            </span>
+          )}
+        </p>
+      )}
     </section>
   )
 }

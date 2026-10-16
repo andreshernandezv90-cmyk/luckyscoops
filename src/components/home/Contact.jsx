@@ -1,4 +1,5 @@
 import { BRAND, contactLinks } from '../../config/brand.js'
+import { SHOW_PENDING } from '../../config/env.js'
 import { PendingTag } from '../PendingTag.jsx'
 import { SectionTitle } from './SectionTitle.jsx'
 
@@ -12,6 +13,8 @@ export function Contact() {
     { label: 'Instagram', value: contact.instagram && `@${contact.instagram}`, href: links.instagram, optional: true },
     { label: 'Correo', value: contact.email, href: links.email, optional: true },
   ]
+  // En la versión publicada solo quedan las filas con dato real; en desarrollo, también las pendientes.
+  const visibleRows = rows.filter((row) => row.value || (SHOW_PENDING && !row.optional))
   return (
     <section className="section" id="contacto" aria-labelledby="contact-title">
       <SectionTitle id="contact-title" kicker="Escríbenos">
@@ -26,16 +29,17 @@ export function Contact() {
               Escribir por WhatsApp
             </a>
           ) : (
-            <p className="pending-line">
-              WhatsApp oficial <PendingTag />
-            </p>
+            SHOW_PENDING && (
+              <p className="pending-line">
+                WhatsApp oficial <PendingTag />
+              </p>
+            )
           )}
           {contact.hours && <p className="contact__muted">{contact.hours}</p>}
         </div>
-        <dl className="contact__list">
-          {rows
-            .filter((row) => row.value || !row.optional)
-            .map((row) => (
+        {visibleRows.length > 0 && (
+          <dl className="contact__list">
+            {visibleRows.map((row) => (
               <div key={row.label}>
                 <dt>{row.label}</dt>
                 <dd>
@@ -49,7 +53,8 @@ export function Contact() {
                 </dd>
               </div>
             ))}
-        </dl>
+          </dl>
+        )}
       </div>
     </section>
   )

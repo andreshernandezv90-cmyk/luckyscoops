@@ -18,7 +18,7 @@ import { local, session } from '../lib/storage.js'
  * builder: lo que la persona está preparando en el grimorio
  *   intention · focus · size · extras · dedication · quantity · currentChapter · animationState
  * cart:    líneas del carrito (se guarda en localStorage)
- * lastOrder: el último pedido confirmado (para la pantalla final)
+ * lastOrder: el último pedido confirmado (para la pantalla final; solo sessionStorage)
  *
  * El precio no se guarda: se deriva siempre de la tabla central de precios.
  */
@@ -50,10 +50,18 @@ const EMPTY_BUILDER = {
 }
 
 const CART_KEY = 'bs-cart-v1'
-const ORDER_KEY = 'bs-last-order-v1'
+/**
+ * El último pedido lleva datos personales (nombre, teléfono, correo, dirección,
+ * notas). Se guarda en sessionStorage: sobrevive a una recarga de la pantalla de
+ * confirmación y se borra al cerrar la pestaña.
+ */
+const ORDER_KEY = 'bs-last-order-v2'
+/** Versión anterior, guardada en localStorage sin fecha de caducidad: se borra al cargar. */
+const LEGACY_ORDER_KEY = 'bs-last-order-v1'
 const BUILDER_KEY = 'bs-builder-v1'
 
 function initState() {
+  local.remove(LEGACY_ORDER_KEY)
   const cart = local.read(CART_KEY, [])
   const saved = session.read(BUILDER_KEY, null)
   let builder = saved ? { ...EMPTY_BUILDER, ...saved } : EMPTY_BUILDER
@@ -63,7 +71,7 @@ function initState() {
   return {
     builder,
     cart: Array.isArray(cart) ? cart.filter(isValidItem) : [],
-    lastOrder: local.read(ORDER_KEY, null),
+    lastOrder: session.read(ORDER_KEY, null),
   }
 }
 
@@ -173,7 +181,7 @@ export function ShopProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, undefined, initState)
 
   useEffect(() => local.write(CART_KEY, state.cart), [state.cart])
-  useEffect(() => local.write(ORDER_KEY, state.lastOrder), [state.lastOrder])
+  useEffect(() => session.write(ORDER_KEY, state.lastOrder), [state.lastOrder])
   useEffect(() => session.write(BUILDER_KEY, state.builder), [state.builder])
 
   const { builder } = state

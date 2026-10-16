@@ -1,4 +1,5 @@
 import { BRAND, contactLinks } from '../config/brand.js'
+import { SHOW_PENDING } from '../config/env.js'
 import { linkTo, ROUTES } from '../lib/router.js'
 import { BrandMark } from './BrandMark.jsx'
 import { ChapterDivider } from './illustrations/Ornaments.jsx'
@@ -36,15 +37,26 @@ export function Footer() {
             <li><a {...linkTo(ROUTES.carrito)}>Tu pedido</a></li>
           </ul>
         </nav>
-        <div>
-          <h2 className="site-footer__title">Síguenos y escríbenos</h2>
-          <ul>
-            <li>{links.whatsapp ? <a href={links.whatsapp} target="_blank" rel="noreferrer">WhatsApp</a> : <>WhatsApp <PendingTag /></>}</li>
-            <li>{links.tiktok ? <a href={links.tiktok} target="_blank" rel="noreferrer">TikTok @{BRAND.contact.tiktok}</a> : <>TikTok <PendingTag /></>}</li>
-            {links.instagram && <li><a href={links.instagram} target="_blank" rel="noreferrer">Instagram @{BRAND.contact.instagram}</a></li>}
-            {links.email && <li><a href={links.email}>{BRAND.contact.email}</a></li>}
-          </ul>
-        </div>
+        {/* En la versión publicada, la columna solo aparece si hay algún dato de contacto real. */}
+        {(SHOW_PENDING || Object.values(links).some(Boolean)) && (
+          <div>
+            <h2 className="site-footer__title">Síguenos y escríbenos</h2>
+            <ul>
+              {links.whatsapp ? (
+                <li><a href={links.whatsapp} target="_blank" rel="noreferrer">WhatsApp</a></li>
+              ) : (
+                SHOW_PENDING && <li>WhatsApp <PendingTag /></li>
+              )}
+              {links.tiktok ? (
+                <li><a href={links.tiktok} target="_blank" rel="noreferrer">TikTok @{BRAND.contact.tiktok}</a></li>
+              ) : (
+                SHOW_PENDING && <li>TikTok <PendingTag /></li>
+              )}
+              {links.instagram && <li><a href={links.instagram} target="_blank" rel="noreferrer">Instagram @{BRAND.contact.instagram}</a></li>}
+              {links.email && <li><a href={links.email}>{BRAND.contact.email}</a></li>}
+            </ul>
+          </div>
+        )}
       </div>
       <p className="site-footer__legal">
         © {year} {BRAND.name}. Nuestros productos son de uso simbólico y decorativo.

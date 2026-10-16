@@ -53,8 +53,9 @@ export function OrderComplete() {
         <p className="page__kicker">Pedido {order.number}</p>
         <h1 id="done-title" className="page__title">Tu ritual está completo</h1>
         <p className="page__lead">
-          Gracias, {firstName}. Tu pedido quedó registrado con el número <strong>{order.number}</strong>. Envíalo a{' '}
-          {BRAND.witch} para confirmar el envío y la forma de pago; después comenzará a prepararse.
+          Gracias, {firstName}. Tu pedido <strong>{order.number}</strong> está listo, pero{' '}
+          <strong>todavía no le llega a {BRAND.witch}</strong>
+          {whatsapp ? ': envíalo por WhatsApp para confirmar el envío y la forma de pago. Después comenzará a prepararse.' : '.'}
         </p>
         <div className="page__actions">
           {whatsapp ? (
@@ -63,7 +64,7 @@ export function OrderComplete() {
             </a>
           ) : (
             <p className="pending-line">
-              Envío del pedido por WhatsApp <PendingTag>Falta configurar el número</PendingTag>
+              <PendingTag status="El envío por WhatsApp todavía no está disponible.">Falta configurar el número</PendingTag>
             </p>
           )}
         </div>

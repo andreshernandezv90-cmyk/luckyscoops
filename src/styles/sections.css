@@ -41,6 +41,11 @@
 .parchment-panel .pending-line {
   color: var(--ink-soft);
 }
+/* Estado que sí informa al cliente en la versión publicada (ver PendingTag `status`) */
+.status-note {
+  font-size: 0.9rem;
+  font-style: italic;
+}
 .demo-note {
   margin: 10px 0 0;
   font-size: 0.9rem;

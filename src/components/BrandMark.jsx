@@ -8,6 +8,14 @@ const SOURCES = {
 }
 
 /**
+ * Dirección absoluta del archivo, resuelta contra la página.
+ * Un url() relativo dentro de una variable CSS se resuelve contra la hoja de
+ * estilos que la usa (en producción, dist/assets/), no contra la página: sin
+ * esto el logo no carga después de `npm run build`.
+ */
+const absolute = (src) => new URL(src, document.baseURI).href
+
+/**
  * Logo de la marca (decorativo: el nombre siempre está escrito al lado o en texto oculto).
  *
  * variant: 'full' (logo completo) · 'mark' (isotipo) · 'text' (solo letras)
@@ -23,7 +31,7 @@ export function BrandMark({ variant = 'mark', className = '' }) {
   return (
     <span
       className={`brand-logo brand-logo--${variant} ${className}`}
-      style={{ '--logo-src': `url("${src}")` }}
+      style={{ '--logo-src': `url("${absolute(src)}")` }}
       aria-hidden="true"
     />
   )

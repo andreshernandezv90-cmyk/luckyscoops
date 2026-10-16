@@ -19,6 +19,13 @@ function safe(storageName) {
         /* sin almacenamiento disponible */
       }
     },
+    remove(key) {
+      try {
+        window[storageName].removeItem(key)
+      } catch {
+        /* sin almacenamiento disponible */
+      }
+    },
   }
 }
 

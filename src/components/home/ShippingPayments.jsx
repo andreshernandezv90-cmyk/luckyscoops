@@ -20,7 +20,7 @@ export function ShippingPayments() {
             {tiers.map((tier) => (
               <li key={tier.label}>
                 <span>{tier.label}</span>
-                {tier.price === null ? <PendingTag>Tarifa por definir</PendingTag> : <strong>{formatPrice(tier.price)}</strong>}
+                {tier.price === null ? <PendingTag status="Por cotizar">Tarifa por definir</PendingTag> : <strong>{formatPrice(tier.price)}</strong>}
               </li>
             ))}
           </ul>
@@ -33,7 +33,7 @@ export function ShippingPayments() {
             {PAYMENT_METHODS.map((m) => (
               <li key={m.id}>
                 <span>{m.name}</span>
-                {!m.ready && <PendingTag>Próximamente</PendingTag>}
+                {!m.ready && <PendingTag status="Próximamente">Próximamente</PendingTag>}
               </li>
             ))}
           </ul>

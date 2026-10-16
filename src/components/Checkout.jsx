@@ -4,7 +4,7 @@ import { getExtra } from '../data/extras.js'
 import { getFocus } from '../data/intentions.js'
 import { cartTotals, itemUnitPrice } from '../lib/pricing.js'
 import { formatPrice } from '../lib/format.js'
-import { DELIVERY_METHODS, PAYMENT_METHODS, submitOrder } from '../lib/order.js'
+import { DELIVERY_METHODS, FIELD_MAX, PAYMENT_METHODS, submitOrder, whatsappReady } from '../lib/order.js'
 import { linkTo, navigate, ROUTES } from '../lib/router.js'
 import { useShop } from '../state/ShopContext.jsx'
 import { dedicationLabel, OrderTotals } from './OrderSummary.jsx'
@@ -28,7 +28,8 @@ const EMPTY_FORM = {
 function validate(form) {
   const errors = {}
   if (form.name.trim().length < 3) errors.name = 'Escribe tu nombre completo.'
-  if (form.phone.replace(/\D/g, '').length < 10) errors.phone = 'Escribe un teléfono de 10 dígitos.'
+  const phoneDigits = form.phone.replace(/\D/g, '').length
+  if (phoneDigits < 10 || phoneDigits > 13) errors.phone = 'Escribe un teléfono de 10 dígitos (puede llevar lada internacional).'
   if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = 'Revisa tu correo; parece incompleto.'
   if (form.deliveryMethod === 'envio') {
     if (!form.street.trim()) errors.street = 'Escribe la calle y el número.'
@@ -120,7 +121,7 @@ export function Checkout() {
         type={props.type ?? 'text'}
         autoComplete={props.autoComplete}
         inputMode={props.inputMode}
-        maxLength={props.maxLength}
+        maxLength={FIELD_MAX[name]}
       />
       {props.help && !errors[name] && (
         <p className="field__help" id={`h-${name}`}>
@@ -185,7 +186,7 @@ export function Checkout() {
                 {field('street', 'Calle y número', { autoComplete: 'address-line1' })}
                 <div className="field-row">
                   {field('neighborhood', 'Colonia', { autoComplete: 'address-line2' })}
-                  {field('zip', 'Código postal', { autoComplete: 'postal-code', inputMode: 'numeric', maxLength: 5 })}
+                  {field('zip', 'Código postal', { autoComplete: 'postal-code', inputMode: 'numeric' })}
                 </div>
                 <div className="field-row">
                   {field('city', 'Ciudad o municipio', { autoComplete: 'address-level2' })}
@@ -206,7 +207,7 @@ export function Checkout() {
                   <input type="radio" name="paymentMethod" value={m.id} checked={form.paymentMethod === m.id} onChange={set('paymentMethod')} />
                   <span className="option__body">
                     <span className="option__title">
-                      {m.name} {!m.ready && <PendingTag>Por confirmar</PendingTag>}
+                      {m.name} {!m.ready && <PendingTag status="Por confirmar">Por confirmar</PendingTag>}
                     </span>
                     <span className="option__detail">{m.detail}</span>
                   </span>
@@ -217,7 +218,7 @@ export function Checkout() {
               <label htmlFor="f-notes">
                 Notas para tu pedido <span className="field__optional">(opcional)</span>
               </label>
-              <textarea id="f-notes" name="notes" rows="3" value={form.notes} onChange={set('notes')} placeholder="Por ejemplo: un horario para recibir o alguna preferencia." />
+              <textarea id="f-notes" name="notes" rows="3" maxLength={FIELD_MAX.notes} value={form.notes} onChange={set('notes')} placeholder="Por ejemplo: un horario para recibir o alguna preferencia." />
             </div>
           </fieldset>
 
@@ -228,9 +229,10 @@ export function Checkout() {
           )}
 
           <button type="submit" className="btn btn--primary btn--xl btn--block" disabled={status === 'sending'}>
-            {status === 'sending' ? 'Sellando tu pedido…' : `Registrar mi pedido · ${formatPrice(totals.total)}`}
+            {status === 'sending' ? 'Sellando tu pedido…' : `Continuar · ${formatPrice(totals.total)}`}
           </button>
           <p className="checkout__fineprint">
+            {whatsappReady() && 'En el siguiente paso enviarás tu pedido por WhatsApp. '}
             Aún no se hace ningún cargo. Te confirmaremos el costo de envío y la forma de pago antes de preparar tu{' '}
             {BRAND.productNoun}.
           </p>

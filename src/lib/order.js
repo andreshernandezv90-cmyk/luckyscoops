@@ -26,11 +26,37 @@ export const PAYMENT_METHODS = [
   { id: 'whatsapp', name: 'Acordar por WhatsApp', detail: 'Coordinamos el pago contigo por mensaje.', ready: false },
 ]
 
+/**
+ * Longitud máxima de cada dato del cliente. Mantiene el mensaje de WhatsApp
+ * dentro de un tamaño que el enlace wa.me abre sin problemas.
+ */
+export const FIELD_MAX = {
+  name: 80,
+  phone: 20,
+  email: 120,
+  street: 120,
+  neighborhood: 80,
+  city: 80,
+  state: 60,
+  zip: 5,
+  notes: 300,
+}
+
+/** Sin 0/O ni 1/I/L: se lee y se dicta sin confusiones. */
+const ORDER_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'
+
+/** BS-1016-K7Q2XM: fecha (mmdd) + 6 caracteres aleatorios (~1 000 millones de combinaciones por día). */
 export function createOrderNumber(date = new Date()) {
   const mmdd = `${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`
-  const random = Math.floor(1000 + Math.random() * 9000)
+  const bytes = new Uint8Array(6)
+  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes)
+  else bytes.forEach((_, i) => (bytes[i] = Math.floor(Math.random() * 256)))
+  const random = Array.from(bytes, (b) => ORDER_ALPHABET[b % ORDER_ALPHABET.length]).join('')
   return `${BRAND.orderPrefix}-${mmdd}-${random}`
 }
+
+/** ¿Ya existe un número de WhatsApp para recibir pedidos? (src/config/brand.js → contact.whatsapp) */
+export const whatsappReady = () => Boolean(BRAND.contact.whatsapp)
 
 /**
  * Registra el pedido.
@@ -70,6 +96,7 @@ export function orderMessage(order) {
   lines.push(`Envío: ${order.totals.shipping.pending ? `por cotizar (${order.totals.shipping.label})` : formatPrice(order.totals.shipping.price)}`)
   const c = order.customer
   lines.push('', `Nombre: ${c.name}`, `Teléfono: ${c.phone}`)
+  if (c.email) lines.push(`Correo: ${c.email}`)
   if (c.address) lines.push(`Dirección: ${c.address.street}, ${c.address.neighborhood}, ${c.address.city}, ${c.address.state}, C.P. ${c.address.zip}`)
   const pay = PAYMENT_METHODS.find((p) => p.id === order.paymentMethod)
   if (pay) lines.push(`Forma de pago preferida: ${pay.name}`)

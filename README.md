@@ -25,7 +25,11 @@ Requiere Node 18 o superior. El sitio usa rutas con `#` (`#/grimorio`, `#/carrit
 
 ## Datos pendientes (TODO / PENDIENTE)
 
-El sitio **no inventa datos del negocio**. Lo que aún no existe está en `null` y se muestra en la página con una etiqueta "Pendiente". Búscalo en el código con `PENDIENTE`.
+El sitio **no inventa datos del negocio**. Lo que aún no existe está en `null`. Búscalo en el código con `PENDIENTE`.
+
+- En desarrollo (`npm run dev`) se marca en la página con una etiqueta "Pendiente" y con el aviso "Precios de demostración".
+- En la versión publicada (`npm run build`) esas marcas no se ven: las filas sin dato se ocultan. Solo se mantienen los estados que sí informan al cliente, como "Por cotizar" o "Por confirmar". El interruptor está en `src/config/env.js`.
+- `npm run build` imprime **"ANTES DE PUBLICAR"** si falta el WhatsApp o si los precios siguen siendo de demostración. No detiene la compilación.
 
 | Pendiente | Dónde se completa |
 | --- | --- |
@@ -70,7 +74,7 @@ Envíos a toda la República Mexicana. Hoy el sitio estima el **rango del paquet
 
 ## Pedidos y pagos: punto de integración
 
-Hoy el pedido se registra en el navegador y se envía a la Bruja Sabia por WhatsApp; **no se cobra en línea ni se piden datos de tarjeta**. Para recibir pedidos automáticamente o cobrar en línea, reemplaza `submitOrder()` en `src/lib/order.js` por la llamada a tu backend o pasarela (Mercado Pago, Stripe…).
+Hoy el pedido se prepara en el navegador y **solo le llega a la Bruja Sabia cuando la persona lo envía por WhatsApp** desde la pantalla final; **no se cobra en línea ni se piden datos de tarjeta**. Los datos del cliente del último pedido se guardan solo en `sessionStorage` (se borran al cerrar la pestaña); el carrito sigue en `localStorage` y no contiene datos de contacto. Para recibir pedidos automáticamente o cobrar en línea, reemplaza `submitOrder()` en `src/lib/order.js` por la llamada a tu backend o pasarela (Mercado Pago, Stripe…).
 
 ## Logo
 

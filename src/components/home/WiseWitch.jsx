@@ -1,6 +1,7 @@
 import { BRAND } from '../../config/brand.js'
 import { ABOUT } from '../../data/about.js'
 import { BrandMark } from '../BrandMark.jsx'
+import { SHOW_PENDING } from '../../config/env.js'
 import { PendingTag } from '../PendingTag.jsx'
 import { SectionTitle } from './SectionTitle.jsx'
 
@@ -9,6 +10,9 @@ import { SectionTitle } from './SectionTitle.jsx'
  * TODO / PENDIENTE: fotografía e historia real de la propietaria.
  */
 export function WiseWitch() {
+  // En la versión publicada solo aparecen los textos que ya están escritos.
+  const blocks = ABOUT.blocks.filter((block) => SHOW_PENDING || block.text)
+  const showStory = SHOW_PENDING || ABOUT.intro || blocks.length > 0
   return (
     <section className="section witch" id="bruja-sabia" aria-labelledby="witch-title">
       <SectionTitle id="witch-title" kicker={BRAND.motto}>
@@ -25,24 +29,30 @@ export function WiseWitch() {
             </div>
           )}
         </figure>
-        <div className="witch__story parchment-panel">
-          {ABOUT.intro ? (
-            <p className="witch__intro">{ABOUT.intro}</p>
-          ) : (
-            <p className="witch__intro witch__intro--pending">
-              Aquí la Bruja Sabia te contará, con sus propias palabras, quién es y por qué prepara cada Scoop con tanto
-              cariño. <PendingTag>Texto pendiente</PendingTag>
-            </p>
-          )}
-          <div className="witch__blocks">
-            {ABOUT.blocks.map((block) => (
-              <div key={block.id} className={`witch__block${block.text ? '' : ' is-pending'}`}>
-                <h3>{block.title}</h3>
-                {block.text ? <p>{block.text}</p> : <PendingTag>Pendiente de escribir</PendingTag>}
+        {showStory && (
+          <div className="witch__story parchment-panel">
+            {ABOUT.intro ? (
+              <p className="witch__intro">{ABOUT.intro}</p>
+            ) : (
+              SHOW_PENDING && (
+                <p className="witch__intro witch__intro--pending">
+                  Aquí la Bruja Sabia te contará, con sus propias palabras, quién es y por qué prepara cada Scoop con
+                  tanto cariño. <PendingTag>Texto pendiente</PendingTag>
+                </p>
+              )
+            )}
+            {blocks.length > 0 && (
+              <div className="witch__blocks">
+                {blocks.map((block) => (
+                  <div key={block.id} className={`witch__block${block.text ? '' : ' is-pending'}`}>
+                    <h3>{block.title}</h3>
+                    {block.text ? <p>{block.text}</p> : <PendingTag>Pendiente de escribir</PendingTag>}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        </div>
+        )}
       </div>
     </section>
   )

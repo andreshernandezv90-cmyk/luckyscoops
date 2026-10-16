@@ -1,6 +1,7 @@
 import { BRAND } from '../config/brand.js'
 import { getFocus, getIntention } from '../data/intentions.js'
 import { PRICES } from '../data/prices.js'
+import { SHOW_PENDING } from '../config/env.js'
 import { getSize } from '../data/sizes.js'
 import { getExtra } from '../data/extras.js'
 import { priceBreakdown } from '../lib/pricing.js'
@@ -87,7 +88,7 @@ export function RecipeCard() {
           {breakdown.extrasTotal > 0 && ` + ingredientes ${formatPrice(breakdown.extrasTotal)}`}
         </p>
       )}
-      {PRICES.areDemo && <p className="demo-note">Precios de demostración (pendiente de precios reales).</p>}
+      {SHOW_PENDING && PRICES.areDemo && <p className="demo-note">Precios de demostración (pendiente de precios reales).</p>}
     </section>
   )
 }
