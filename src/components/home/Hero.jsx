@@ -6,7 +6,11 @@ import { BOOK_OPEN_NAVIGATE_MS } from '../../lib/motion.js'
 import { playSound } from '../../lib/sound.js'
 import { TableScene } from '../TableScene.jsx'
 
-/** Pantalla inicial: nombre, lema, el Grimorio cerrado sobre la mesa y el botón para abrirlo. */
+/**
+ * Pantalla inicial («Luz de vela», ver DESIGN.md): el Grimorio cerrado a la luz
+ * de las velas, el nombre, el lema y el botón para abrirlo. Con ratón, la luz
+ * sigue al puntero muy despacio; con movimiento reducido queda quieta.
+ */
 export function Hero() {
   const [opening, setOpening] = useState(false)
   const reduce = useReducedMotion()
@@ -22,15 +26,24 @@ export function Hero() {
     window.setTimeout(() => navigate(ROUTES.grimorio), BOOK_OPEN_NAVIGATE_MS)
   }
 
+  // Posición del puntero de -1 a 1; el CSS desplaza la luz unos pocos puntos con una transición larga.
+  const followLight = (event) => {
+    if (reduce || event.pointerType !== 'mouse') return
+    const box = event.currentTarget.getBoundingClientRect()
+    event.currentTarget.style.setProperty('--light-dx', (((event.clientX - box.left) / box.width) * 2 - 1).toFixed(3))
+    event.currentTarget.style.setProperty('--light-dy', (((event.clientY - box.top) / box.height) * 2 - 1).toFixed(3))
+  }
+
   return (
-    <section className="hero" aria-labelledby="hero-title">
+    <section className="hero vela vela--hero" aria-labelledby="hero-title" onPointerMove={followLight}>
+      <div className="hero__light" aria-hidden="true" />
+      <TableScene open={opening} onOpen={openGrimoire} />
       <div className="hero__heading">
         <h1 id="hero-title" className="hero__title">
           {BRAND.name}
         </h1>
         <p className="hero__motto">{BRAND.motto}</p>
       </div>
-      <TableScene open={opening} onOpen={openGrimoire} />
       <p className="hero__lead">{BRAND.heroText}</p>
       <div className="hero__actions">
         <button type="button" className="btn btn--primary btn--xl" onClick={openGrimoire} disabled={opening}>

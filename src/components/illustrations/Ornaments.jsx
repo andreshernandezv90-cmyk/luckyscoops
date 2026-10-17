@@ -77,6 +77,40 @@ export function InkBlot({ className = '', variant = 0 }) {
   )
 }
 
+/**
+ * Trazo de tinta a mano alzada bajo un título. Con pathLength=1 el CSS puede
+ * dibujarlo de izquierda a derecha animando stroke-dashoffset (ver vela.css).
+ */
+export function InkStroke({ className = '' }) {
+  return (
+    <svg className={`ink-stroke ${className}`} viewBox="0 0 320 22" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="currentColor" strokeLinecap="round">
+        <path pathLength="1" d="M4 14 C44 8 86 17 134 11 S232 6 280 12 Q298 14 316 8" strokeWidth="2.6" />
+        <path pathLength="1" d="M58 18 C118 15 188 19 248 15" strokeWidth="1" opacity="0.55" />
+      </g>
+    </svg>
+  )
+}
+
+/** Anotaciones alquímicas del margen: sol, luna, sal, azufre y mercurio. */
+export function AlchemyNotes({ className = '' }) {
+  return (
+    <svg className={className} viewBox="0 0 136 22" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="10" cy="11" r="7" />
+        <path d="M45 4 A7 7 0 1 0 45 18 A5.5 5.5 0 1 1 45 4 Z" />
+        <circle cx="72" cy="11" r="7" />
+        <path d="M65 11 H79" />
+        <path d="M100 3 L107 13 H93 Z M100 13 V20 M96 17 H104" />
+        <path d="M122 2 Q126 6 130 2" />
+        <circle cx="126" cy="10" r="4" />
+        <path d="M126 14 V20 M123 17.5 H129" />
+      </g>
+      <circle cx="10" cy="11" r="1.4" fill="currentColor" />
+    </svg>
+  )
+}
+
 /** Pequeña estrella de cuatro puntas para viñetas y detalles. */
 export function Sparkle({ className = '' }) {
   return (

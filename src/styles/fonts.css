@@ -28,3 +28,11 @@
   font-display: swap;
   src: url('../assets/fonts/eb-garamond-italic-latin.woff2') format('woff2');
 }
+/* Títulos de la dirección «Luz de vela» (DESIGN.md). Variable 300–700, de Google Fonts. */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('../assets/fonts/cormorant-garamond-latin.woff2') format('woff2');
+}

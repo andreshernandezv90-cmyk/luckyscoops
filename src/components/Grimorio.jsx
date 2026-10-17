@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { BRAND } from '../config/brand.js'
 import { CHAPTERS } from '../data/chapters.js'
+import { getIntention } from '../data/intentions.js'
 import { formatPrice } from '../lib/format.js'
 import { navigate } from '../lib/router.js'
 import { playSound } from '../lib/sound.js'
@@ -18,7 +19,7 @@ import { FocusSelector } from './FocusSelector.jsx'
 import { DedicationSelector } from './DedicationSelector.jsx'
 import { RitualAnimation } from './RitualAnimation.jsx'
 import { Revelation } from './Revelation.jsx'
-import { ArrowIcon, ChapterDivider } from './illustrations/Ornaments.jsx'
+import { AlchemyNotes, ArrowIcon, ChapterDivider, InkStroke } from './illustrations/Ornaments.jsx'
 
 const INTROS = {
   [CHAPTER.INTENCION]: {
@@ -115,9 +116,18 @@ export function Grimorio() {
     else goTo(chapter - 1)
   }
   const prevLabel = chapter === CHAPTER.INTENCION ? 'Cerrar el Grimorio' : `Anterior: ${CHAPTERS[chapter - 1].title}`
+  // Prototipo «Luz de vela» (DESIGN.md): por ahora solo en el Capítulo I.
+  // La intención elegida tiñe la luz de la página con el color de su poción.
+  const vela = chapter === CHAPTER.INTENCION
+  const tint = vela ? getIntention(builder.intention)?.colors.glow : null
 
   return (
-    <section className="grimorio" ref={topRef} aria-labelledby="grimorio-title">
+    <section
+      className={`grimorio${vela ? ' vela vela--capitulo' : ''}`}
+      style={tint ? { '--vela-tinte': tint } : undefined}
+      ref={topRef}
+      aria-labelledby="grimorio-title"
+    >
       <div className="grimorio__inner">
         <h1 id="grimorio-title" className="grimorio__title">
           {BRAND.grimoireTitle}
@@ -130,7 +140,7 @@ export function Grimorio() {
             direction={direction}
             className={`book__spread${chapter >= CHAPTER.PREPARACION ? ' book__spread--full' : ''}`}
           >
-            {chapter <= CHAPTER.DEDICATORIA && <SelectionSpread chapter={chapter} autoFocus={autoFocus} />}
+            {chapter <= CHAPTER.DEDICATORIA && <SelectionSpread chapter={chapter} autoFocus={autoFocus} vela={vela} />}
             {chapter === CHAPTER.PREPARACION && (
               <BookPage side="full">
                 <RitualAnimation autoFocus={autoFocus} onReveal={() => goTo(CHAPTER.REVELACION)} />
@@ -200,21 +210,27 @@ export function Grimorio() {
   )
 }
 
-function SelectionSpread({ chapter, autoFocus }) {
+function SelectionSpread({ chapter, autoFocus, vela }) {
   const meta = CHAPTERS[chapter]
   const { text, Selector } = INTROS[chapter]
   return (
     <>
       <BookPage side="left">
         <header className="chapter-intro">
+          {vela && (
+            <span className="chapter-intro__numeral" aria-hidden="true">
+              {meta.numeral}
+            </span>
+          )}
           <p className="chapter-intro__kicker">
             Capítulo {meta.numeral} · {meta.title}
           </p>
           <ChapterHeading autoFocus={autoFocus}>{meta.heading}</ChapterHeading>
+          {vela && <InkStroke className="chapter-intro__stroke" />}
           <p className="chapter-intro__text">{text}</p>
         </header>
         <div className="book-page__recipe">
-          <ChapterDivider className="hide-mobile" />
+          {vela ? <AlchemyNotes className="book-page__notes" /> : <ChapterDivider className="hide-mobile" />}
           <RecipeCard />
         </div>
       </BookPage>
