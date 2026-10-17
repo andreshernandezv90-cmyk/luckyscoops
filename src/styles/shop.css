@@ -81,6 +81,8 @@
 .summary-list__muted {
   font-weight: 400;
   color: var(--ink-soft);
+  /* "+$59 MXN" no se parte en dos líneas */
+  white-space: nowrap;
 }
 .summary-list__extra {
   display: block;
@@ -474,6 +476,36 @@
   position: relative;
   width: min(220px, 55vw);
   margin: 0 auto 24px;
+}
+/* Sin WhatsApp: resumen pendiente, sin libro ni sello */
+.order-pending {
+  max-width: 26em;
+  margin: 18px auto 0;
+  padding: 14px 18px;
+  border: 1px dashed rgba(201, 162, 74, 0.6);
+  border-radius: 8px;
+  text-align: center;
+}
+.order-pending p {
+  margin: 0;
+}
+.order-pending .order-pending__number {
+  margin: 4px 0;
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--gold-bright);
+}
+.order-pending__label {
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.order-pending__note {
+  color: var(--text-muted);
 }
 .order-complete__seal {
   position: absolute;

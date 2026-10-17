@@ -147,7 +147,7 @@ export function Checkout() {
         <ol className="checkout-steps" aria-label="Pasos de la compra">
           <li className="is-done">Tu pedido</li>
           <li className="is-current" aria-current="step">Datos y envío</li>
-          <li>Confirmación</li>
+          <li>{whatsappReady() ? 'Enviar por WhatsApp' : 'Resumen'}</li>
         </ol>
         <ChapterDivider className="page__divider" />
       </header>
@@ -229,10 +229,14 @@ export function Checkout() {
           )}
 
           <button type="submit" className="btn btn--primary btn--xl btn--block" disabled={status === 'sending'}>
-            {status === 'sending' ? 'Sellando tu pedido…' : `Continuar · ${formatPrice(totals.total)}`}
+            {status === 'sending' ? 'Preparando tu resumen…' : `Continuar · ${formatPrice(totals.total)}`}
           </button>
           <p className="checkout__fineprint">
-            {whatsappReady() && 'En el siguiente paso enviarás tu pedido por WhatsApp. '}
+            <strong>
+              {whatsappReady()
+                ? `Al continuar, tu pedido aún no se envía: en el siguiente paso lo mandarás por WhatsApp a ${BRAND.witch}.`
+                : `Al continuar verás el resumen de tu pedido. Todavía no se enviará ni lo recibirá ${BRAND.witch}.`}
+            </strong>{' '}
             Aún no se hace ningún cargo. Te confirmaremos el costo de envío y la forma de pago antes de preparar tu{' '}
             {BRAND.productNoun}.
           </p>

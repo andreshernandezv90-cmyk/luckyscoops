@@ -55,11 +55,45 @@ export function RitualAnimation({ onReveal, autoFocus }) {
     [actions],
   )
 
+  const stageRef = useRef(null)
+  const layoutRef = useRef(null)
+  /** ¿El foco estaba en los botones del ritual? Al cambiar los botones, se queda ahí. */
+  const focusInControls = useRef(false)
+  const showStage = useRef(false)
+  /** El ritual empezó en esta visita: al terminar, "Revelar" debe quedar a la vista. */
+  const showReveal = useRef(false)
+
   const begin = () => {
     actions.setAnimation(ANIMATION.PLAYING)
     if (reduce) seq.skip()
     else seq.start()
+    showStage.current = true
+    showReveal.current = true
   }
+
+  useEffect(() => {
+    // En celular el botón queda bajo el caldero: al empezar, se desplaza lo justo para verlo
+    // completo (sin animación si la persona pidió reducir el movimiento). Se hace ya con el
+    // panel lateral actualizado, para que el destino no cambie.
+    if (showStage.current) {
+      showStage.current = false
+      stageRef.current?.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' })
+    }
+    // Preparar → Saltar → Revelar: el botón pulsado desaparece y el foco pasa al nuevo
+    // sin mover la página, para que el caldero siga a la vista.
+    const active = document.activeElement
+    if (focusInControls.current && (!active || active === document.body)) {
+      // El primer botón visible: en celular, "Saltar" está sobre el caldero.
+      const buttons = layoutRef.current?.querySelectorAll('button') ?? []
+      ;[...buttons].find((b) => b.offsetParent !== null)?.focus({ preventScroll: true })
+    }
+    // Al terminar: si "Revelar" quedó fuera de la pantalla (recetas largas en celular), se
+    // desplaza solo lo necesario para verlo; así el caldero sigue a la vista casi completo.
+    if (seq.finished && showReveal.current) {
+      showReveal.current = false
+      revealIntoView(layoutRef.current?.querySelector('.ritual__controls .btn--primary'), reduce)
+    }
+  }, [seq.started, seq.finished])
 
   const allIn = useMemo(() => new Set(ritual.items.map((_, i) => i)), [ritual])
   const applied = seq.finished ? allIn : appliedItems(ritual, seq.index)
@@ -101,8 +135,15 @@ export function RitualAnimation({ onReveal, autoFocus }) {
         </p>
       </header>
 
-      <div className="ritual__layout">
-        <div className="ritual__stage">
+      <div
+        className="ritual__layout"
+        ref={layoutRef}
+        onFocus={() => (focusInControls.current = true)}
+        onBlur={(e) => {
+          if (e.relatedTarget) focusInControls.current = false
+        }}
+      >
+        <div className="ritual__stage" ref={stageRef}>
           <svg
             viewBox="0 0 400 400"
             role="img"
@@ -163,6 +204,12 @@ export function RitualAnimation({ onReveal, autoFocus }) {
               />
             )}
           </svg>
+          {/* En celular "Saltar" va sobre el caldero: se ve sin tener que bajar */}
+          {seq.playing && (
+            <button type="button" className="btn btn--text btn--on-dark revelation__skip ritual__skip-stage" onClick={seq.skip}>
+              Saltar animación
+            </button>
+          )}
         </div>
 
         <aside className="ritual__side" aria-label="Tu receta en el caldero">
@@ -204,7 +251,7 @@ export function RitualAnimation({ onReveal, autoFocus }) {
               </>
             )}
             {seq.playing && (
-              <button type="button" className="btn btn--ghost-ink" onClick={seq.skip}>
+              <button type="button" className="btn btn--ghost-ink ritual__skip-side" onClick={seq.skip}>
                 Saltar animación
               </button>
             )}
@@ -225,6 +272,21 @@ export function RitualAnimation({ onReveal, autoFocus }) {
       </div>
     </div>
   )
+}
+
+/** Margen entre el botón y el borde de la pantalla al acercarlo. */
+const VIEW_MARGIN = 16
+
+/** Desplaza lo mínimo para que el botón quede visible (bajo el encabezado fijo). No hace nada si ya se ve. */
+function revealIntoView(button, reduce) {
+  if (!button) return
+  const rect = button.getBoundingClientRect()
+  const top = (document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0) + VIEW_MARGIN
+  const bottom = window.innerHeight - VIEW_MARGIN
+  let delta = 0
+  if (rect.bottom > bottom) delta = rect.bottom - bottom
+  else if (rect.top < top) delta = rect.top - top
+  if (delta !== 0) window.scrollBy({ top: delta, behavior: reduce ? 'auto' : 'smooth' })
 }
 
 /** "La Bruja Sabia ha recibido tu receta": resumen antes de empezar. */

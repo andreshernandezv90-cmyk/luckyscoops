@@ -12,7 +12,11 @@ import { ChapterDivider } from './illustrations/Ornaments.jsx'
 import { OrderTotals } from './OrderSummary.jsx'
 import { PendingTag } from './PendingTag.jsx'
 
-/** Pantalla final: el Grimorio se cierra y se sella. */
+/**
+ * Pantalla final. Con WhatsApp configurado, el Grimorio se cierra y se sella, y
+ * falta que la persona envíe el pedido. Sin WhatsApp no hay cierre ni sello: es
+ * un resumen pendiente, porque el pedido no le llega a nadie.
+ */
 export function OrderComplete() {
   const { lastOrder: order } = useShop()
   const reduce = useReducedMotion()
@@ -36,36 +40,54 @@ export function OrderComplete() {
 
   return (
     <section className="page order-complete" aria-labelledby="done-title">
-      <div className="order-complete__art" aria-hidden="true">
-        <BookCover startOpen className="closed-book--small" />
-        {/* Cuando la tapa termina de caer, el sello con la marca se estampa sobre el libro */}
-        <motion.div
-          className="order-complete__seal"
-          initial={reduce ? false : { scale: 2.2, opacity: 0, rotate: -40 }}
-          animate={reduce ? { opacity: 1, rotate: -12 } : { scale: [2.2, 0.88, 1.04, 1], opacity: 1, rotate: -12 }}
-          transition={{ delay: reduce ? 0 : 1.2, duration: 0.45, times: [0, 0.55, 0.8, 1], ease: 'easeOut' }}
-        >
-          <WaxSeal color="#b0306f" glyph={BRAND.logoMark ? 'brand' : 'check'} />
-        </motion.div>
-      </div>
+      {whatsapp ? (
+        <div className="order-complete__art" aria-hidden="true">
+          <BookCover startOpen className="closed-book--small" />
+          {/* Cuando la tapa termina de caer, el sello con la marca se estampa sobre el libro */}
+          <motion.div
+            className="order-complete__seal"
+            initial={reduce ? false : { scale: 2.2, opacity: 0, rotate: -40 }}
+            animate={reduce ? { opacity: 1, rotate: -12 } : { scale: [2.2, 0.88, 1.04, 1], opacity: 1, rotate: -12 }}
+            transition={{ delay: reduce ? 0 : 1.2, duration: 0.45, times: [0, 0.55, 0.8, 1], ease: 'easeOut' }}
+          >
+            <WaxSeal color="#b0306f" glyph={BRAND.logoMark ? 'brand' : 'check'} />
+          </motion.div>
+        </div>
+      ) : null}
 
       <header className="page__header page__header--center">
         <p className="page__kicker">Pedido {order.number}</p>
-        <h1 id="done-title" className="page__title">Tu ritual está completo</h1>
-        <p className="page__lead">
-          Gracias, {firstName}. Tu pedido <strong>{order.number}</strong> está listo, pero{' '}
-          <strong>todavía no le llega a {BRAND.witch}</strong>
-          {whatsapp ? ': envíalo por WhatsApp para confirmar el envío y la forma de pago. Después comenzará a prepararse.' : '.'}
-        </p>
+        <h1 id="done-title" className="page__title">
+          {whatsapp ? 'Falta un paso: envía tu pedido' : 'Tu pedido todavía no ha sido enviado'}
+        </h1>
+        {whatsapp ? (
+          <p className="page__lead">
+            {firstName}, tu pedido <strong>{order.number}</strong>{' '}
+            <strong>todavía no le llega a {BRAND.witch}</strong>: envíalo por WhatsApp para confirmar el envío y la
+            forma de pago. Después comenzará a prepararse.
+          </p>
+        ) : (
+          <>
+            <p className="page__lead">
+              {firstName}, tu pedido <strong>{order.number}</strong>{' '}
+              <strong>no ha sido enviado ni recibido por {BRAND.witch}</strong>. El envío por WhatsApp todavía no
+              está disponible.
+            </p>
+            {/* Estado neutral: sin cierre ni sello, solo el número para guardarlo */}
+            <div className="order-pending" role="status">
+              <p className="order-pending__label">Resumen pendiente de envío</p>
+              <p className="order-pending__number">{order.number}</p>
+              <p className="order-pending__note">Guarda este número y el resumen de abajo.</p>
+            </div>
+          </>
+        )}
         <div className="page__actions">
           {whatsapp ? (
             <a className="btn btn--primary btn--xl" href={whatsapp} target="_blank" rel="noreferrer">
               Enviar mi pedido por WhatsApp
             </a>
           ) : (
-            <p className="pending-line">
-              <PendingTag status="El envío por WhatsApp todavía no está disponible.">Falta configurar el número</PendingTag>
-            </p>
+            <PendingTag>Falta configurar el número de WhatsApp</PendingTag>
           )}
         </div>
         <ChapterDivider className="page__divider" />
@@ -107,7 +129,11 @@ export function OrderComplete() {
         <div className="parchment-panel">
           <h2 className="panel-title">Siguientes pasos</h2>
           <ul className="instructions">
-            <li>Envía tu pedido para que la Bruja Sabia lo reciba.</li>
+            <li>
+              {whatsapp
+                ? `Envía tu pedido por WhatsApp para que ${BRAND.witch} lo reciba.`
+                : `Tu pedido todavía no ha sido enviado ni recibido por ${BRAND.witch}; guarda tu número de pedido.`}
+            </li>
             <li>Te confirmaremos el costo de envío ({order.totals.shipping.label?.toLowerCase()}) según tu destino.</li>
             <li>
               Te indicaremos cómo pagar. Forma de pago preferida: <strong>{payment?.name}</strong>.

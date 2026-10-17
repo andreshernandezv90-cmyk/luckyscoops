@@ -2,12 +2,14 @@
 
 **Magia · Energía · Conexión**
 
-Tienda esotérica con una experiencia central llamada **El Grimorio de la Bruja Sabia**: la persona abre el libro, recorre sus capítulos para preparar su propia **Scoop**, ve cómo su receta cae en el caldero y termina con un pedido claro y fácil de completar.
+Tienda esotérica con una experiencia central llamada **El Grimorio de la Bruja Sabia**: la persona abre el libro, recorre sus capítulos para preparar su propia **Scoop**, ve cómo su receta cae en el caldero y termina con un pedido claro que envía por WhatsApp.
 
 ```
 Portada → I Intención → II Personaliza → III Tamaño → IV Extras → V Dedicatoria
-        → VI Preparación en el Caldero → VII Revelación → Tu pedido → Datos y envío → Pedido registrado
+        → VI Preparación en el Caldero → VII Revelación → Tu pedido → Datos y envío → Enviar por WhatsApp
 ```
+
+El pedido **solo le llega a la Bruja Sabia cuando la persona lo envía por WhatsApp** desde la pantalla final. Mientras no haya número configurado, la pantalla final es un **resumen pendiente de envío**: dice que el pedido no ha sido enviado ni recibido y muestra el número de pedido y el resumen para guardarlos.
 
 También hay **Scoops preparadas** que se agregan al pedido en un clic, y secciones de Significados, Videos ("Desde el Caldero de la Bruja"), Envíos y pagos, "Conoce a la Bruja Sabia", Preguntas frecuentes y Contacto.
 
@@ -43,7 +45,7 @@ El sitio **no inventa datos del negocio**. Lo que aún no existe está en `null`
 | Videos de TikTok | `src/data/videos.js` (`tiktokId` de cada video) |
 | Scoops preparadas reales | `src/data/products.js` |
 
-En cuanto se escribe el número de WhatsApp, la pantalla final muestra el botón **Enviar mi pedido por WhatsApp** con todo el pedido ya redactado (intención, enfoque, tamaño, extras, dedicatoria, datos de envío y forma de pago preferida).
+En cuanto se escribe el número de WhatsApp, la pantalla final ("Falta un paso: envía tu pedido") muestra el botón **Enviar mi pedido por WhatsApp** con todo el pedido ya redactado (intención, enfoque, tamaño, extras, dedicatoria, datos de envío y forma de pago preferida), y el checkout anuncia que el envío ocurre en ese paso. Sin número, el checkout avisa que al continuar el pedido todavía no se enviará y la pantalla final queda como resumen pendiente, sin la animación del libro y el sello.
 
 ## Dónde cambiar cada cosa
 
@@ -94,7 +96,7 @@ Los archivos están en `public/branding/`:
 
 Todos los tiempos y fotogramas de las animaciones principales están en `src/lib/motion.js` (con pruebas en `tests/motion.test.js`):
 
-- **Abrir el Grimorio** (`BOOK_OPEN`, ~1.15 s): anticipación, arranque lento, aceleración, pequeña sobrepasada; sombra de la tapa sobre las páginas, brillo sobre el oro y hojas que se mueven con el aire. `BOOK_CLOSE` cierra el libro al terminar el pedido.
+- **Abrir el Grimorio** (`BOOK_OPEN`, ~1.15 s): anticipación, arranque lento, aceleración, pequeña sobrepasada; sombra de la tapa sobre las páginas, brillo sobre el oro y hojas que se mueven con el aire. `BOOK_CLOSE` cierra el libro y lo sella en la pantalla final, solo si hay WhatsApp configurado (sin número no se muestra: el pedido aún no se ha enviado).
 - **Pasar página** (`pageTurnPlan`, `PageTurnTransition.jsx`): en escritorio una hoja se levanta, se curva, cruza el lomo y se asienta (0.68 s); en celular la hoja gira sobre el lomo y se desvanece; con movimiento reducido, solo un fundido.
 - **Ritual**: los frascos vuelan en arco (`arcKeyframes`) y se inclinan con el líquido nivelado dentro; el chorro es SVG, el color nuevo entra desde el punto de impacto y la cuchara recorre una elipse (`stirKeyframes`). Fuego, humo, burbujas y destellos son animaciones CSS en `src/styles/motion.css`.
 - **Revelación** (`REVEAL_STEPS`): silencio → luz desde el líquido → la cuchara baja → sube con una cucharada brillante → la Scoop se invoca (`ScoopReveal`) → aparece el nombre → entra la tarjeta de compra.
@@ -139,7 +141,9 @@ src/
 
 - Opciones con controles nativos (radios) o botones con `aria-pressed`; todo se usa con teclado.
 - Al pasar de capítulo, el foco va al título nuevo; el precio y el ritual se anuncian con `aria-live`.
-- `prefers-reduced-motion`: sin vuelos, giros 3D ni partículas; el libro y las páginas cambian con un fundido, y el caldero y la revelación muestran el resultado directamente. Siempre existe **Saltar animación**.
+- Ritual: al pulsar "Preparar", la página se desplaza lo justo para ver el caldero completo; al terminar, solo si "Revelar" quedó fuera de la pantalla, se acerca lo mínimo. El foco pasa de Preparar a Saltar y a Revelar sin perderse. En celular, "Saltar" aparece sobre el caldero.
+- En escritorio, Anterior / Siguiente se quedan fijos abajo mientras el libro no cabe en la pantalla; en celular, la barra de receta muestra la receta y el precio completos. Lo que recibe el foco no queda oculto bajo esas barras.
+- `prefers-reduced-motion`: sin vuelos, giros 3D ni partículas; el libro y las páginas cambian con un fundido, y el caldero y la revelación muestran el resultado directamente. Los desplazamientos de la página son instantáneos. Siempre existe **Saltar animación**.
 - Rendimiento: las animaciones usan `transform` y `opacity`; los ciclos continuos (fuego, humo, burbujas) son CSS y el humo usa degradados en lugar de filtros de desenfoque.
 - Los videos de TikTok solo se cargan cuando la persona pulsa "Ver video".
 - Sin imágenes pesadas: las ilustraciones son SVG y las tipografías (Cinzel, Cinzel Decorative, EB Garamond, licencia SIL OFL) van incluidas en `src/assets/fonts`.

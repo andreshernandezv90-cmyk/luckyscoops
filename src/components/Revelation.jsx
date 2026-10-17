@@ -178,13 +178,17 @@ export function Revelation({ autoFocus }) {
                   />
                   <button
                     type="button"
-                    className="btn btn--primary btn--lg btn--block"
+                    className="btn btn--primary btn--lg btn--block btn--with-price"
                     onClick={() => {
                       addBuilderToCart()
                       setAdded(true)
                     }}
                   >
-                    Agregar a mi pedido · {formatPrice(total)}
+                    <span className="btn__label">Agregar a mi pedido</span>
+                    <span className="btn__price">
+                      <span className="btn__sep" aria-hidden="true">· </span>
+                      {formatPrice(total)}
+                    </span>
                   </button>
                   <p className="result-card__edit">
                     ¿Quieres cambiar algo?{' '}

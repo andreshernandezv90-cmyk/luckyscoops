@@ -198,6 +198,9 @@
   height: 64px;
   color: rgba(122, 82, 30, 0.75);
   pointer-events: none;
+  /* Adorno pegado al pie de la página: si sirviera de ancla del desplazamiento,
+     cualquier cambio de alto del capítulo empujaría el contenido (el caldero) hacia arriba. */
+  overflow-anchor: none;
 }
 .book-page--night .book-page__corner {
   color: rgba(201, 162, 74, 0.6);
@@ -697,6 +700,33 @@
   font-weight: 600;
 }
 
+/* Escritorio: si el libro es más alto que la pantalla, Anterior / Siguiente se
+   quedan a la vista en el borde inferior hasta llegar a su lugar bajo el libro. */
+@media (min-width: 900px) {
+  .book-nav {
+    position: sticky;
+    bottom: 0;
+    z-index: 30;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(201, 162, 74, 0.35);
+    border-radius: 12px 12px 0 0;
+    background: linear-gradient(180deg, rgba(23, 12, 28, 0.94), rgba(17, 9, 6, 0.97));
+  }
+}
+
+/* Lo que recibe el foco con el teclado no queda escondido bajo la barra fija de
+   abajo (navegación en escritorio, barra de receta en celular). */
+@media (min-width: 900px) {
+  html:has(.book-nav) {
+    scroll-padding-bottom: 96px;
+  }
+}
+@media (max-width: 899px) {
+  html:has(.recipe-bar) {
+    scroll-padding-bottom: 140px;
+  }
+}
+
 /* Barra fija del celular con la receta y el botón Siguiente */
 .recipe-bar {
   display: none;
@@ -731,7 +761,8 @@
     display: none;
   }
   .book__spread {
-    grid-template-columns: 1fr;
+    /* minmax(0, …): el contenido no ensancha la página más allá de la pantalla (320 px) */
+    grid-template-columns: minmax(0, 1fr);
   }
   .book-page {
     min-height: 0;
@@ -809,16 +840,17 @@
     min-width: 0;
   }
   .recipe-bar__summary {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    /* La receta se lee completa: si no cabe, pasa a una segunda línea */
     font-size: 0.98rem;
+    line-height: 1.25;
     color: var(--text-muted);
+    overflow-wrap: anywhere;
   }
   .recipe-bar__price {
     font-family: var(--font-title);
     font-size: 1.15rem;
     color: var(--gold-bright);
+    white-space: nowrap;
   }
   .recipe-bar__pending {
     font-size: 0.95rem;
@@ -834,6 +866,36 @@
     display: flex;
     gap: 8px;
     flex: none;
+  }
+  .recipe-bar__actions .btn--primary {
+    padding-inline: 1.1em;
+  }
+}
+
+/* Celular estrecho: arriba la receta y su precio; abajo los botones, con
+   "Siguiente" a todo lo ancho para pulsarlo con el pulgar. */
+@media (max-width: 479px) {
+  .recipe-bar {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding-top: 8px;
+  }
+  .recipe-bar__info {
+    flex: 1 1 100%;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+  .recipe-bar__pending,
+  .recipe-bar__hint {
+    text-align: right;
+  }
+  .recipe-bar__actions {
+    flex: 1 1 100%;
+  }
+  .recipe-bar__actions .btn--primary {
+    flex: 1;
   }
 }
 
