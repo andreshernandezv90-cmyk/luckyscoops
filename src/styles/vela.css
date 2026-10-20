@@ -1,13 +1,16 @@
 /* ==========================================================================
    «Luz de vela» · prototipo de la Etapa 3 (ver DESIGN.md)
 
-   Todo vive dentro de .vela y solo se aplica a:
+   Los colores se declaran en :root (solo declaración: no cambian nada por sí
+   solos). Las reglas viven dentro de .vela y se aplican a:
      .vela--hero      la portada (Hero.jsx)
      .vela--capitulo  el Capítulo I del Grimorio (Grimorio.jsx)
-   No hay selectores globales: el resto del sitio conserva el sistema anterior.
+     .vela-portada    la transición del Hero al resto de la portada (Home.jsx)
+   El encabezado, el marcapáginas I–VII y las barras del Grimorio usan estos
+   colores desde layout.css, brand.css y grimorio.css (Etapa 3B).
    ========================================================================== */
 
-.vela {
+:root {
   --vela-hollin: #0e0b0a;
   --vela-humo: #1b1513;
   --vela-humo-2: #271e1b;
@@ -23,9 +26,12 @@
   --vela-tinta: #2b1b12;
   --vela-tinta-suave: #5b4330;
   --vela-rubrica: #8a1e45;
+  --vela-font-display: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+}
+
+.vela {
   /* Color de la luz; el Capítulo I lo cambia por el de la poción elegida */
   --vela-tinte: var(--vela-llama);
-  --vela-font-display: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
 
   color: var(--vela-cera);
   background-color: var(--vela-hollin);
@@ -350,72 +356,6 @@
     radial-gradient(ellipse 62% 46% at 50% 30%, color-mix(in srgb, var(--vela-tinte) 15%, transparent), transparent 76%),
     var(--vela-hollin);
 }
-.vela--capitulo .grimorio__title {
-  font-family: var(--vela-font-display);
-  font-weight: 400;
-  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
-  letter-spacing: 0.01em;
-  color: var(--vela-cera-tenue);
-}
-
-/* Marcapáginas: el capítulo actual es el que tiene la vela encendida */
-.vela--capitulo .chapter-progress__list::before {
-  background: rgba(201, 162, 74, 0.22);
-}
-.vela--capitulo .chapter-progress__mark {
-  position: relative;
-  border-color: rgba(201, 162, 74, 0.35);
-  background: var(--vela-hollin);
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: rgba(201, 162, 74, 0.8);
-}
-.vela--capitulo .is-locked .chapter-progress__mark {
-  opacity: 0.75;
-}
-.vela--capitulo .is-current .chapter-progress__mark {
-  color: var(--vela-cera);
-  border-color: rgba(227, 160, 72, 0.85);
-  background: radial-gradient(closest-side, rgba(227, 160, 72, 0.4), rgba(227, 160, 72, 0.1) 70%, var(--vela-hollin));
-  box-shadow: 0 0 30px -4px rgba(227, 160, 72, 0.55);
-}
-.vela--capitulo .is-current .chapter-progress__mark::before {
-  /* Llama sobre el numeral */
-  content: '';
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  width: 8px;
-  height: 13px;
-  margin-left: -4px;
-  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
-  background: radial-gradient(ellipse at 50% 72%, #fff6d6, #ffd25a 45%, #ff8a1f 85%);
-  transform-origin: 50% 100%;
-  animation: flicker 1.7s ease-in-out infinite;
-}
-.vela--capitulo .chapter-progress__label {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  letter-spacing: 0;
-  color: var(--vela-cera-tenue);
-}
-.vela--capitulo .is-current .chapter-progress__label {
-  font-weight: 500;
-  font-style: italic;
-  color: var(--vela-cera);
-}
-.vela--capitulo .chapter-progress__status {
-  font-family: var(--font-body);
-  font-size: 1.05rem;
-  letter-spacing: 0;
-  color: var(--vela-cera-tenue);
-}
-.vela--capitulo .chapter-progress__status strong {
-  font-weight: 500;
-  font-style: italic;
-  color: var(--vela-cera);
-}
-
 /* El libro: cuero oscuro y páginas que reciben la luz desde arriba del canal */
 .vela--capitulo .book {
   background:
@@ -695,40 +635,7 @@
   pointer-events: none;
 }
 
-/* Barras fijas: humo opaco con filete de oro */
-.vela--capitulo .book-nav__hint {
-  color: var(--vela-cera-tenue);
-}
-.vela--capitulo .book-nav__hint.is-nudged {
-  color: var(--vela-cera);
-}
-@media (min-width: 900px) {
-  .vela--capitulo .book-nav {
-    background: var(--vela-humo);
-    border-top-color: rgba(201, 162, 74, 0.3);
-  }
-}
-
 @media (max-width: 899px) {
-  .vela--capitulo .recipe-bar {
-    background: var(--vela-humo);
-    border-top: 1px solid rgba(201, 162, 74, 0.35);
-  }
-  .vela--capitulo .recipe-bar__summary {
-    color: var(--vela-cera-tenue);
-  }
-  .vela--capitulo .recipe-bar__price {
-    font-family: var(--vela-font-display);
-    font-weight: 600;
-    font-size: 1.3rem;
-    color: var(--vela-cera);
-  }
-  .vela--capitulo .recipe-bar__pending {
-    color: var(--vela-cera);
-  }
-  .vela--capitulo .recipe-bar__hint {
-    color: var(--vela-llama);
-  }
   .vela--capitulo .chapter-intro__numeral {
     font-size: 3.2rem;
   }
@@ -797,4 +704,19 @@
     width: 40px;
     height: 40px;
   }
+}
+
+/* ==========================================================================
+   Transición Hero → resto de la portada: las secciones nacen de la oscuridad
+   del Hero y el fondo anterior aparece poco a poco (Home.jsx).
+   ========================================================================== */
+
+.vela-portada {
+  background: linear-gradient(
+    180deg,
+    var(--vela-hollin) 0,
+    rgba(14, 11, 10, 0.92) 22vh,
+    rgba(14, 11, 10, 0.55) 48vh,
+    rgba(14, 11, 10, 0) 80vh
+  );
 }

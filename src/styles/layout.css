@@ -3,13 +3,18 @@
    ========================================================================== */
 
 /* ---------- Encabezado ---------- */
+/* «Luz de vela» (DESIGN.md): el encabezado es parte del mismo cuarto oscuro */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(11, 7, 16, 0.92);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(201, 162, 74, 0.35);
+  background: var(--vela-hollin);
+  border-bottom: 1px solid rgba(201, 162, 74, 0.16);
+}
+.site-header :focus-visible {
+  outline: 2px solid var(--vela-llama);
+  outline-offset: 3px;
+  box-shadow: none;
 }
 
 .site-header__inner {
@@ -27,7 +32,7 @@
   align-items: center;
   gap: 10px;
   min-height: 44px;
-  color: var(--gold-bright);
+  color: var(--vela-oro);
   text-decoration: none;
   flex: none;
 }
@@ -52,36 +57,55 @@
   gap: 2px;
 }
 .site-nav__link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   padding: 0 10px;
-  color: var(--text);
-  font-family: var(--font-title);
-  font-size: 0.86rem;
-  letter-spacing: 0.06em;
+  color: var(--vela-cera-tenue);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  letter-spacing: 0;
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: 2px;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
 }
-.site-nav__link:hover {
-  color: var(--gold-bright);
-}
+.site-nav__link:hover,
 .site-nav__link[aria-current='page'] {
-  color: var(--gold-bright);
-  text-decoration: underline;
-  text-underline-offset: 6px;
+  color: var(--vela-cera);
 }
+/* Página actual: una chispa de llama bajo el enlace (forma, no solo color) */
+.site-nav__link[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--vela-llama);
+  box-shadow: 0 0 8px 1px rgba(227, 160, 72, 0.55);
+}
+/* Abrir el Grimorio: destacado con un filo de lacre, sin competir con el botón del Hero */
 .site-nav__link--featured {
   margin: 0 6px;
   padding: 0 14px;
-  color: var(--ink);
-  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
-  font-weight: 700;
+  color: var(--vela-cera);
+  border: 1px solid var(--vela-lacre-vivo);
+  font-weight: 500;
 }
 .site-nav__link--featured:hover,
 .site-nav__link--featured[aria-current='page'] {
-  color: var(--ink);
-  background: linear-gradient(180deg, #f3d88c, var(--gold-bright));
+  background: rgba(158, 35, 80, 0.32);
+}
+.site-nav__link--featured[aria-current='page']::after {
+  display: none;
+}
+@media (min-width: 1240px) {
+  .site-nav__item--mobile {
+    display: none;
+  }
 }
 
 .site-header__actions {
@@ -97,18 +121,19 @@
   gap: 8px;
   min-height: 44px;
   padding: 0 12px;
-  color: var(--text);
+  color: var(--vela-cera-tenue);
   text-decoration: none;
-  font-family: var(--font-title);
-  font-size: 0.86rem;
-  letter-spacing: 0.06em;
-  border: 1px solid rgba(201, 162, 74, 0.45);
-  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  border: 1px solid rgba(239, 227, 204, 0.25);
+  border-radius: 2px;
+  transition: color 0.2s, border-color 0.2s;
 }
 .cart-link:hover,
 .cart-link[aria-current='page'] {
-  border-color: var(--gold-bright);
-  color: var(--gold-bright);
+  border-color: rgba(239, 227, 204, 0.6);
+  color: var(--vela-cera);
 }
 .cart-link__icon {
   width: 24px;
@@ -121,10 +146,11 @@
   height: 24px;
   padding: 0 6px;
   border-radius: 12px;
-  background: var(--gold);
-  color: var(--ink);
+  border: 1px solid var(--vela-oro);
+  background: var(--vela-hollin);
+  color: var(--vela-cera);
   font-family: var(--font-body);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.9rem;
 }
 
@@ -133,10 +159,10 @@
   width: 48px;
   height: 48px;
   place-items: center;
-  border: 1px solid rgba(201, 162, 74, 0.45);
-  border-radius: 6px;
+  border: 1px solid rgba(239, 227, 204, 0.25);
+  border-radius: 2px;
   background: transparent;
-  color: var(--text);
+  color: var(--vela-cera);
   cursor: pointer;
 }
 
@@ -154,10 +180,10 @@
     left: 0;
     right: 0;
     margin: 0;
-    padding: 12px 16px 20px;
-    background: rgba(11, 7, 16, 0.98);
-    border-bottom: 1px solid rgba(201, 162, 74, 0.35);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    padding: 12px 16px 24px;
+    background: var(--vela-hollin);
+    border-bottom: 1px solid rgba(201, 162, 74, 0.16);
+    box-shadow: 0 24px 40px rgba(0, 0, 0, 0.7);
   }
   .site-nav.is-open {
     display: block;
@@ -170,12 +196,19 @@
   .site-nav__link {
     width: 100%;
     min-height: 52px;
-    padding: 0 14px;
-    font-size: 1rem;
+    padding: 0 14px 0 26px;
+    font-size: 1.2rem;
+  }
+  .site-nav__link[aria-current='page']::after {
+    left: 12px;
+    bottom: auto;
+    top: 50%;
+    margin: -2.5px 0 0;
   }
   .site-nav__link--featured {
     margin: 4px 0;
     justify-content: center;
+    padding: 0 14px;
   }
 }
 

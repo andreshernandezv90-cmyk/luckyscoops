@@ -26,16 +26,19 @@ export function Home({ section, stamp }) {
   return (
     <>
       <Hero />
-      <CraftIntro />
-      <HowItWorks />
-      <IntentionsShowcase />
-      <FeaturedScoops />
-      <Meanings />
-      <Videos />
-      <ShippingPayments />
-      <WiseWitch />
-      <Faq />
-      <Contact />
+      {/* Las secciones nacen de la oscuridad del Hero («Luz de vela», vela.css) */}
+      <div className="vela-portada">
+        <CraftIntro />
+        <HowItWorks />
+        <IntentionsShowcase />
+        <FeaturedScoops />
+        <Meanings />
+        <Videos />
+        <ShippingPayments />
+        <WiseWitch />
+        <Faq />
+        <Contact />
+      </div>
     </>
   )
 }

@@ -1,8 +1,14 @@
 # DESIGN.md · Dirección «Luz de vela»
 
-Estado: **prototipo** (Etapa 3). Solo se aplica al Hero de la portada y al Capítulo I del Grimorio,
-dentro del ámbito `.vela` (`src/styles/vela.css`). El resto del sitio conserva el sistema anterior
-hasta que se apruebe extender esta dirección.
+Estado: **dirección aprobada.** Se extiende por etapas:
+
+- **3A:** Hero de la portada y Capítulo I del Grimorio, dentro de `.vela` (`src/styles/vela.css`).
+- **3B:** encabezado global, menú, marcapáginas I–VII, barras inferiores del Grimorio (y sus
+  botones), entorno exterior del libro en los 7 capítulos y transición del Hero al resto de la portada.
+- **Pendiente:** interior de los capítulos II–VII, caldero, revelación, checkout, confirmación,
+  secciones de la portada y pie, que conservan el sistema anterior hasta su etapa.
+
+Los colores `--vela-*` se declaran en `:root` (`vela.css`).
 
 Contexto de producto: `PRODUCT.md`.
 
@@ -145,6 +151,28 @@ Base de 4 px. Escala: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128`.
     el color de la poción) y su nombre se subraya con tinta. Las demás botellas se apagan un poco y
     la luz de todo el capítulo se tiñe con el color elegido.
   - Sin botón "Elegir": toda la opción es el control (`<label>` + radio).
+
+### Navegación global (Etapa 3B)
+
+- **Encabezado:** hollín opaco, sin desenfoque, con un filete inferior de oro al 16 %.
+  - Enlaces en EB Garamond, cera tenue, y cera al pasar el cursor.
+  - La página actual lleva una chispa de llama bajo el enlace (una forma, no solo un color).
+  - "Abrir Grimorio" va con un filo lacre; en su página, con un tinte lacre.
+  - El contador del pedido lleva un aro de oro.
+  - En escritorio "Inicio" se oculta, porque el logo lleva al inicio con el nombre accesible
+    "Scoops de la Bruja Sabia: ir al inicio". En el menú del celular sí aparece.
+- **Marcapáginas I–VII:**
+  - Actual: halo y llama.
+  - Completado: aro y marca de verificación en oro, el único estado con oro.
+  - Disponible: aro de cera sólido.
+  - Bloqueado: aro punteado y apagado.
+- **Barras inferiores:** humo opaco con un filete de oro. "Siguiente" en lacre, "Anterior" en
+  contorno cera y el estado de espera accesible.
+- **Foco en el encabezado, el marcapáginas y las barras:** 2 px en llama con 3 px de separación;
+  en el marcapáginas, redondo sobre el círculo.
+- **Entorno del Grimorio:** hollín con la luz de la vela sobre el libro, que se funde hacia el pie.
+- **Transición del Hero a la portada:** `.vela-portada` es un velo de hollín que se desvanece en
+  unos 80 vh, así las secciones nacen de la oscuridad.
 
 ## 10. Tratamiento del caldero (pendiente de extender)
 
