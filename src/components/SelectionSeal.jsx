@@ -1,12 +1,15 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { WaxSeal } from './illustrations/Sigils.jsx'
 
+/** Lacre del Grimorio: el mismo sello en todos los capítulos (DESIGN.md). */
+export const LACRE = '#9e2350'
+
 /**
  * Sello de lacre que confirma una elección: cae como un sello estampado
  * (golpe, pequeño rebote) y deja un anillo de tinta que se expande.
  * Dura ~0.4 s. Con movimiento reducido solo aparece.
  */
-export function SelectionSeal({ show, className, color, glyph = 'check', rotate = -10 }) {
+export function SelectionSeal({ show, className, color = LACRE, glyph = 'check', rotate = -10 }) {
   const reduce = useReducedMotion()
   return (
     <AnimatePresence>

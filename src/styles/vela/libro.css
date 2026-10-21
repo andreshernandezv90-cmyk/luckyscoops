@@ -1,0 +1,176 @@
+/* ==========================================================================
+   Capítulo I del Grimorio: el libro abierto bajo la vela
+   ========================================================================== */
+
+.vela--capitulo {
+  background:
+    radial-gradient(ellipse 62% 46% at 50% 30%, color-mix(in srgb, var(--vela-tinte) 15%, transparent), transparent 76%),
+    var(--vela-hollin);
+}
+/* El libro: cuero oscuro y páginas que reciben la luz desde arriba del canal */
+.vela--capitulo .book {
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 0%, rgba(227, 160, 72, 0.13), transparent 70%),
+    linear-gradient(165deg, #2f231e, #1b1513 50%, #110c0a);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 3px rgba(201, 162, 74, 0.26),
+    0 50px 90px -30px rgba(0, 0, 0, 0.95);
+}
+.vela--capitulo .book-page--parchment {
+  color: var(--vela-tinta);
+  background-color: var(--vela-vitela);
+}
+.vela--capitulo .book-page--left {
+  background-image:
+    radial-gradient(ellipse 95% 75% at 78% 4%, color-mix(in srgb, var(--vela-tinte) 18%, rgba(255, 247, 226, 0.6)), transparent 72%),
+    radial-gradient(ellipse 130% 110% at 70% 30%, transparent 58%, rgba(120, 82, 38, 0.34) 100%);
+}
+.vela--capitulo .book-page--right {
+  background-image:
+    radial-gradient(ellipse 95% 75% at 22% 4%, color-mix(in srgb, var(--vela-tinte) 18%, rgba(255, 247, 226, 0.6)), transparent 72%),
+    radial-gradient(ellipse 130% 110% at 30% 30%, transparent 58%, rgba(120, 82, 38, 0.34) 100%);
+}
+.vela--capitulo .book-page__corner {
+  color: rgba(122, 82, 30, 0.5);
+}
+
+/* Encabezado de capítulo: inicial romana en rúbrica, título y trazo de tinta */
+.vela--capitulo .chapter-intro {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 18px;
+  align-items: start;
+  margin-bottom: 24px;
+  text-align: left;
+}
+.vela--capitulo .chapter-intro > * {
+  grid-column: 2;
+}
+.vela--capitulo .chapter-intro__numeral {
+  grid-column: 1;
+  grid-row: 1 / 4;
+  padding-top: 0.06em;
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: clamp(3.6rem, 6vw, 5rem);
+  line-height: 0.9;
+  color: var(--vela-rubrica);
+}
+.vela--capitulo .chapter-intro__kicker {
+  margin: 0 0 2px;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--vela-rubrica);
+}
+.vela--capitulo .chapter-heading {
+  margin: 0;
+  font-family: var(--vela-font-display);
+  font-weight: 500;
+  font-size: clamp(2.1rem, 3.6vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.005em;
+  color: var(--vela-tinta);
+}
+.vela--capitulo .chapter-intro__stroke {
+  display: block;
+  width: min(300px, 92%);
+  height: auto;
+  margin: 8px 0 14px;
+  color: var(--vela-rubrica);
+}
+.vela--capitulo .chapter-intro__stroke path:first-child {
+  animation: vela-ink 0.9s 0.25s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+.vela--capitulo .chapter-intro__stroke path:last-child {
+  animation: vela-ink 0.7s 0.8s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+.vela--capitulo .chapter-intro__text {
+  grid-column: 1 / -1;
+  max-width: 30em;
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--vela-tinta-suave);
+}
+
+/* La receta: un asiento de manuscrito, sin caja */
+.vela--capitulo .book-page__notes {
+  display: block;
+  width: 136px;
+  height: auto;
+  margin: 0 0 22px;
+  color: var(--vela-tinta-suave);
+  opacity: 0.75;
+}
+.vela--capitulo .recipe {
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.vela--capitulo .recipe__title {
+  margin: 0 0 8px;
+  text-align: left;
+  font-family: var(--vela-font-display);
+  font-weight: 500;
+  font-size: 1.6rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--vela-tinta);
+}
+.vela--capitulo .recipe .chapter-divider {
+  display: none;
+}
+.vela--capitulo .recipe__lines dt {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  color: var(--vela-tinta-suave);
+}
+.vela--capitulo .recipe__lines dt::after {
+  border-bottom: 1px dotted rgba(43, 27, 18, 0.4);
+}
+.vela--capitulo .recipe__lines dd {
+  font-size: 1.2rem;
+  color: var(--vela-tinta);
+}
+.vela--capitulo .recipe__empty {
+  color: var(--vela-tinta-suave);
+}
+.vela--capitulo .recipe__total {
+  border-top-color: rgba(43, 27, 18, 0.25);
+}
+.vela--capitulo .recipe__total span {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  letter-spacing: 0;
+}
+.vela--capitulo .recipe__total strong {
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+}
+
+@media (max-width: 899px) {
+  .vela--capitulo .chapter-intro__numeral {
+    font-size: 3.2rem;
+  }
+  /* Una sola página por pantalla: la luz cae arriba y se apaga antes de la
+     siguiente página para que no se note la unión entre las dos */
+  .vela--capitulo .book-page--left {
+    background-image: radial-gradient(ellipse 120% 90% at 50% 0%, color-mix(in srgb, var(--vela-tinte) 16%, rgba(255, 247, 226, 0.6)), transparent 100%);
+  }
+  .vela--capitulo .book-page--left,
+  .vela--capitulo .book-page--right {
+    box-shadow: none;
+  }
+  .vela--capitulo .book-page--left .book-page__corner--tl {
+    display: none;
+  }
+  .vela--capitulo .book-page--right {
+    background-image: radial-gradient(ellipse 140% 60% at 50% 100%, rgba(120, 82, 38, 0.18), transparent 100%);
+  }
+}

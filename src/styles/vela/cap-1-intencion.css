@@ -1,0 +1,185 @@
+/* ==========================================================================
+   Capítulo I: intenciones. Botellas sobre la página; la elegida se ilumina
+   con su color.
+   ========================================================================== */
+
+.vela .vela-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 0 0;
+  border: 0;
+}
+.vela .vela-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 8px 10px;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+}
+.vela .vela-option:has(input:focus-visible) {
+  outline: 2px solid var(--vela-rubrica);
+  outline-offset: 4px;
+}
+.vela .vela-option__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 116px;
+  height: 108px;
+  margin-bottom: 6px;
+}
+.vela .vela-option__light {
+  position: absolute;
+  inset: -26px -44px;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--accent-glow) 95%, #fff7e2),
+    color-mix(in srgb, var(--accent-glow) 55%, transparent) 45%,
+    transparent 78%
+  );
+  opacity: 0;
+  transform: scale(0.7);
+  transition:
+    opacity 0.45s ease-out,
+    transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.vela .vela-option:hover .vela-option__light {
+  opacity: 0.35;
+  transform: scale(0.85);
+}
+.vela .vela-option.is-selected .vela-option__light {
+  opacity: 1;
+  transform: scale(1);
+}
+.vela .vela-options:has(:checked) .vela-option:not(.is-selected) .vela-option__bottle {
+  opacity: 0.62;
+  filter: saturate(0.6);
+}
+.vela .vela-options:has(:checked) .vela-option:not(.is-selected):hover .vela-option__bottle {
+  opacity: 0.85;
+}
+.vela .vela-option.is-selected .vela-option__bottle {
+  transform: translateY(-4px) scale(1.06);
+}
+.vela .vela-option__sigil {
+  position: absolute;
+  inset: 0 -12px;
+  color: var(--accent-deep);
+  opacity: 0.12;
+}
+.vela .vela-option__bottle {
+  position: relative;
+  z-index: 1;
+  width: 82px;
+  height: 104px;
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.4s ease-out,
+    filter 0.4s ease-out;
+}
+.vela .vela-option:hover .vela-option__bottle {
+  transform: translateY(-3px);
+}
+.vela .vela-option__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.vela .vela-option__title {
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+  font-size: 1.65rem;
+  line-height: 1.1;
+  color: var(--vela-tinta);
+}
+.vela .vela-option__stroke {
+  display: block;
+  width: 110px;
+  height: auto;
+  margin: 2px 0 6px;
+  color: var(--accent-deep);
+}
+.vela .vela-option__stroke path:first-child {
+  stroke-width: 7;
+}
+.vela .vela-option.is-selected .vela-option__stroke path {
+  animation: vela-ink 0.6s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+.vela .vela-option__desc {
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-option__meta {
+  margin-top: 6px;
+  font-size: 1rem;
+  font-style: italic;
+  color: color-mix(in srgb, var(--accent-deep) 62%, var(--vela-tinta));
+}
+.vela .vela-option__seal {
+  position: absolute;
+  top: 0;
+  right: calc(50% - 88px);
+  z-index: 3;
+  width: 52px;
+  height: 52px;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+}
+
+@media (max-width: 560px) {
+  .vela .vela-options {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .vela .vela-option {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    column-gap: 14px;
+    align-items: start;
+    padding: 8px 4px;
+    text-align: left;
+  }
+  .vela .vela-option__art {
+    width: 84px;
+    height: 104px;
+    margin: 0;
+  }
+  .vela .vela-option__light {
+    inset: -10px -18px;
+  }
+  /* Sin marco alrededor de toda la fila: el foco de teclado rodea solo la
+     botella, y la elección se lee por la luz, el sello y el trazo de tinta */
+  .vela .vela-option:has(input:focus-visible) {
+    outline: none;
+  }
+  .vela .vela-option:has(input:focus-visible) .vela-option__art {
+    outline: 2px solid var(--vela-rubrica);
+    outline-offset: 2px;
+    border-radius: 50%;
+  }
+  .vela .vela-option__bottle {
+    width: 70px;
+    height: 92px;
+  }
+  .vela .vela-option__body {
+    align-items: flex-start;
+  }
+  .vela .vela-option__title {
+    font-size: 1.5rem;
+  }
+  .vela .vela-option__seal {
+    top: 0;
+    left: 58px;
+    right: auto;
+    width: 40px;
+    height: 40px;
+  }
+}

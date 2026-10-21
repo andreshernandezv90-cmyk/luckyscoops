@@ -1,0 +1,212 @@
+/* ==========================================================================
+   Hero: el Grimorio cerrado a la luz de las velas
+   ========================================================================== */
+
+.vela--hero {
+  position: relative;
+  isolation: isolate;
+  min-height: calc(100svh - var(--header-h));
+  align-content: center;
+  gap: 0;
+  padding: 8px 16px 56px;
+}
+
+/* La vela se enciende al cargar y después la luz respira; con ratón sigue al puntero */
+.vela--hero .hero__light {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 36%;
+  width: min(1500px, 170vw);
+  aspect-ratio: 1.7;
+  translate: -50% -50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(227, 160, 72, 0.2),
+    rgba(227, 160, 72, 0.1) 35%,
+    rgba(227, 160, 72, 0.035) 65%,
+    rgba(227, 160, 72, 0)
+  );
+  transform: translate(calc(var(--light-dx, 0) * 3%), calc(var(--light-dy, 0) * 2%));
+  transition: transform 1.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  animation:
+    vela-ignite 1.8s cubic-bezier(0.3, 0, 0.2, 1) both,
+    vela-breathe 6s ease-in-out 1.8s infinite;
+  pointer-events: none;
+}
+
+.vela--hero .table-scene {
+  width: min(1000px, 100%);
+  aspect-ratio: 16 / 7.4;
+  margin: 0;
+}
+/* Penumbra inicial que se retira cuando la vela prende */
+.vela--hero .table-scene::after {
+  content: '';
+  position: absolute;
+  inset: -6% -10%;
+  z-index: 3;
+  background: var(--vela-hollin);
+  animation: vela-unveil 1.6s cubic-bezier(0.3, 0, 0.2, 1) both;
+  pointer-events: none;
+}
+.vela--hero .table-scene__glow {
+  background:
+    radial-gradient(ellipse 24% 44% at 50% 50%, rgba(227, 160, 72, 0.16), transparent 72%),
+    radial-gradient(ellipse 12% 30% at 27% 52%, rgba(227, 160, 72, 0.12), transparent 70%),
+    radial-gradient(ellipse 10% 26% at 73% 54%, rgba(227, 160, 72, 0.1), transparent 70%);
+}
+/* La mesa no se dibuja: solo se ve donde cae la luz */
+.vela--hero .table-scene__surface {
+  left: 0;
+  right: 0;
+  height: 34%;
+  border: 0;
+  border-radius: 0;
+  background: radial-gradient(ellipse 44% 78% at 50% 8%, rgba(227, 160, 72, 0.13), rgba(227, 160, 72, 0.035) 55%, transparent 80%);
+  /* Sin borde superior: la luz de la mesa aparece poco a poco desde la penumbra */
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 45%);
+  mask-image: linear-gradient(180deg, transparent, #000 45%);
+}
+.vela--hero .prop {
+  filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.7));
+}
+/* El halo de cada llama no se recorta en el borde de su dibujo */
+.vela--hero .candle {
+  overflow: visible;
+}
+.vela--hero .prop--candle-1 { left: 24%; bottom: 14%; width: 6.4%; }
+.vela--hero .prop--candle-2 { left: 17.5%; bottom: 10%; width: 5%; }
+.vela--hero .prop--candle-3 { right: 23.5%; bottom: 13%; width: 6%; }
+.vela--hero .prop--potion { right: 17.5%; bottom: 8%; width: 3.4%; }
+.vela--hero .prop--crystals { right: 8%; bottom: 6%; width: 8.5%; }
+
+.vela--hero .mote {
+  background: #f3d39a;
+  box-shadow: 0 0 6px 1px rgba(227, 160, 72, 0.45);
+}
+
+.vela--hero .table-scene__book {
+  width: 25.5%;
+  top: 47%;
+}
+/* Cuero oscuro iluminado desde arriba a la izquierda; el morado queda solo en el logo */
+.vela--hero .closed-book__front {
+  background:
+    radial-gradient(ellipse 75% 55% at 22% 16%, rgba(227, 160, 72, 0.2), transparent 70%),
+    radial-gradient(ellipse at 80% 92%, rgba(0, 0, 0, 0.55), transparent 60%),
+    repeating-radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.014) 0 2px, transparent 2px 5px),
+    linear-gradient(150deg, #36261f, #1f1613 55%, #120d0b);
+}
+.vela--hero .closed-book__front::before {
+  border-color: rgba(201, 162, 74, 0.7);
+  outline-color: rgba(201, 162, 74, 0.28);
+}
+.vela--hero .closed-book__title {
+  background: none;
+  color: var(--vela-oro);
+}
+.vela--hero .closed-book__brand {
+  color: var(--vela-oro);
+}
+.vela--hero .closed-book__aura {
+  background: radial-gradient(closest-side, rgba(227, 160, 72, 0.3), rgba(227, 160, 72, 0.08) 60%, transparent);
+}
+
+.vela--hero .hero__heading {
+  margin-top: 6px;
+}
+.vela--hero .hero__title {
+  margin: 0;
+  font-family: var(--vela-font-display);
+  font-weight: 300;
+  font-size: clamp(2.5rem, 5.4vw, 4.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  color: var(--vela-cera);
+  text-shadow: none;
+  animation: vela-rise 1.4s 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+/* El lema es ceremonial: Cinzel pequeño en oro, sin degradado */
+.vela--hero .hero__motto {
+  margin: 14px 0 0;
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.32em;
+  background: none;
+  color: var(--vela-oro);
+}
+.vela--hero .hero__lead {
+  max-width: 34em;
+  margin: 20px auto 0;
+  font-size: clamp(1.15rem, 1.6vw, 1.3rem);
+  line-height: 1.55;
+  color: var(--vela-cera-tenue);
+}
+.vela--hero .hero__actions {
+  gap: 10px;
+  margin-top: 28px;
+}
+
+@media (max-width: 760px) {
+  .vela--hero {
+    min-height: 0;
+    align-content: start;
+    padding: 0 16px 48px;
+  }
+  .vela--hero .hero__light {
+    top: 30%;
+  }
+  .vela--hero .table-scene {
+    width: calc(100% + 32px);
+    aspect-ratio: 1 / 0.9;
+    margin: 0 -16px;
+  }
+  .vela--hero .table-scene__book {
+    width: 50%;
+    top: 46%;
+  }
+  .vela--hero .table-scene__surface {
+    height: 30%;
+  }
+  .vela--hero .prop--candle-1 { left: 7%; bottom: 13%; width: 12%; }
+  .vela--hero .prop--candle-2 { left: 16%; bottom: 5%; width: 9%; }
+  .vela--hero .prop--candle-3 { right: 7%; bottom: 14%; width: 11%; }
+  .vela--hero .prop--potion { right: 18%; bottom: 3%; width: 6.5%; }
+  .vela--hero .prop--crystals { right: 1%; bottom: 1%; width: 16%; }
+  .vela--hero .hero__title {
+    font-size: clamp(2.2rem, 10vw, 2.75rem);
+  }
+  .vela--hero .hero__motto {
+    font-size: 0.78rem;
+    letter-spacing: 0.24em;
+  }
+  .vela--hero .hero__lead {
+    margin-top: 16px;
+    font-size: 1.12rem;
+  }
+  .vela--hero .hero__actions {
+    width: 100%;
+    margin-top: 24px;
+  }
+  .vela--hero .hero__actions .btn--primary {
+    width: 100%;
+  }
+}
+
+
+/* ==========================================================================
+   Transición Hero → resto de la portada: las secciones nacen de la oscuridad
+   del Hero y el fondo anterior aparece poco a poco (Home.jsx).
+   ========================================================================== */
+
+.vela-portada {
+  background: linear-gradient(
+    180deg,
+    var(--vela-hollin) 0,
+    rgba(14, 11, 10, 0.92) 22vh,
+    rgba(14, 11, 10, 0.55) 48vh,
+    rgba(14, 11, 10, 0) 80vh
+  );
+}

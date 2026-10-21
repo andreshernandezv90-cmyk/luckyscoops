@@ -26,7 +26,7 @@ export function Home({ section, stamp }) {
   return (
     <>
       <Hero />
-      {/* Las secciones nacen de la oscuridad del Hero («Luz de vela», vela.css) */}
+      {/* Las secciones nacen de la oscuridad del Hero («Luz de vela», vela/portada.css) */}
       <div className="vela-portada">
         <CraftIntro />
         <HowItWorks />

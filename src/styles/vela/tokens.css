@@ -1,0 +1,20 @@
+/* «Luz de vela»: colores y fuente de títulos (solo declaración). */
+
+:root {
+  --vela-hollin: #0e0b0a;
+  --vela-humo: #1b1513;
+  --vela-humo-2: #271e1b;
+  --vela-cera: #efe3cc;
+  --vela-cera-tenue: #bbad97;
+  --vela-llama: #e3a048;
+  --vela-lacre: #9e2350;
+  --vela-lacre-vivo: #b42c5e;
+  --vela-oro: #c9a24a;
+  --vela-amatista: #5e3d6e;
+  --vela-vitela: #eadbbb;
+  --vela-vitela-sombra: #bfa67a;
+  --vela-tinta: #2b1b12;
+  --vela-tinta-suave: #5b4330;
+  --vela-rubrica: #8a1e45;
+  --vela-font-display: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+}

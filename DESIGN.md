@@ -2,13 +2,17 @@
 
 Estado: **dirección aprobada.** Se extiende por etapas:
 
-- **3A:** Hero de la portada y Capítulo I del Grimorio, dentro de `.vela` (`src/styles/vela.css`).
+- **3A:** Hero de la portada y Capítulo I del Grimorio, dentro de `.vela` (`src/styles/vela/`).
 - **3B:** encabezado global, menú, marcapáginas I–VII, barras inferiores del Grimorio (y sus
   botones), entorno exterior del libro en los 7 capítulos y transición del Hero al resto de la portada.
-- **Pendiente:** interior de los capítulos II–VII, caldero, revelación, checkout, confirmación,
+- **3C, bloque 1:** el libro de los capítulos I–V (cuero, vitela, numeral, receta sin caja) y el
+  interior de II (índice de matices) y III (los tres círculos). El sello de lacre `#9e2350` es el
+  mismo en todos los capítulos; el color de cada intención vive en la luz, la poción y los detalles.
+- **Pendiente:** interior de los capítulos IV–VII, caldero, revelación, checkout, confirmación,
   secciones de la portada y pie, que conservan el sistema anterior hasta su etapa.
 
-Los colores `--vela-*` se declaran en `:root` (`vela.css`).
+Los colores `--vela-*` se declaran en `:root` (`src/styles/vela/tokens.css`). El orden de las
+hojas de estilo y qué contiene cada una está en `src/styles/vela/index.css`.
 
 Contexto de producto: `PRODUCT.md`.
 

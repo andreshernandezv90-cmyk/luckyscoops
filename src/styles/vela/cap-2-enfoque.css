@@ -1,0 +1,164 @@
+/* ==========================================================================
+   Capítulo II: índice de matices. Una lista manuscrita bajo la intención
+   elegida, con filetes de tinta entre las entradas. "Déjalo en manos de la
+   Bruja Sabia" la cierra como una posdata, tras un filete doble.
+   ========================================================================== */
+
+.vela .vela-indice {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.vela .vela-matiz {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 48px;
+  column-gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid rgba(91, 67, 48, 0.26);
+  cursor: pointer;
+}
+.vela .vela-matiz:first-of-type {
+  border-top: 0;
+  padding-top: 4px;
+}
+
+/* El sigilo de la intención, pequeño, como inicial de cada entrada */
+.vela .vela-matiz__marca {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+}
+.vela .vela-matiz__luz {
+  inset: -16px;
+}
+.vela .vela-matiz__sigilo,
+.vela .vela-matiz__logo {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  color: var(--accent-deep);
+  opacity: 0.5;
+  transition:
+    opacity 0.3s ease-out,
+    transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.vela .vela-matiz__logo {
+  width: 46px;
+  height: 46px;
+  color: var(--vela-tinta);
+}
+.vela .vela-matiz:hover .vela-matiz__sigilo,
+.vela .vela-matiz:hover .vela-matiz__logo {
+  opacity: 0.8;
+}
+.vela .vela-matiz.is-selected .vela-matiz__sigilo,
+.vela .vela-matiz.is-selected .vela-matiz__logo {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.vela .vela-matiz__texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.vela .vela-matiz__nombre {
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.12;
+  color: var(--vela-tinta);
+  transition: color 0.3s ease-out;
+}
+/* Las demás entradas quedan un poco atrás, sin perder contraste */
+.vela .vela-indice:has(:checked) .vela-matiz:not(.is-selected) .vela-matiz__nombre {
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-matiz__trazo {
+  width: 120px;
+  margin: 1px 0 4px;
+}
+.vela .vela-matiz__desc {
+  font-size: 1.05rem;
+  line-height: 1.42;
+  color: var(--vela-tinta-suave);
+}
+
+.vela .vela-matiz__sello {
+  position: relative;
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: center;
+  width: 44px;
+  height: 44px;
+}
+
+/* La posdata: dejarlo en manos de la Bruja Sabia */
+.vela .vela-matiz--posdata {
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 3px double rgba(91, 67, 48, 0.42);
+}
+.vela .vela-matiz--posdata .vela-matiz__nombre {
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Foco de teclado alrededor del sigilo, como en el Capítulo I en el celular */
+.vela .vela-matiz:has(input:focus-visible) .vela-matiz__marca {
+  outline: 2px solid var(--vela-rubrica);
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .vela .vela-matiz {
+    grid-template-columns: 44px minmax(0, 1fr) 38px;
+    column-gap: 12px;
+    padding: 12px 0;
+  }
+  .vela .vela-matiz__marca {
+    width: 44px;
+    height: 44px;
+  }
+  .vela .vela-matiz__sigilo {
+    width: 32px;
+    height: 32px;
+  }
+  .vela .vela-matiz__logo {
+    width: 40px;
+    height: 40px;
+  }
+  .vela .vela-matiz__nombre {
+    font-size: 1.32rem;
+  }
+  .vela .vela-matiz__desc {
+    font-size: 1rem;
+  }
+  .vela .vela-matiz__sello {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* En los teléfonos más angostos el sello ocupa menos margen y el texto respira */
+@media (max-width: 360px) {
+  .vela .vela-matiz {
+    grid-template-columns: 40px minmax(0, 1fr) 30px;
+    column-gap: 10px;
+  }
+  .vela .vela-matiz__marca {
+    width: 40px;
+    height: 40px;
+  }
+  .vela .vela-matiz__sello {
+    width: 30px;
+    height: 30px;
+  }
+}

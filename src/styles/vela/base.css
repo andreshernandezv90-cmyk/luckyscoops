@@ -1,0 +1,122 @@
+/* «Luz de vela»: base común a todo lo que lleva .vela. */
+
+.vela {
+  /* Color de la luz; el Capítulo I lo cambia por el de la poción elegida */
+  --vela-tinte: var(--vela-llama);
+
+  color: var(--vela-cera);
+  background-color: var(--vela-hollin);
+}
+
+.vela :focus-visible {
+  outline: 2px solid var(--vela-llama);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+/* ---------- Botones dentro del prototipo ---------- */
+.vela .btn {
+  border-width: 1px;
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.vela .btn--primary {
+  color: var(--vela-cera);
+  background: var(--vela-lacre);
+  border-color: var(--vela-lacre);
+  box-shadow: none;
+}
+.vela .btn--primary:hover {
+  background: var(--vela-lacre-vivo);
+  border-color: var(--vela-lacre-vivo);
+  /* La luz de la vela se acerca a la acción */
+  box-shadow: 0 0 34px -8px rgba(227, 160, 72, 0.55);
+}
+.vela .btn--primary:active {
+  transform: scale(0.98);
+}
+.vela .btn--ghost {
+  color: var(--vela-cera);
+  background: transparent;
+  border-color: rgba(239, 227, 204, 0.35);
+}
+.vela .btn--ghost:hover {
+  border-color: rgba(239, 227, 204, 0.7);
+}
+.vela .btn--text.btn--on-dark {
+  font-size: 1.05rem;
+  font-style: italic;
+  letter-spacing: 0;
+  color: var(--vela-cera-tenue);
+}
+.vela .btn--text.btn--on-dark:hover {
+  color: var(--vela-cera);
+}
+.vela .btn--xl {
+  min-height: 56px;
+  padding: 0.75em 2.4em;
+  font-size: 1.2rem;
+}
+.vela .btn.is-waiting,
+.vela .btn.is-waiting:hover {
+  /* Todavía no: lacre apagado con texto legible (5.9:1), sin bajar la opacidad */
+  color: var(--vela-cera-tenue);
+  background: #4a2633;
+  border: 1px dashed rgba(239, 227, 204, 0.35);
+  box-shadow: none;
+  opacity: 1;
+  filter: none;
+}
+
+/* Tinta que se escribe: los trazos usan pathLength=1 (InkStroke) */
+.vela .ink-stroke path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+@keyframes vela-ink {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes vela-ignite {
+  from {
+    opacity: 0.12;
+  }
+  45% {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes vela-unveil {
+  from {
+    opacity: 0.78;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vela-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.88;
+  }
+}
+@keyframes vela-rise {
+  from {
+    opacity: 0.25;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

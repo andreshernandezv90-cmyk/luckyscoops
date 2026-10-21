@@ -79,7 +79,7 @@ export function InkBlot({ className = '', variant = 0 }) {
 
 /**
  * Trazo de tinta a mano alzada bajo un título. Con pathLength=1 el CSS puede
- * dibujarlo de izquierda a derecha animando stroke-dashoffset (ver vela.css).
+ * dibujarlo de izquierda a derecha animando stroke-dashoffset (ver styles/vela/base.css).
  */
 export function InkStroke({ className = '' }) {
   return (

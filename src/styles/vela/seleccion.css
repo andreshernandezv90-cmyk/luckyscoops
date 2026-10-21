@@ -1,0 +1,53 @@
+/* ==========================================================================
+   Piezas comunes para elegir en el libro (Capítulos II–V). Cada capítulo
+   decide dónde van y cómo se componen; aquí solo se define cómo se ven:
+     .vela-luz    luz de vela detrás de lo elegido, del color de la intención
+                  (--accent-glow); se insinúa al pasar el puntero
+     .vela-trazo  trazo de tinta (InkStroke) que se escribe bajo lo elegido
+     .vela-sello  el sello de lacre (SelectionSeal), igual en todo el Grimorio
+   El Capítulo I tiene sus propias versiones en cap-1-intencion.css.
+   ========================================================================== */
+
+.vela .vela-luz {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--accent-glow) 95%, #fff7e2),
+    color-mix(in srgb, var(--accent-glow) 55%, transparent) 45%,
+    transparent 78%
+  );
+  opacity: 0;
+  transform: scale(0.7);
+  transition:
+    opacity 0.45s ease-out,
+    transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  pointer-events: none;
+}
+.vela label:hover .vela-luz {
+  opacity: 0.35;
+  transform: scale(0.85);
+}
+.vela label.is-selected .vela-luz {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.vela .vela-trazo {
+  display: block;
+  height: auto;
+  color: var(--accent-deep);
+}
+.vela .vela-trazo path:first-child {
+  stroke-width: 7;
+}
+.vela .is-selected .vela-trazo path {
+  animation: vela-ink 0.6s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+
+.vela .vela-sello {
+  position: absolute;
+  z-index: 3;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+}

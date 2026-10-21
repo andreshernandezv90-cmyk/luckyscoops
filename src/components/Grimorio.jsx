@@ -116,9 +116,10 @@ export function Grimorio() {
     else goTo(chapter - 1)
   }
   const prevLabel = chapter === CHAPTER.INTENCION ? 'Cerrar el Grimorio' : `Anterior: ${CHAPTERS[chapter - 1].title}`
-  // Prototipo «Luz de vela» (DESIGN.md): por ahora solo en el Capítulo I.
-  // La intención elegida tiñe la luz de la página con el color de su poción.
-  const vela = chapter === CHAPTER.INTENCION
+  // «Luz de vela» (DESIGN.md): el libro de los capítulos I–V. El caldero y la
+  // revelación llegan en una etapa posterior. La intención elegida tiñe la luz
+  // de las páginas con el color de su poción.
+  const vela = chapter <= CHAPTER.DEDICATORIA
   const tint = vela ? getIntention(builder.intention)?.colors.glow : null
 
   return (

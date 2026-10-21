@@ -11,7 +11,7 @@ import './styles/sections.css'
 import './styles/brand.css'
 import './styles/motion.css'
 import './styles/animations.css'
-import './styles/vela.css'
+import './styles/vela/index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

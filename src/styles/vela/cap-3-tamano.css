@@ -1,0 +1,304 @@
+/* ==========================================================================
+   Capítulo III: los tres círculos. Un tríptico de botellas de menor a mayor
+   sobre una misma línea de tinta, con su fase lunar encima; en el celular,
+   una tabla manuscrita con el precio a la derecha, como en un recetario.
+   ========================================================================== */
+
+.vela .vela-circulos {
+  /* Altura de la luna y de la botella mayor: la línea de tinta pasa por su base */
+  --luna: 52px;
+  --frasco: 132px;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 14px;
+  min-width: 0;
+  margin: 0;
+  padding: 4px 0 0;
+  border: 0;
+}
+.vela .vela-circulos__linea {
+  position: absolute;
+  left: -2%;
+  top: calc(4px + 6px + var(--luna) + 10px + var(--frasco) - 24px);
+  width: 104%;
+  height: auto;
+  color: var(--vela-tinta-suave);
+  opacity: 0.75;
+  pointer-events: none;
+}
+/* Una línea quieta (sin escribirse): es el suelo de las tres botellas.
+   El grosor del trazo no crece con el ancho de la página. */
+.vela .vela-circulos__linea path {
+  stroke-dasharray: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.vela .vela-circulo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 4px 10px;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+}
+.vela .vela-circulo:has(input:focus-visible) {
+  outline: 2px solid var(--vela-rubrica);
+  outline-offset: 4px;
+}
+
+.vela .vela-circulo__arte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.vela .vela-circulo__luna {
+  position: relative;
+  width: var(--luna);
+  height: var(--luna);
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-circulo__luna > svg:first-child {
+  width: 100%;
+  height: 100%;
+}
+/* El anillo de tinta que se dibuja alrededor de la luna elegida */
+.vela .vela-circulo__anillo {
+  position: absolute;
+  inset: -5px;
+  overflow: visible;
+  fill: none;
+  stroke: var(--vela-rubrica);
+  stroke-width: 2;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.vela .vela-circulo__frasco {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: var(--frasco);
+}
+.vela .vela-circulo__luz {
+  inset: -10px -8px -24px;
+}
+.vela .vela-circulo__botella {
+  position: relative;
+  z-index: 1;
+  width: calc(102px * var(--talla));
+  height: calc(var(--frasco) * var(--talla));
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.4s ease-out,
+    filter 0.4s ease-out;
+}
+.vela .vela-circulo:hover .vela-circulo__botella {
+  transform: translateY(-3px);
+}
+.vela .vela-circulo.is-selected .vela-circulo__botella {
+  transform: translateY(-5px) scale(1.04);
+}
+.vela .vela-circulos:has(:checked) .vela-circulo:not(.is-selected) .vela-circulo__botella {
+  opacity: 0.62;
+  filter: saturate(0.6);
+}
+.vela .vela-circulos:has(:checked) .vela-circulo:not(.is-selected):hover .vela-circulo__botella {
+  opacity: 0.85;
+}
+
+.vela .vela-circulo__texto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 22px;
+}
+.vela .vela-circulo__nombre {
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  color: var(--vela-tinta);
+}
+.vela .vela-circulo__trazo {
+  width: 104px;
+  margin: 2px 0 4px;
+}
+.vela .vela-circulo__nivel {
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--vela-rubrica);
+}
+/* En el tríptico el nivel y la etiqueta van en dos renglones; en la tabla del
+   celular, en uno solo separados por un punto */
+.vela .vela-circulo__sep {
+  display: none;
+}
+.vela .vela-circulo__etiqueta {
+  display: block;
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-circulo__desc {
+  margin-top: 6px;
+  font-size: 1.02rem;
+  line-height: 1.42;
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-circulo__meta {
+  margin-top: 4px;
+  font-size: 0.98rem;
+  font-style: italic;
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-circulo__precio {
+  margin-top: auto;
+  padding-top: 12px;
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.1;
+  color: var(--vela-tinta);
+  font-variant-numeric: lining-nums;
+}
+
+.vela .vela-circulo__sello {
+  top: calc(6px + var(--luna) + 10px);
+  right: calc(50% - 70px);
+  width: 46px;
+  height: 46px;
+}
+
+@media (max-width: 560px) {
+  .vela .vela-circulos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .vela .vela-circulos__linea {
+    display: none;
+  }
+  .vela .vela-circulo {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    column-gap: 14px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-top: 1px solid rgba(91, 67, 48, 0.26);
+    border-radius: 0;
+    text-align: left;
+  }
+  .vela .vela-circulo:first-of-type {
+    border-top: 0;
+  }
+  .vela .vela-circulo__arte {
+    grid-column: 1;
+    grid-row: 1 / span 5;
+    align-self: start;
+    gap: 4px;
+  }
+  .vela .vela-circulo__luna {
+    width: 30px;
+    height: 30px;
+  }
+  .vela .vela-circulo__anillo {
+    inset: -4px;
+  }
+  .vela .vela-circulo__frasco {
+    height: 66px;
+  }
+  .vela .vela-circulo__luz {
+    inset: -6px -10px -10px;
+  }
+  .vela .vela-circulo__botella {
+    width: calc(52px * var(--talla));
+    height: calc(66px * var(--talla));
+  }
+  /* La columna de texto se reparte en la rejilla: nombre y precio en la
+     misma línea, unidos por puntos; debajo, el nivel y la descripción */
+  .vela .vela-circulo__texto {
+    display: contents;
+  }
+  .vela .vela-circulo__nombre {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 1.4rem;
+  }
+  .vela .vela-circulo__nombre::after {
+    content: '';
+    flex: 1;
+    min-width: 12px;
+    border-bottom: 1px dotted rgba(43, 27, 18, 0.45);
+  }
+  .vela .vela-circulo__precio {
+    grid-column: 3;
+    grid-row: 1;
+    margin: 0;
+    padding: 0;
+    font-size: 1.3rem;
+  }
+  .vela .vela-circulo__trazo,
+  .vela .vela-circulo__nivel,
+  .vela .vela-circulo__desc,
+  .vela .vela-circulo__meta {
+    grid-column: 2 / -1;
+  }
+  .vela .vela-circulo__trazo {
+    width: 96px;
+  }
+  .vela .vela-circulo__sep,
+  .vela .vela-circulo__etiqueta {
+    display: inline;
+  }
+  .vela .vela-circulo__desc {
+    margin-top: 2px;
+    font-size: 1rem;
+  }
+  /* Sin marco alrededor de toda la fila: el foco rodea la luna y la botella */
+  .vela .vela-circulo:has(input:focus-visible) {
+    outline: none;
+  }
+  .vela .vela-circulo:has(input:focus-visible) .vela-circulo__arte {
+    outline: 2px solid var(--vela-rubrica);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .vela .vela-circulo__sello {
+    top: 48px;
+    left: 36px;
+    right: auto;
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* En los teléfonos más angostos el nombre y el precio siguen en un renglón */
+@media (max-width: 360px) {
+  .vela .vela-circulo {
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    column-gap: 10px;
+  }
+  .vela .vela-circulo__nombre {
+    gap: 6px;
+    font-size: 1.25rem;
+    white-space: nowrap;
+  }
+  .vela .vela-circulo__nombre::after {
+    min-width: 6px;
+  }
+  .vela .vela-circulo__precio {
+    font-size: 1.15rem;
+  }
+  .vela .vela-circulo__sello {
+    left: 20px;
+    width: 30px;
+    height: 30px;
+  }
+}
