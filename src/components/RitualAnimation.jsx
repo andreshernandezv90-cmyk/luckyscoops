@@ -22,7 +22,25 @@ const POUR = { x: 166, y: 134 }
 const MOUTH = { x: 194, y: 149 }
 const TILT = 118
 const DROP_START = { x: 200, y: 100 }
-const SHELF_Y = 46
+
+/**
+ * Estante de ingredientes sobre el caldero. El escenario es un disco (radio 200
+ * en el lienzo) con overflow oculto: la fila se reparte en un ancho fijo y, si la
+ * esquina de un ingrediente saldría de la zona segura, ese ingrediente baja lo
+ * justo para quedar dentro. Así ninguno se corta, haya pocos o muchos.
+ */
+const SHELF = { y: 67, scale: 0.45, gap: 56, span: 220 }
+const SAFE_RADIUS = 181
+/** Medio ancho y alto sobre el centro de un ingrediente a escala 1 (frasco de 60 × 82). */
+const ITEM_HALF = { w: 30, top: 34 }
+
+function shelfSpot(i, n) {
+  const step = n > 1 ? Math.min(SHELF.gap, SHELF.span / (n - 1)) : 0
+  const x = 200 + (i - (n - 1) / 2) * step
+  const reach = Math.abs(x - 200) + ITEM_HALF.w * SHELF.scale
+  const top = 200 - Math.sqrt(SAFE_RADIUS ** 2 - reach ** 2)
+  return { x, y: Math.round(Math.max(SHELF.y, top + ITEM_HALF.top * SHELF.scale)) }
+}
 
 /** Sonido sutil de cada fase (solo si la persona activó el sonido). */
 const PHASE_SOUND = { tilt: 'bottle', pour: 'pour', bubble: 'bubble', stir: 'spoon', drop: 'splash', shimmer: 'bubble' }
@@ -184,11 +202,10 @@ export function RitualAnimation({ onReveal, autoFocus }) {
 
             {/* Estante con los ingredientes que esperan su turno */}
             {ritual.items.map((item, i) => {
-              const shelfX = 200 + (i - (n - 1) / 2) * 56
               let state = 'shelf'
               if (seq.finished || (seq.index > lastStepOf[i] && seq.started)) state = 'gone'
               else if (seq.step?.item === i) state = seq.step.phase
-              return <RitualItem key={item.id} item={item} state={state} shelfX={shelfX} />
+              return <RitualItem key={item.id} item={item} state={state} spot={shelfSpot(i, n)} />
             })}
 
             {seq.step?.burst && (
@@ -324,16 +341,16 @@ function ReceivedRecipe({ builder }) {
   )
 }
 
-function RitualItem({ item, state, shelfX }) {
+function RitualItem({ item, state, spot }) {
   const isBottle = item.kind === 'bottle'
-  const shelf = { x: shelfX, y: SHELF_Y, scale: 0.5, rotate: 0, opacity: 1 }
+  const shelf = { ...spot, scale: SHELF.scale, rotate: 0, opacity: 1 }
   let animate = shelf
   let transition = { duration: 0.35, ease: 'easeOut' }
   const tilted = state === 'tilt' || state === 'pour'
 
   if (state === 'fly') {
     // Vuelo con peso: se agacha, sube, describe un arco, se pasa un poco y se estabiliza.
-    const arc = arcKeyframes({ x: shelfX, y: SHELF_Y }, isBottle ? POUR : DROP_START, { lift: isBottle ? 34 : 26 })
+    const arc = arcKeyframes(spot, isBottle ? POUR : DROP_START, { lift: isBottle ? 34 : 26, fromScale: SHELF.scale })
     animate = { x: arc.x, y: arc.y, scale: arc.scale, rotate: arc.rotate, opacity: 1 }
     transition = { duration: isBottle ? 0.52 : 0.4, times: arc.times, ease: arc.ease }
   } else if (tilted) {
