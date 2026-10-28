@@ -83,12 +83,6 @@
   }
 }
 
-/* "Déjalo en manos de la Bruja Sabia": la mano del isotipo */
-.focus-card__logo.brand-logo {
-  width: 100%;
-  height: 100%;
-}
-
 /* ---------- Botón de sonido (apagado por defecto) ---------- */
 .sound-toggle {
   display: inline-flex;

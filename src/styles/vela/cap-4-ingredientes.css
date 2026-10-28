@@ -1,0 +1,241 @@
+/* ==========================================================================
+   Capítulo IV: herbario. Cada ingrediente es un espécimen de la lámina, con
+   su símbolo dibujado a tinta y una casilla nativa; toda la entrada es su
+   etiqueta. La recomendación del Grimorio es una nota al margen, en rúbrica.
+   ========================================================================== */
+
+.vela .vela-herbario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+/* Filetes de tinta entre los especímenes, sin cajas */
+.vela .vela-especimen {
+  position: relative;
+  padding: 6px 20px 22px;
+}
+.vela .vela-especimen:nth-of-type(odd) {
+  padding-left: 0;
+}
+.vela .vela-especimen:nth-of-type(even) {
+  padding-right: 0;
+  border-left: 1px solid rgba(91, 67, 48, 0.26);
+}
+.vela .vela-especimen:nth-of-type(n + 3) {
+  padding-top: 20px;
+  border-top: 1px solid rgba(91, 67, 48, 0.26);
+}
+
+.vela .vela-especimen__entrada {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.vela .vela-especimen__arte {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+}
+.vela .vela-especimen__luz {
+  inset: -18px;
+}
+.vela .vela-especimen__estampa {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+.vela .vela-especimen__icono {
+  display: block;
+  width: 64px;
+  height: 64px;
+  color: var(--vela-tinta);
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.vela .vela-especimen__entrada:hover .vela-especimen__icono {
+  transform: translateY(-3px);
+}
+/* La tinta del sello queda como mancha tenue detrás del símbolo */
+.vela .vela-especimen__tinta {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: 46% 54% 50% 50% / 52% 46% 54% 48%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 32%, transparent), color-mix(in srgb, var(--accent) 10%, transparent) 60%, transparent 72%);
+  pointer-events: none;
+}
+.vela .vela-especimen__caida {
+  position: absolute;
+  inset: 6px;
+  z-index: 2;
+  pointer-events: none;
+}
+.vela .vela-especimen__caida svg {
+  width: 100%;
+  height: 100%;
+  color: var(--vela-tinta);
+}
+
+.vela .vela-especimen__texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 10px;
+}
+.vela .vela-especimen__nombre {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: 1.15;
+  color: var(--vela-tinta);
+}
+/* Al recibir el foco con el teclado, el navegador muestra todo el espécimen
+   (símbolo arriba; descripción, precio y nota abajo), no solo la casilla */
+.vela .vela-especimen__nombre > input {
+  scroll-margin: 110px 0 210px;
+}
+.vela .vela-especimen__nombre .vela-casilla {
+  margin-top: 1px;
+}
+.vela .vela-especimen__trazo {
+  width: 110px;
+  margin: 2px 0 4px 32px;
+}
+.vela .vela-especimen__desc {
+  font-size: 1.02rem;
+  line-height: 1.42;
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-especimen__precio {
+  margin-top: 8px;
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1.1;
+  color: var(--vela-tinta);
+  font-variant-numeric: lining-nums;
+}
+
+.vela .vela-especimen__sello {
+  top: -4px;
+  left: 58px;
+  width: 44px;
+  height: 44px;
+}
+
+/* La nota del Grimorio, al margen del ingrediente que recomienda */
+.vela .vela-especimen__nota {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 0;
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--vela-rubrica);
+}
+.vela .vela-especimen__nota-sigilo {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+}
+
+@media (max-width: 560px) {
+  .vela .vela-herbario {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .vela .vela-especimen,
+  .vela .vela-especimen:nth-of-type(odd),
+  .vela .vela-especimen:nth-of-type(even) {
+    padding: 14px 0;
+    border-left: 0;
+  }
+  .vela .vela-especimen:first-of-type {
+    padding-top: 4px;
+  }
+  .vela .vela-especimen:nth-of-type(n + 2) {
+    border-top: 1px solid rgba(91, 67, 48, 0.26);
+  }
+  /* Una fila: símbolo, casilla con el nombre y el precio en el margen;
+     debajo, la descripción */
+  .vela .vela-especimen__entrada {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    column-gap: 10px;
+    align-items: start;
+  }
+  .vela .vela-especimen__arte {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    width: 44px;
+    height: 44px;
+  }
+  .vela .vela-especimen__icono {
+    width: 40px;
+    height: 40px;
+  }
+  .vela .vela-especimen__tinta {
+    width: 62px;
+    height: 62px;
+    margin: -31px 0 0 -31px;
+  }
+  .vela .vela-especimen__texto {
+    display: contents;
+  }
+  .vela .vela-especimen__nombre {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.22rem;
+  }
+  .vela .vela-especimen__precio {
+    grid-column: 3;
+    grid-row: 1;
+    margin: 1px 0 0;
+    font-size: 1.15rem;
+  }
+  .vela .vela-especimen__trazo,
+  .vela .vela-especimen__desc {
+    grid-column: 2 / -1;
+  }
+  .vela .vela-especimen__desc {
+    font-size: 1rem;
+  }
+  .vela .vela-especimen__nombre > input {
+    scroll-margin: 16px 0 150px;
+  }
+  .vela .vela-especimen__sello {
+    top: -8px;
+    left: 24px;
+    width: 32px;
+    height: 32px;
+  }
+  .vela .vela-especimen__nota {
+    padding-left: 54px;
+  }
+}
+
+/* En los teléfonos más angostos el precio baja bajo la descripción y el
+   nombre conserva el ancho */
+@media (max-width: 360px) {
+  .vela .vela-especimen__entrada {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+  .vela .vela-especimen__precio {
+    grid-column: 2;
+    grid-row: auto;
+    margin-top: 4px;
+  }
+}

@@ -19,19 +19,6 @@
   animation: ink-write 0.7s ease-out both;
 }
 
-/* Dorado que recorre el nombre del tamaño elegido */
-@keyframes gild-shine {
-  from {
-    background-position: 100% 0;
-  }
-  to {
-    background-position: 0 0;
-  }
-}
-.ink-gild {
-  animation: gild-shine 1.2s ease-out both;
-}
-
 /* Llama de las velas */
 @keyframes flicker {
   0%,

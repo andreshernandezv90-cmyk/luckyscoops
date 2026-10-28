@@ -5,6 +5,8 @@
                   (--accent-glow); se insinúa al pasar el puntero
      .vela-trazo  trazo de tinta (InkStroke) que se escribe bajo lo elegido
      .vela-sello  el sello de lacre (SelectionSeal), igual en todo el Grimorio
+     .vela-casilla  casilla dibujada a pluma (InkCheckbox) de una casilla
+                  nativa oculta; la palomita se escribe al marcarla
    El Capítulo I tiene sus propias versiones en cap-1-intencion.css.
    ========================================================================== */
 
@@ -50,4 +52,25 @@
   z-index: 3;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
   pointer-events: none;
+}
+
+.vela .vela-casilla {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  color: var(--vela-tinta);
+}
+.vela .vela-casilla__palomita {
+  color: var(--vela-rubrica);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.vela label.is-selected .vela-casilla__palomita {
+  animation: vela-ink 0.35s 0.05s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+/* El foco de teclado rodea la casilla, que es lo que se marca */
+.vela label:has(input:focus-visible) .vela-casilla {
+  outline: 2px solid var(--vela-rubrica);
+  outline-offset: 3px;
 }

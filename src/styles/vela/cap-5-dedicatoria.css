@@ -1,0 +1,284 @@
+/* ==========================================================================
+   Capítulo V: la carta lacrada. Las dos opciones son el destinatario del
+   sobre; si es un regalo se despliega la hoja con renglones de tinta para la
+   dedicatoria y una posdata con la casilla del empaque.
+   Todo va dentro de .vela: el campo no comparte estilos con el checkout.
+   ========================================================================== */
+
+.vela .vela-carta {
+  perspective: 900px;
+}
+
+.vela .vela-destinatarios {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.vela .vela-destinatario {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 6px 12px;
+  text-align: center;
+  cursor: pointer;
+}
+.vela .vela-destinatario__marca {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+}
+.vela .vela-destinatario__luz {
+  inset: -18px;
+}
+.vela .vela-destinatario__icono {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  color: var(--vela-tinta);
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.vela .vela-destinatario__icono--sigilo {
+  width: 44px;
+  height: 44px;
+  color: var(--accent-deep);
+}
+.vela .vela-destinatario:hover .vela-destinatario__icono {
+  transform: translateY(-3px);
+}
+.vela .vela-destinatario.is-selected .vela-destinatario__icono {
+  transform: scale(1.06);
+}
+/* El destinatario se escribe como en un sobre */
+.vela .vela-destinatario__nombre {
+  font-family: var(--vela-font-display);
+  font-weight: 500;
+  font-style: italic;
+  font-size: 1.75rem;
+  line-height: 1.1;
+  color: var(--vela-tinta);
+  transition: color 0.3s ease-out;
+}
+.vela .vela-destinatarios:has(:checked) .vela-destinatario:not(.is-selected) .vela-destinatario__nombre {
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-destinatario__trazo {
+  width: 128px;
+  margin: 2px 0 6px;
+}
+.vela .vela-destinatario__desc {
+  font-size: 1.02rem;
+  line-height: 1.42;
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-destinatario__sello {
+  top: 0;
+  right: calc(50% - 74px);
+  width: 44px;
+  height: 44px;
+}
+/* Al recibir el foco, el navegador muestra toda la opción y no solo su arranque */
+.vela .vela-destinatario > input {
+  scroll-margin-bottom: 200px;
+}
+/* La casilla está en la primera línea: el margen cubre la descripción y el precio de debajo */
+.vela .vela-posdata__nombre > input {
+  scroll-margin-bottom: 130px;
+}
+.vela .vela-destinatario:has(input:focus-visible) .vela-destinatario__marca {
+  outline: 2px solid var(--vela-rubrica);
+  outline-offset: 2px;
+}
+
+/* La hoja de la carta */
+.vela .vela-carta__hoja {
+  transform-origin: 50% 0;
+}
+.vela .vela-carta__campo {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 3px double rgba(91, 67, 48, 0.42);
+}
+.vela .vela-carta__etiqueta {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--vela-tinta);
+}
+.vela .vela-carta__opcional {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--vela-tinta-suave);
+}
+/* Renglones de tinta tenue: cada línea de texto cae sobre su renglón */
+.vela .vela-carta__texto {
+  --renglon: 2.1rem;
+
+  display: block;
+  width: 100%;
+  min-height: calc(var(--renglon) * 4);
+  margin: 0;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent calc(var(--renglon) - 1px),
+    rgba(91, 67, 48, 0.4) calc(var(--renglon) - 1px),
+    rgba(91, 67, 48, 0.4) var(--renglon)
+  );
+  background-attachment: local;
+  box-shadow: none;
+  font-family: var(--vela-font-display);
+  font-size: 1.35rem;
+  font-style: italic;
+  line-height: var(--renglon);
+  color: var(--vela-tinta);
+  resize: vertical;
+}
+.vela .vela-carta__texto::placeholder {
+  color: var(--vela-tinta-suave);
+  opacity: 0.85;
+}
+.vela .vela-carta__texto:focus-visible {
+  outline: 2px solid var(--vela-rubrica);
+  outline-offset: 4px;
+}
+.vela .vela-carta__ayuda {
+  margin: 8px 0 0;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--vela-rubrica);
+}
+
+/* La posdata: el empaque para regalo */
+.vela .vela-posdata {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 14px;
+  align-items: baseline;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(91, 67, 48, 0.26);
+  cursor: pointer;
+}
+.vela .vela-posdata__pd {
+  font-family: var(--vela-font-display);
+  font-weight: 500;
+  font-style: italic;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--vela-rubrica);
+}
+.vela .vela-posdata__texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.vela .vela-posdata__nombre {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1.15;
+  color: var(--vela-tinta);
+}
+.vela .vela-posdata__desc {
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--vela-tinta-suave);
+}
+.vela .vela-posdata__precio {
+  font-family: var(--vela-font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--vela-tinta);
+  font-variant-numeric: lining-nums;
+}
+
+@media (max-width: 560px) {
+  .vela .vela-destinatario__nombre {
+    font-size: 1.5rem;
+  }
+  .vela .vela-destinatario__trazo {
+    width: 104px;
+  }
+  .vela .vela-destinatario__desc {
+    font-size: 1rem;
+  }
+  .vela .vela-destinatario__sello {
+    right: calc(50% - 62px);
+    width: 38px;
+    height: 38px;
+  }
+  .vela .vela-posdata {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 12px;
+  }
+  .vela .vela-posdata__precio {
+    grid-column: 2;
+    margin-top: 4px;
+  }
+}
+
+/* En los teléfonos más angostos los destinatarios van uno debajo del otro */
+@media (max-width: 360px) {
+  .vela .vela-destinatarios {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .vela .vela-destinatario {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: start;
+    padding: 12px 0;
+    text-align: left;
+  }
+  .vela .vela-destinatario + .vela-destinatario {
+    border-top: 1px solid rgba(91, 67, 48, 0.26);
+  }
+  .vela .vela-destinatario__marca {
+    grid-row: 1 / span 3;
+    width: 52px;
+    height: 52px;
+    margin: 0;
+  }
+  .vela .vela-destinatario__icono {
+    width: 44px;
+    height: 44px;
+  }
+  .vela .vela-destinatario__icono--sigilo {
+    width: 36px;
+    height: 36px;
+  }
+  .vela .vela-destinatario__nombre,
+  .vela .vela-destinatario__trazo,
+  .vela .vela-destinatario__desc {
+    grid-column: 2;
+  }
+  .vela .vela-destinatario__sello {
+    top: 4px;
+    left: 30px;
+    right: auto;
+    width: 32px;
+    height: 32px;
+  }
+}

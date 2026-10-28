@@ -128,6 +128,35 @@ export function CheckMark({ className = '' }) {
   )
 }
 
+/**
+ * Casilla dibujada a pluma para una casilla nativa oculta (Capítulos IV y V).
+ * La palomita usa pathLength=1 y se escribe con tinta al marcarla (vela/seleccion.css).
+ */
+export function InkCheckbox({ className = '' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        className="vela-casilla__marco"
+        d="M4.5 4.2 C9 3.6 15 4 19.6 4.4 C20 9 19.8 15 19.5 19.7 C14.5 20.1 9 19.9 4.3 19.6 C4 14.5 4.1 9 4.5 4.2 Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        className="vela-casilla__palomita"
+        pathLength="1"
+        d="M7.5 12.5 L10.8 16 L18 6.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export function ArrowIcon({ className = '', direction = 'right' }) {
   return (
     <svg
