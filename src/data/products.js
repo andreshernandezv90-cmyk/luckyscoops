@@ -2,7 +2,7 @@ import { PRICES } from './prices.js'
 
 /**
  * Scoops preparadas: combinaciones listas para comprar sin hacer el ritual.
- * Su precio se calcula con la misma lógica que las personalizadas
+ * Su precio se calcula con la misma lógica que las del Grimorio
  * (ver src/lib/pricing.js), menos el descuento definido en prices.js.
  *
  * TODO / PENDIENTE: son ejemplos. Reemplázalos por las Scoops reales del negocio.
@@ -11,9 +11,8 @@ export const PRODUCTS = [
   {
     id: 'corazon-propio',
     name: 'Corazón Propio',
-    badge: 'Amor propio',
+    badge: 'Amor',
     intention: 'amor',
-    focus: 'amor_propio',
     size: 'hechicera',
     extras: ['cristal'],
     description: 'Una Scoop de amor dedicada a ti, con un cristal sorpresa extra.',
@@ -23,7 +22,6 @@ export const PRODUCTS = [
     name: 'Escudo del Hogar',
     badge: 'Para la casa',
     intention: 'proteccion',
-    focus: 'resguardo',
     size: 'gran_bruja',
     extras: ['amuleto'],
     description: 'Protección para tu espacio, con un amuleto sorpresa.',
@@ -33,7 +31,6 @@ export const PRODUCTS = [
     name: 'Buena Fortuna',
     badge: 'Abundancia',
     intention: 'abundancia',
-    focus: 'buena_fortuna',
     size: 'hechicera',
     extras: ['amuleto'],
     description: 'Una Scoop para atraer la buena suerte, con amuleto sorpresa.',
@@ -43,7 +40,6 @@ export const PRODUCTS = [
     name: 'Nuevo Comienzo',
     badge: 'Para empezar',
     intention: 'limpieza',
-    focus: 'nuevos_comienzos',
     size: 'aprendiz',
     extras: [],
     description: 'Una Scoop pequeña para renovar tu energía y empezar de nuevo.',

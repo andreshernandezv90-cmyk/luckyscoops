@@ -2,7 +2,7 @@ import { useId } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 
 /**
- * La Scoop invocada sobre la cuchara (Capítulo VII).
+ * La Scoop invocada sobre la cuchara (Capítulo VI).
  *
  * Una cucharada de cristales —como la cuchara del logo— que nace de la luz:
  * se abre un orbe, un anillo de halo se expande, los cristales crecen uno a

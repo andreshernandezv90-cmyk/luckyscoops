@@ -119,14 +119,23 @@ export function ExtraIcon({ id, color = 'currentColor', className = '', ...svgPr
           <path d="M32 31 L34.6 37.4 L41 40 L34.6 42.6 L32 49 L29.4 42.6 L23 40 L29.4 37.4 Z" fill="currentColor" />
         </g>
       )}
-      {id === 'video' && (
-        <g fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          {/* Espejo de adivinación con un ojo y el símbolo de reproducir */}
-          <ellipse cx="32" cy="28" rx="18" ry="22" fill={color} fillOpacity="0.3" />
-          <ellipse cx="32" cy="28" rx="13" ry="17" />
-          <path d="M28 21 L39 28 L28 35 Z" fill="currentColor" />
-          <path d="M32 50 V58 M24 58 H40" />
-          <path d="M14 14 Q10 8 14 4 M50 14 Q54 8 50 4" opacity="0.7" />
+      {id === 'carta_natal' && (
+        <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+          {/* Rueda de la carta natal: doce casas, un astro y tres planetas */}
+          <circle cx="32" cy="32" r="25" fill={color} fillOpacity="0.3" strokeWidth="1.8" />
+          <circle cx="32" cy="32" r="17" strokeWidth="1.4" />
+          <circle cx="32" cy="32" r="6" strokeWidth="1.4" />
+          <path
+            d="M32 7 V15 M32 49 V57 M7 32 H15 M49 32 H57 M19.5 10.3 L23.5 17.3 M40.5 46.7 L44.5 53.7 M10.3 19.5 L17.3 23.5 M46.7 40.5 L53.7 44.5 M44.5 10.3 L40.5 17.3 M23.5 46.7 L19.5 53.7 M53.7 19.5 L46.7 23.5 M17.3 40.5 L10.3 44.5"
+            strokeWidth="1.2"
+          />
+          <path d="M26 30 L38 34 M29 39 L35 25" strokeWidth="1" opacity="0.7" />
+          <g fill="currentColor" stroke="none">
+            <circle cx="40" cy="22" r="2.2" />
+            <circle cx="21" cy="38" r="1.8" />
+            <circle cx="43" cy="40" r="1.6" />
+          </g>
+          <path d="M32 27.5 L33.3 30.7 L36.5 32 L33.3 33.3 L32 36.5 L30.7 33.3 L27.5 32 L30.7 30.7 Z" fill="currentColor" strokeWidth="0.8" />
         </g>
       )}
       {id === 'regalo' && (

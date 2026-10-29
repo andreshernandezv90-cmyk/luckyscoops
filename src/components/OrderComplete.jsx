@@ -1,10 +1,9 @@
 import { motion, useReducedMotion } from 'motion/react'
 import { BRAND } from '../config/brand.js'
-import { DELIVERY_METHODS, orderWhatsappLink, PAYMENT_METHODS } from '../lib/order.js'
+import { DELIVERY_METHODS, formatBirthDate, orderWhatsappLink, PAYMENT_METHODS } from '../lib/order.js'
 import { formatPrice } from '../lib/format.js'
 import { linkTo, ROUTES } from '../lib/router.js'
-import { getExtra } from '../data/extras.js'
-import { getFocus } from '../data/intentions.js'
+import { recipeExtras } from '../lib/pricing.js'
 import { useShop } from '../state/ShopContext.jsx'
 import { BookCover } from './BookCover.jsx'
 import { WaxSeal } from './illustrations/Sigils.jsx'
@@ -101,12 +100,16 @@ export function OrderComplete() {
               <li key={item.key}>
                 <span className="mini-summary__name">
                   {item.quantity} × {item.name}
-                  <span className="mini-summary__extras">
-                    Enfoque: {getFocus(item.intention, item.focus)?.name ?? 'En manos de la Bruja Sabia'}
-                  </span>
-                  {item.extras.length > 0 && (
-                    <span className="mini-summary__extras">Con {item.extras.map((e) => getExtra(e)?.name).join(', ')}</span>
+                  {recipeExtras(item).length > 0 && (
+                    <span className="mini-summary__extras">
+                      Con {recipeExtras(item).map((e) => (e.included ? `${e.name} (incluida)` : e.name)).join(', ')}
+                    </span>
                   )}
+                  {item.natalCharts?.map((chart, i) => (
+                    <span key={i} className="mini-summary__extras">
+                      Carta natal{item.natalCharts.length > 1 ? ` ${i + 1}` : ''}: {chart.name}, {formatBirthDate(chart.birthDate)}
+                    </span>
+                  ))}
                   {item.dedication?.forWhom === 'gift' && (
                     <span className="mini-summary__extras">
                       Regalo{item.dedication.message ? `. Dedicatoria: “${item.dedication.message}”` : ''}

@@ -2,7 +2,17 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { BRAND } from '../src/config/brand.js'
 import { SHOW_PENDING } from '../src/config/env.js'
-import { createOrderNumber, FIELD_MAX, orderMessage, orderWhatsappLink, whatsappReady } from '../src/lib/order.js'
+import {
+  createOrderNumber,
+  FIELD_MAX,
+  natalChartSlots,
+  orderMessage,
+  orderWhatsappLink,
+  submitOrder,
+  validateNatalChart,
+  whatsappReady,
+} from '../src/lib/order.js'
+import { cartTotals } from '../src/lib/pricing.js'
 import { local } from '../src/lib/storage.js'
 
 const ORDER = {
@@ -123,4 +133,62 @@ test('el almacenamiento puede borrar una clave y nunca falla', () => {
   } finally {
     delete globalThis.window
   }
+})
+
+test('sin Carta natal el mensaje no pide ni lleva datos de nacimiento', () => {
+  const text = orderMessage(ORDER)
+  assert.doesNotMatch(text, /Carta natal|nacimiento/)
+  assert.deepEqual(natalChartSlots(ORDER.items), [])
+})
+
+test('una Carta natal por pieza: 2 × Gran Bruja piden dos cartas', () => {
+  const items = [
+    { key: 'a', name: 'Scoop Gran Bruja del Amor', intention: 'amor', size: 'gran_bruja', extras: [], quantity: 2 },
+    { key: 'b', name: 'Scoop Aprendiz del Amor', intention: 'amor', size: 'aprendiz', extras: [], quantity: 1 },
+    { key: 'c', name: 'Scoop Hechicera del Amor', intention: 'amor', size: 'hechicera', extras: ['carta_natal'], quantity: 1 },
+  ]
+  assert.deepEqual(
+    natalChartSlots(items).map((s) => s.id),
+    ['a#1', 'a#2', 'c#1'],
+  )
+})
+
+test('la Carta natal pide nombre y una fecha válida que no sea futura', () => {
+  const now = new Date(2026, 9, 29)
+  assert.deepEqual(validateNatalChart({ name: 'Luz Pérez', birthDate: '1990-04-07' }, now), {})
+  assert.ok(validateNatalChart({ name: '  ', birthDate: '1990-04-07' }, now).name)
+  assert.ok(validateNatalChart({ name: 'Luz', birthDate: '' }, now).birthDate)
+  assert.ok(validateNatalChart({ name: 'Luz', birthDate: '1990-02-31' }, now).birthDate, 'fecha inexistente')
+  assert.ok(validateNatalChart({ name: 'Luz', birthDate: '2026-10-30' }, now).birthDate, 'fecha futura')
+  assert.deepEqual(validateNatalChart({ name: 'Luz', birthDate: '2026-10-29' }, now), {}, 'hoy es válido')
+})
+
+test('el pedido con Gran Bruja lleva la Carta natal incluida y sus datos', async () => {
+  const items = [{ key: 'k', name: 'Scoop Gran Bruja del Amor', intention: 'amor', size: 'gran_bruja', extras: [], quantity: 1 }]
+  const order = await submitOrder({
+    items,
+    customer: { name: 'Ana Prueba', phone: '5512345678', email: '', notes: '', address: null },
+    paymentMethod: 'transferencia',
+    natalCharts: { 'k#1': { name: ' Luz Pérez ', birthDate: '1990-04-07' } },
+  })
+  assert.deepEqual(order.items[0].natalCharts, [{ name: 'Luz Pérez', birthDate: '1990-04-07' }])
+  assert.equal(order.totals.subtotal, cartTotals(items).subtotal, 'la carta incluida no suma')
+  const text = orderMessage(order)
+  assert.match(text, /Extras: Carta natal \(incluida con Gran Bruja\)/)
+  assert.match(text, /Carta natal: Luz Pérez, nacimiento 7 de abril de 1990/)
+  assert.doesNotMatch(text, /Precio por confirmar/)
+})
+
+test('la Carta natal como extra avisa que su precio está por confirmar', async () => {
+  const items = [{ key: 'k', name: 'Scoop Hechicera del Amor', intention: 'amor', size: 'hechicera', extras: ['carta_natal'], quantity: 1 }]
+  const order = await submitOrder({
+    items,
+    customer: { name: 'Ana Prueba', phone: '5512345678', email: '', notes: '', address: null },
+    paymentMethod: 'transferencia',
+    natalCharts: { 'k#1': { name: 'Sol Ruiz', birthDate: '2001-12-24' } },
+  })
+  const text = orderMessage(order)
+  assert.match(text, /Extras: Carta natal\n/)
+  assert.match(text, /Carta natal: Sol Ruiz, nacimiento 24 de diciembre de 2001/)
+  assert.match(text, /Precio por confirmar \(no incluido en el subtotal\): Carta natal/)
 })

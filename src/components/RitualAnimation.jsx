@@ -5,15 +5,16 @@ import { appliedItems, buildRitual, liquidFor } from '../lib/ritual.js'
 import { arcKeyframes } from '../lib/motion.js'
 import { playSound } from '../lib/sound.js'
 import { useSequence } from '../hooks/useSequence.js'
-import { ANIMATION, useShop } from '../state/ShopContext.jsx'
+import { ANIMATION, CHAPTER, useShop } from '../state/ShopContext.jsx'
 import { Cauldron, IMPACT, Splash } from './Cauldron.jsx'
 import { ParticleBurst } from './ParticleBurst.jsx'
 import { BottleShape } from './illustrations/PotionBottle.jsx'
 import { ExtraIcon } from './illustrations/Sigils.jsx'
 import { CheckMark } from './illustrations/Ornaments.jsx'
-import { getFocus, getIntention } from '../data/intentions.js'
+import { CHAPTERS } from '../data/chapters.js'
+import { getIntention } from '../data/intentions.js'
 import { getSize } from '../data/sizes.js'
-import { getExtra } from '../data/extras.js'
+import { recipeExtras } from '../lib/pricing.js'
 import { ChapterHeading } from './ChapterHeading.jsx'
 
 /** Posición donde el frasco se inclina para verter (su boca queda sobre el caldero). */
@@ -46,7 +47,7 @@ function shelfSpot(i, n) {
 const PHASE_SOUND = { tilt: 'bottle', pour: 'pour', bubble: 'bubble', stir: 'spoon', drop: 'splash', shimmer: 'bubble' }
 
 /**
- * Capítulo VI: preparación en el caldero.
+ * Capítulo V: preparación en el caldero.
  * Cada decisión de la receta se convierte en un frasco o ingrediente que vuela,
  * se vierte y cambia el color del líquido. Siempre se puede saltar.
  */
@@ -146,7 +147,7 @@ export function RitualAnimation({ onReveal, autoFocus }) {
   return (
     <div className="ritual">
       <header className="chapter-intro chapter-intro--center">
-        <p className="chapter-intro__kicker">Capítulo VI · Preparación</p>
+        <p className="chapter-intro__kicker">Capítulo {CHAPTERS[CHAPTER.PREPARACION].numeral} · Preparación</p>
         <ChapterHeading autoFocus={autoFocus}>Preparación en el Caldero</ChapterHeading>
         <p className="chapter-intro__text">
           Mira cómo cada elección entra al caldero. Dura unos segundos y puedes saltarlo cuando quieras.
@@ -309,7 +310,7 @@ function revealIntoView(button, reduce) {
 /** "La Bruja Sabia ha recibido tu receta": resumen antes de empezar. */
 function ReceivedRecipe({ builder }) {
   const { forWhom, message } = builder.dedication
-  const extras = builder.extras.map((e) => getExtra(e)?.name).filter(Boolean)
+  const extras = recipeExtras(builder).map((e) => (e.included ? `${e.name} (incluida)` : e.name))
   return (
     <>
       <h3 className="ritual__side-title">La Bruja Sabia ha recibido tu receta</h3>
@@ -317,10 +318,6 @@ function ReceivedRecipe({ builder }) {
         <div>
           <dt>Intención</dt>
           <dd>{getIntention(builder.intention)?.name}</dd>
-        </div>
-        <div>
-          <dt>Personalización</dt>
-          <dd>{getFocus(builder.intention, builder.focus)?.name ?? 'En manos de la Bruja Sabia'}</dd>
         </div>
         <div>
           <dt>Tamaño</dt>

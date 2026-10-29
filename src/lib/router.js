@@ -17,6 +17,10 @@ export const ROUTES = {
   carrito: '/carrito',
   pago: '/pago',
   confirmacion: '/confirmacion',
+  privacidad: '/aviso-de-privacidad',
+  terminos: '/terminos-y-condiciones',
+  entregas: '/envios-y-entregas',
+  devoluciones: '/cambios-devoluciones-y-cancelaciones',
 }
 
 /** Rutas que muestran la página de inicio desplazada a una sección (valor = id de la sección). */

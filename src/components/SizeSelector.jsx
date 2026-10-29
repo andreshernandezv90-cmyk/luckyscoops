@@ -15,7 +15,7 @@ import { BurstOverlay } from './ParticleBurst.jsx'
 const TALLAS = [0.66, 0.83, 1]
 
 /**
- * Capítulo III: tres tamaños presentados como niveles de intensidad.
+ * Capítulo II: tres tamaños presentados como niveles de intensidad.
  * «Luz de vela»: los tres círculos. Tres botellas de la intención, de menor a
  * mayor, sobre una misma línea de tinta; en el celular, una tabla manuscrita
  * con el precio a la derecha.

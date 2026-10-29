@@ -1,32 +1,56 @@
 import { BRAND } from '../config/brand.js'
-import { getFocus, getIntention } from '../data/intentions.js'
+import { getIntention } from '../data/intentions.js'
 import { getSize } from '../data/sizes.js'
 import { EXTRAS, getExtra } from '../data/extras.js'
 import { getProduct } from '../data/products.js'
 import { estimateShipping } from './shipping.js'
 
-/** Ordena los extras igual que en el catálogo y descarta los desconocidos o repetidos. */
-export function normalizeExtras(extras = []) {
+/** Extras que el tamaño ya incluye sin costo (p. ej. la Carta natal con Gran Bruja). */
+export const includedExtras = (size) => getSize(size)?.includedExtras ?? []
+
+/**
+ * Extras que se cobran: los del catálogo, en su orden, sin repetidos ni
+ * desconocidos, y sin los que el tamaño ya incluye (nunca se cobran dos veces).
+ */
+export function normalizeExtras(extras = [], size = null) {
   const wanted = new Set(extras)
-  return EXTRAS.filter((e) => wanted.has(e.id)).map((e) => e.id)
+  const included = new Set(includedExtras(size))
+  return EXTRAS.filter((e) => wanted.has(e.id) && !included.has(e.id)).map((e) => e.id)
 }
+
+/**
+ * Todos los extras de una receta, para mostrarlos: los incluidos por el tamaño
+ * (`included: true`, sin precio) y los que se cobran, en el orden del catálogo.
+ */
+export function recipeExtras({ size, extras = [] } = {}) {
+  const included = new Set(includedExtras(size))
+  const paid = new Set(normalizeExtras(extras, size))
+  return EXTRAS.filter((e) => included.has(e.id) || paid.has(e.id)).map((e) =>
+    included.has(e.id) ? { ...e, price: 0, included: true } : { ...e, included: false },
+  )
+}
+
+/** ¿La receta lleva Carta natal (u otro extra que pide datos de nacimiento)? */
+export const needsBirthData = (config) => recipeExtras(config).some((e) => e.needsBirthData)
 
 /**
  * Desglose del precio de una configuración.
  * Devuelve `unit: null` mientras no haya tamaño elegido (aún no hay precio).
+ * Un extra con precio pendiente (`price: null`) no se suma: queda en `pendingExtras`.
  */
 export function priceBreakdown({ intention, size, extras = [] } = {}) {
   const sizeData = getSize(size)
   const intentionData = getIntention(intention)
-  const extrasData = normalizeExtras(extras).map(getExtra)
+  const extrasData = normalizeExtras(extras, size).map(getExtra)
   const base = sizeData ? sizeData.price : null
   const intentionAdjustment = intentionData ? intentionData.priceAdjustment : 0
-  const extrasTotal = extrasData.reduce((sum, e) => sum + e.price, 0)
+  const extrasTotal = extrasData.reduce((sum, e) => sum + (e.price ?? 0), 0)
   return {
     base,
     intentionAdjustment,
     extras: extrasData.map(({ id, name, price }) => ({ id, name, price })),
     extrasTotal,
+    pendingExtras: extrasData.filter((e) => e.price === null).map((e) => e.name),
     unit: base === null ? null : base + intentionAdjustment + extrasTotal,
   }
 }
@@ -56,12 +80,7 @@ export function normalizeDedication(dedication) {
   return { forWhom, message }
 }
 
-/** Enfoque válido para la intención; si no hay, queda en manos de la Bruja Sabia. */
-export function normalizeFocus(intention, focus) {
-  return getFocus(intention, focus) ? focus : 'bruja'
-}
-
-/** Precio de una línea del carrito (personalizada o preparada). */
+/** Precio de una línea del carrito (del Grimorio o preparada). */
 export function itemUnitPrice(item) {
   const unit = calculateUnitPrice(item)
   if (unit === null) return 0
@@ -69,15 +88,14 @@ export function itemUnitPrice(item) {
   return Math.max(0, unit - discount)
 }
 
-/** Clave estable para fusionar líneas idénticas en el carrito (incluye enfoque y dedicatoria). */
-export function itemKey({ productId = null, intention, focus, size, extras = [], dedication }) {
+/** Clave estable para fusionar líneas idénticas en el carrito (incluye la dedicatoria). */
+export function itemKey({ productId = null, intention, size, extras = [], dedication }) {
   const d = normalizeDedication(dedication)
   return [
     productId ?? 'custom',
     intention,
-    normalizeFocus(intention, focus),
     size,
-    normalizeExtras(extras).join('+') || 'sin-extras',
+    normalizeExtras(extras, size).join('+') || 'sin-extras',
     d.forWhom === 'gift' ? `regalo:${d.message}` : 'para-mi',
   ].join('|')
 }
@@ -85,15 +103,18 @@ export function itemKey({ productId = null, intention, focus, size, extras = [],
 /**
  * Totales del carrito. El envío se suma solo cuando su tarifa ya existe;
  * mientras esté pendiente, `shipping.pending` es true y `total` = subtotal.
+ * `pendingExtras`: nombres de extras elegidos cuyo precio aún no se confirma (no sumados).
  */
 export function cartTotals(items = [], options = {}) {
   const subtotal = items.reduce((sum, item) => sum + itemUnitPrice(item) * item.quantity, 0)
   const count = items.reduce((sum, item) => sum + item.quantity, 0)
   const shipping = estimateShipping(items, options)
+  const pendingExtras = [...new Set(items.flatMap((item) => priceBreakdown(item).pendingExtras))]
   return {
     count,
     subtotal,
     shipping,
+    pendingExtras,
     total: subtotal + (shipping.pending ? 0 : shipping.price),
   }
 }

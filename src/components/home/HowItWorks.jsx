@@ -5,9 +5,8 @@ import { SectionTitle } from './SectionTitle.jsx'
 
 const STEP_TEXT = {
   intencion: 'Elige qué deseas atraer: amor, protección, abundancia o limpieza.',
-  enfoque: 'Dinos qué buscas o déjalo en manos de la Bruja Sabia.',
   tamano: 'Aprendiz, Hechicera o Gran Bruja: tú decides cuánta magia.',
-  ingredientes: 'Si quieres, añade cristal, amuleto, video o empaque para regalo.',
+  ingredientes: 'Si quieres, añade cristal, amuleto, Carta natal o empaque para regalo.',
   dedicatoria: 'Indica si es para ti o un regalo, con dedicatoria opcional.',
   preparacion: 'Mira cómo tu receta cae al caldero. Unos segundos, y puedes saltarlo.',
   revelacion: `Conoce tu ${BRAND.productNoun}, revisa el precio y agrégala a tu pedido.`,
@@ -16,7 +15,7 @@ const STEP_TEXT = {
 export function HowItWorks() {
   return (
     <section className="section" id="como-funciona" aria-labelledby="how-title">
-      <SectionTitle id="how-title" kicker="Siete capítulos, un par de minutos">
+      <SectionTitle id="how-title" kicker="Seis capítulos, un par de minutos">
         ¿Cómo funciona el Grimorio?
       </SectionTitle>
       <ol className="steps">

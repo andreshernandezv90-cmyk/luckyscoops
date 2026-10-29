@@ -117,12 +117,6 @@
   line-height: 1.45;
   color: var(--vela-tinta-suave);
 }
-.vela .vela-option__meta {
-  margin-top: 6px;
-  font-size: 1rem;
-  font-style: italic;
-  color: color-mix(in srgb, var(--accent-deep) 62%, var(--vela-tinta));
-}
 .vela .vela-option__seal {
   position: absolute;
   top: 0;

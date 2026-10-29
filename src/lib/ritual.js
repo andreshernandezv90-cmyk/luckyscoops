@@ -1,7 +1,6 @@
 import { getIntention } from '../data/intentions.js'
 import { getSize } from '../data/sizes.js'
-import { getExtra } from '../data/extras.js'
-import { normalizeExtras } from './pricing.js'
+import { recipeExtras } from './pricing.js'
 
 /**
  * Convierte la receta en el guion del ritual del caldero.
@@ -31,7 +30,8 @@ export const STEP_MS = {
 export function buildRitual({ intention, size, extras = [] }) {
   const i = getIntention(intention)
   const s = getSize(size)
-  const extrasData = normalizeExtras(extras).map(getExtra)
+  // También entran los extras que el tamaño incluye (la Carta natal con Gran Bruja).
+  const extrasData = recipeExtras({ size, extras })
 
   const items = []
   if (i) {

@@ -1,5 +1,6 @@
 import { BRAND, contactLinks } from '../config/brand.js'
 import { SHOW_PENDING } from '../config/env.js'
+import { LEGAL_LINKS } from '../data/legal.js'
 import { linkTo, ROUTES } from '../lib/router.js'
 import { BrandMark } from './BrandMark.jsx'
 import { ChapterDivider } from './illustrations/Ornaments.jsx'
@@ -35,6 +36,16 @@ export function Footer() {
             <li><a {...linkTo(ROUTES.envios)}>Envíos y pagos</a></li>
             <li><a {...linkTo(ROUTES.faq)}>Preguntas frecuentes</a></li>
             <li><a {...linkTo(ROUTES.carrito)}>Tu pedido</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="Información legal">
+          <h2 className="site-footer__title">Legal</h2>
+          <ul>
+            {LEGAL_LINKS.map((l) => (
+              <li key={l.route}>
+                <a {...linkTo(l.route)}>{l.label}</a>
+              </li>
+            ))}
           </ul>
         </nav>
         {/* En la versión publicada, la columna solo aparece si hay algún dato de contacto real. */}

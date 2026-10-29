@@ -1,11 +1,12 @@
 import { PRICES } from './prices.js'
 
 /**
- * Tamaños (Capítulo III), presentados como niveles de intensidad.
+ * Tamaños (Capítulo II), presentados como niveles de intensidad.
  * - `essence`: color de la segunda poción que se añade durante el ritual.
  * - `shippingUnits`: cuánto "ocupa" en un paquete; sirve para estimar el rango
  *   de envío (ver src/lib/shipping.js).
  * - `contents`: TODO / PENDIENTE: contenido o medidas reales (null = no se muestra).
+ * - `includedExtras`: extras que el tamaño trae sin costo y no se pueden quitar.
  */
 export const SIZES = [
   {
@@ -46,7 +47,8 @@ export const SIZES = [
     essence: '#e8b934',
     essenceName: 'oro antiguo',
     shippingUnits: 3,
+    includedExtras: ['carta_natal'],
   },
-].map((size) => ({ ...size, price: PRICES.sizes[size.id] }))
+].map((size) => ({ includedExtras: [], ...size, price: PRICES.sizes[size.id] }))
 
 export const getSize = (id) => SIZES.find((s) => s.id === id) ?? null

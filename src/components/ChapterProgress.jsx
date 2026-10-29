@@ -2,7 +2,7 @@ import { CHAPTERS } from '../data/chapters.js'
 import { canEnterChapter } from '../state/ShopContext.jsx'
 import { CheckMark } from './illustrations/Ornaments.jsx'
 
-/** Marcapáginas con los cinco capítulos: muestra dónde estás y deja volver atrás. */
+/** Marcapáginas con los capítulos del Grimorio: muestra dónde estás y deja volver atrás. */
 export function ChapterProgress({ current, builder, onSelect }) {
   const chapter = CHAPTERS[current]
   return (

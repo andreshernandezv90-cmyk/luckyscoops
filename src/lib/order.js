@@ -1,8 +1,7 @@
 import { BRAND, contactLinks } from '../config/brand.js'
-import { getExtra } from '../data/extras.js'
-import { getFocus, getIntention } from '../data/intentions.js'
+import { getIntention } from '../data/intentions.js'
 import { getSize } from '../data/sizes.js'
-import { cartTotals, itemUnitPrice } from './pricing.js'
+import { cartTotals, itemUnitPrice, needsBirthData, recipeExtras } from './pricing.js'
 import { formatPrice } from './format.js'
 
 /** Hoy solo existe el envío a domicilio. Agrega aquí otras formas cuando existan. */
@@ -40,6 +39,53 @@ export const FIELD_MAX = {
   state: 60,
   zip: 5,
   notes: 300,
+  natalName: 100,
+}
+
+/**
+ * Carta natal: una por cada pieza que la lleva (2 × Gran Bruja = 2 cartas).
+ * Devuelve la lista de cartas que pide el carrito, en orden:
+ * [{ id: 'clave#1', item, index, of }]. `id` identifica los campos del formulario.
+ */
+export function natalChartSlots(items = []) {
+  return items.filter(needsBirthData).flatMap((item) =>
+    Array.from({ length: item.quantity }, (_, i) => ({ id: `${item.key}#${i + 1}`, item, index: i + 1, of: item.quantity })),
+  )
+}
+
+/** "2026-10-29" → Date local, o null si no es una fecha real (p. ej. 2026-02-31). */
+function parseISODate(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value ?? ''))
+  if (!m) return null
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])]
+  const date = new Date(y, mo - 1, d)
+  return date.getFullYear() === y && date.getMonth() === mo - 1 && date.getDate() === d ? date : null
+}
+
+/** Fecha de hoy en formato del campo de fecha (AAAA-MM-DD), en la hora local. */
+export function todayISO(now = new Date()) {
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
+
+/** Fecha más antigua que se acepta para una fecha de nacimiento. */
+export const MIN_BIRTH_DATE = '1900-01-01'
+
+/** Errores de los datos de una Carta natal: { name?, birthDate? }. */
+export function validateNatalChart({ name = '', birthDate = '' } = {}, now = new Date()) {
+  const errors = {}
+  if (!name.trim()) errors.name = 'Escribe el nombre completo de la persona para quien es la Carta natal.'
+  const date = parseISODate(birthDate)
+  if (!birthDate) errors.birthDate = 'Escribe la fecha de nacimiento.'
+  else if (!date || birthDate < MIN_BIRTH_DATE) errors.birthDate = 'Revisa la fecha de nacimiento; no parece una fecha válida.'
+  else if (birthDate > todayISO(now)) errors.birthDate = 'La fecha de nacimiento no puede ser posterior a hoy.'
+  return errors
+}
+
+/** "1990-04-07" → "7 de abril de 1990" */
+export function formatBirthDate(value) {
+  const date = parseISODate(value)
+  if (!date) return value
+  return new Intl.DateTimeFormat(BRAND.locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(date)
 }
 
 /** Sin 0/O ni 1/I/L: se lee y se dicta sin confusiones. */
@@ -66,12 +112,21 @@ export const whatsappReady = () => Boolean(BRAND.contact.whatsapp)
  * automáticamente o cobrar en línea, reemplaza el cuerpo de esta función por
  * la llamada a tu backend o pasarela (Mercado Pago, Stripe…).
  */
-export async function submitOrder({ items, customer, deliveryMethod, paymentMethod }) {
+export async function submitOrder({ items, customer, deliveryMethod, paymentMethod, natalCharts = {} }) {
   await new Promise((resolve) => setTimeout(resolve, 700))
   return {
     number: createOrderNumber(),
     createdAt: new Date().toISOString(),
-    items: items.map((item) => ({ ...item, unitPrice: itemUnitPrice(item) })),
+    // Cada línea con Carta natal lleva los datos de sus cartas; las demás no llevan nada.
+    items: items.map((item) => {
+      const line = { ...item, unitPrice: itemUnitPrice(item) }
+      if (!needsBirthData(item)) return line
+      const charts = natalChartSlots([item]).map((slot) => {
+        const data = natalCharts[slot.id] ?? {}
+        return { name: String(data.name ?? '').trim(), birthDate: data.birthDate ?? '' }
+      })
+      return { ...line, natalCharts: charts }
+    }),
     customer,
     deliveryMethod,
     paymentMethod,
@@ -85,14 +140,26 @@ export function orderMessage(order) {
   for (const item of order.items) {
     lines.push(`• ${item.quantity} × ${item.name} — ${formatPrice(item.unitPrice * item.quantity)}`)
     lines.push(`  Intención: ${getIntention(item.intention)?.name ?? ''}`)
-    lines.push(`  Enfoque: ${getFocus(item.intention, item.focus)?.name ?? 'Déjalo en manos de la Bruja Sabia'}`)
     lines.push(`  Tamaño: ${getSize(item.size)?.name ?? ''}`)
-    if (item.extras.length) lines.push(`  Extras: ${item.extras.map((e) => getExtra(e)?.name).join(', ')}`)
+    const extras = recipeExtras(item)
+    if (extras.length) {
+      lines.push(`  Extras: ${extras.map((e) => (e.included ? `${e.name} (incluida con ${getSize(item.size)?.name})` : e.name)).join(', ')}`)
+    }
+    if (needsBirthData(item)) {
+      const charts = item.natalCharts ?? []
+      charts.forEach((chart, i) => {
+        const label = charts.length > 1 ? `Carta natal ${i + 1}` : 'Carta natal'
+        lines.push(`  ${label}: ${chart.name}, nacimiento ${formatBirthDate(chart.birthDate)}`)
+      })
+    }
     if (item.dedication?.forWhom === 'gift') {
       lines.push(`  Es un regalo${item.dedication.message ? `. Dedicatoria: "${item.dedication.message}"` : ''}`)
     }
   }
   lines.push('', `Subtotal: ${formatPrice(order.totals.subtotal)}`)
+  if (order.totals.pendingExtras?.length) {
+    lines.push(`Precio por confirmar (no incluido en el subtotal): ${order.totals.pendingExtras.join(', ')}`)
+  }
   lines.push(`Envío: ${order.totals.shipping.pending ? `por cotizar (${order.totals.shipping.label})` : formatPrice(order.totals.shipping.price)}`)
   const c = order.customer
   lines.push('', `Nombre: ${c.name}`, `Teléfono: ${c.phone}`)

@@ -31,12 +31,16 @@ export const PRICES = {
 
   /**
    * Precio adicional de cada ingrediente extra (demostración).
-   * Un precio 0 se muestra como "Sin costo" (útil si el video se ofrece gratis).
+   * Un precio 0 se muestra como "Sin costo".
+   *
+   * TODO / PENDIENTE: precio de la Carta natal para Aprendiz y Hechicera. Mientras
+   * sea null se muestra "Precio por confirmar" y no se suma al total. Con Gran
+   * Bruja viene incluida y nunca se cobra (ver sizes.js → includedExtras).
    */
   extras: {
     cristal: 59,
     amuleto: 69,
-    video: 99,
+    carta_natal: null,
     regalo: 45,
   },
 

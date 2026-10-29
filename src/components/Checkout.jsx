@@ -1,10 +1,19 @@
 import { useRef, useState } from 'react'
 import { BRAND } from '../config/brand.js'
-import { getExtra } from '../data/extras.js'
-import { getFocus } from '../data/intentions.js'
-import { cartTotals, itemUnitPrice } from '../lib/pricing.js'
+import { getSize } from '../data/sizes.js'
+import { cartTotals, itemUnitPrice, recipeExtras } from '../lib/pricing.js'
 import { formatPrice } from '../lib/format.js'
-import { DELIVERY_METHODS, FIELD_MAX, PAYMENT_METHODS, submitOrder, whatsappReady } from '../lib/order.js'
+import {
+  DELIVERY_METHODS,
+  FIELD_MAX,
+  MIN_BIRTH_DATE,
+  natalChartSlots,
+  PAYMENT_METHODS,
+  submitOrder,
+  todayISO,
+  validateNatalChart,
+  whatsappReady,
+} from '../lib/order.js'
 import { linkTo, navigate, ROUTES } from '../lib/router.js'
 import { useShop } from '../state/ShopContext.jsx'
 import { dedicationLabel, OrderTotals } from './OrderSummary.jsx'
@@ -41,12 +50,39 @@ function validate(form) {
   return errors
 }
 
-const FIELD_ORDER = ['name', 'phone', 'email', 'street', 'neighborhood', 'city', 'state', 'zip']
+const FIELD_ORDER = ['name', 'phone', 'email', 'street', 'neighborhood', 'zip', 'city', 'state']
+
+/** Nombre de los campos de la Carta natal número `i` (en el formulario y en `errors`). */
+const natalField = (i, part) => `natal-${i}-${part}`
+
+/** Errores de todas las Cartas natales del carrito, con las claves de natalField. */
+function validateNatal(slots, natal) {
+  const errors = {}
+  slots.forEach((slot, i) => {
+    const found = validateNatalChart(natal[slot.id])
+    if (found.name) errors[natalField(i, 'name')] = found.name
+    if (found.birthDate) errors[natalField(i, 'birthDate')] = found.birthDate
+  })
+  return errors
+}
+
+/** Enlace a una página legal: se abre en otra pestaña para no perder lo escrito en el formulario. */
+function LegalLink({ route, children }) {
+  return (
+    <a href={`#${route}`} target="_blank" rel="noopener">
+      {children}
+      <span className="sr-only"> (se abre en otra pestaña)</span>
+    </a>
+  )
+}
 
 /** Finalizar compra: datos de contacto, entrega y forma de pago. */
 export function Checkout() {
   const { cart, actions } = useShop()
   const [form, setForm] = useState(EMPTY_FORM)
+  // Datos de cada Carta natal: { [slot.id]: { name, birthDate } }. Solo en memoria:
+  // no se guardan en el navegador hasta que forman parte del pedido (sessionStorage).
+  const [natal, setNatal] = useState({})
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle') // idle | sending | error | done
   const formRef = useRef(null)
@@ -68,6 +104,13 @@ export function Checkout() {
   }
 
   const totals = cartTotals(cart, { zip: form.zip })
+  const natalSlots = natalChartSlots(cart)
+  const setNatalField = (slot, i, part) => (e) => {
+    const value = e.target.value
+    setNatal((n) => ({ ...n, [slot.id]: { ...n[slot.id], [part]: value } }))
+    const key = natalField(i, part)
+    if (errors[key]) setErrors((errs) => ({ ...errs, [key]: undefined }))
+  }
   const set = (field) => (e) => {
     const value = e.target.value
     setForm((f) => ({ ...f, [field]: value }))
@@ -76,9 +119,11 @@ export function Checkout() {
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    const found = validate(form)
+    const found = { ...validate(form), ...validateNatal(natalSlots, natal) }
     setErrors(found)
-    const first = FIELD_ORDER.find((f) => found[f])
+    // En el orden del formulario: contacto, envío y después las Cartas natales.
+    const order = [...FIELD_ORDER, ...natalSlots.flatMap((_, i) => [natalField(i, 'name'), natalField(i, 'birthDate')])]
+    const first = order.find((f) => found[f])
     if (first) {
       formRef.current?.querySelector(`[name="${first}"]`)?.focus()
       return
@@ -95,9 +140,15 @@ export function Checkout() {
             ? { street: form.street.trim(), neighborhood: form.neighborhood.trim(), city: form.city.trim(), state: form.state.trim(), zip: form.zip.trim() }
             : null,
       }
-      const order = await submitOrder({ items: cart, customer, deliveryMethod: form.deliveryMethod, paymentMethod: form.paymentMethod })
+      const placed = await submitOrder({
+        items: cart,
+        customer,
+        deliveryMethod: form.deliveryMethod,
+        paymentMethod: form.paymentMethod,
+        natalCharts: natal,
+      })
       setStatus('done')
-      actions.orderPlaced(order)
+      actions.orderPlaced(placed)
       navigate(ROUTES.confirmacion)
     } catch {
       setStatus('error')
@@ -137,6 +188,9 @@ export function Checkout() {
   )
 
   const errorCount = Object.values(errors).filter(Boolean).length
+  const today = todayISO()
+  // La sección de la Carta natal solo existe si el pedido la lleva: la numeración se ajusta.
+  const paymentNumber = natalSlots.length > 0 ? 4 : 3
 
   return (
     <section className="page" aria-labelledby="checkout-title">
@@ -196,8 +250,77 @@ export function Checkout() {
             )}
           </fieldset>
 
+          {natalSlots.length > 0 && (
+            <fieldset className="parchment-panel form-section">
+              <legend className="panel-title">3. Datos para tu Carta natal</legend>
+              <p className="form-section__help">
+                Escribe los datos de la persona para quien se hará la Carta natal. Puede ser alguien distinto de quien
+                compra o recibe el paquete. Se incluirán en tu pedido para preparar la carta.
+              </p>
+              {natalSlots.map((slot, i) => {
+                const data = natal[slot.id] ?? {}
+                const nameKey = natalField(i, 'name')
+                const dateKey = natalField(i, 'birthDate')
+                const included = recipeExtras(slot.item).find((e) => e.needsBirthData)?.included
+                return (
+                  <div key={slot.id} className="natal-chart" role="group" aria-labelledby={`natal-${i}-title`}>
+                    <p className="natal-chart__title" id={`natal-${i}-title`}>
+                      Carta natal{natalSlots.length > 1 ? ` ${i + 1}` : ''}
+                      <span className="natal-chart__for">
+                        {slot.item.name}
+                        {slot.of > 1 && ` (pieza ${slot.index} de ${slot.of})`}
+                        {included && ` · incluida con ${getSize(slot.item.size)?.name}`}
+                      </span>
+                    </p>
+                    <div className={`field${errors[nameKey] ? ' has-error' : ''}`}>
+                      <label htmlFor={`f-${nameKey}`}>Nombre completo para la Carta natal</label>
+                      <input
+                        id={`f-${nameKey}`}
+                        name={nameKey}
+                        type="text"
+                        value={data.name ?? ''}
+                        onChange={setNatalField(slot, i, 'name')}
+                        required
+                        autoComplete="off"
+                        maxLength={FIELD_MAX.natalName}
+                        aria-invalid={errors[nameKey] ? 'true' : undefined}
+                        aria-describedby={errors[nameKey] ? `e-${nameKey}` : undefined}
+                      />
+                      {errors[nameKey] && (
+                        <p className="field__error" id={`e-${nameKey}`}>
+                          {errors[nameKey]}
+                        </p>
+                      )}
+                    </div>
+                    <div className={`field field--date${errors[dateKey] ? ' has-error' : ''}`}>
+                      <label htmlFor={`f-${dateKey}`}>Fecha de nacimiento</label>
+                      <input
+                        id={`f-${dateKey}`}
+                        name={dateKey}
+                        type="date"
+                        value={data.birthDate ?? ''}
+                        onChange={setNatalField(slot, i, 'birthDate')}
+                        required
+                        autoComplete="off"
+                        min={MIN_BIRTH_DATE}
+                        max={today}
+                        aria-invalid={errors[dateKey] ? 'true' : undefined}
+                        aria-describedby={errors[dateKey] ? `e-${dateKey}` : undefined}
+                      />
+                      {errors[dateKey] && (
+                        <p className="field__error" id={`e-${dateKey}`}>
+                          {errors[dateKey]}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </fieldset>
+          )}
+
           <fieldset className="parchment-panel form-section">
-            <legend className="panel-title">3. ¿Cómo prefieres pagar?</legend>
+            <legend className="panel-title">{paymentNumber}. ¿Cómo prefieres pagar?</legend>
             <p className="form-section__help">
               Estamos configurando las formas de pago. Elige tu preferencia y te confirmaremos cómo pagar.
             </p>
@@ -228,6 +351,11 @@ export function Checkout() {
             </p>
           )}
 
+          <p className="checkout__legal">
+            Antes de continuar, consulta nuestro <LegalLink route={ROUTES.privacidad}>Aviso de Privacidad</LegalLink> y
+            los <LegalLink route={ROUTES.terminos}>Términos y Condiciones</LegalLink>.
+          </p>
+
           <button type="submit" className="btn btn--primary btn--xl btn--block" disabled={status === 'sending'}>
             {status === 'sending' ? 'Preparando tu resumen…' : `Continuar · ${formatPrice(totals.total)}`}
           </button>
@@ -250,8 +378,9 @@ export function Checkout() {
                 <span className="mini-summary__name">
                   {item.quantity} × {item.name}
                   <span className="mini-summary__extras">
-                    {formatPrice(itemUnitPrice(item))} c/u · {getFocus(item.intention, item.focus)?.name ?? 'Sorpresa'}
-                    {item.extras.length > 0 && ` · Con ${item.extras.map((e) => getExtra(e)?.name).join(', ')}`}
+                    {formatPrice(itemUnitPrice(item))} c/u
+                    {recipeExtras(item).length > 0 &&
+                      ` · Con ${recipeExtras(item).map((e) => (e.included ? `${e.name} (incluida)` : e.name)).join(', ')}`}
                     {item.dedication?.forWhom === 'gift' && ` · Regalo (dedicatoria: ${dedicationLabel(item.dedication).toLowerCase()})`}
                   </span>
                 </span>

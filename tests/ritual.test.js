@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { appliedItems, buildRitual, liquidFor, ritualDuration, scoopColors } from '../src/lib/ritual.js'
 
-const recipe = { intention: 'amor', size: 'gran_bruja', extras: ['cristal'] }
+const recipe = { intention: 'amor', size: 'hechicera', extras: ['cristal'] }
 
 test('el ritual sigue el orden: intención, tamaño, extras', () => {
   const ritual = buildRitual(recipe)
@@ -14,11 +14,16 @@ test('el ritual sigue el orden: intención, tamaño, extras', () => {
   assert.equal(phases.filter((p) => p === 'stir').length, 3, 'mezcla tras intención, tamaño y extras')
 })
 
+test('con Gran Bruja la Carta natal incluida también entra al caldero', () => {
+  const ritual = buildRitual({ intention: 'amor', size: 'gran_bruja', extras: ['carta_natal'] })
+  assert.deepEqual(ritual.items.map((i) => i.id), ['intention', 'size', 'carta_natal'])
+})
+
 test('cada paso dura entre 0.2 y 0.6 s y el total es breve', () => {
   const ritual = buildRitual(recipe)
   for (const step of ritual.steps) assert.ok(step.duration >= 200 && step.duration <= 600)
   assert.ok(ritualDuration(ritual) < 6000)
-  const full = buildRitual({ ...recipe, extras: ['cristal', 'amuleto', 'video', 'regalo'] })
+  const full = buildRitual({ ...recipe, extras: ['cristal', 'amuleto', 'carta_natal', 'regalo'] })
   assert.ok(ritualDuration(full) < 10000, 'aun con todos los extras dura menos de 10 s')
 })
 
@@ -37,7 +42,8 @@ test('cada intención usa su propia botella', () => {
 })
 
 test('el líquido cambia: rosa → rosa + dorado → + destellos morados', () => {
-  const ritual = buildRitual(recipe)
+  // Gran Bruja: su poción es dorada y trae la Carta natal incluida (cuarto ingrediente).
+  const ritual = buildRitual({ ...recipe, size: 'gran_bruja' })
   const pourIntention = ritual.steps.findIndex((s) => s.applies === 0)
   const pourSize = ritual.steps.findIndex((s) => s.applies === 1)
   const dropCrystal = ritual.steps.findIndex((s) => s.applies === 2)
@@ -50,7 +56,7 @@ test('el líquido cambia: rosa → rosa + dorado → + destellos morados', () =>
   assert.equal(gold.swirl, '#e8b934')
   const sparkles = liquidFor(ritual, appliedItems(ritual, dropCrystal))
   assert.deepEqual(sparkles.flecks, ['#a35ee8'])
-  assert.equal(scoopColors(ritual).length, 3)
+  assert.equal(scoopColors(ritual).length, 4)
 })
 
 test('sin extras no hay mezcla extra', () => {

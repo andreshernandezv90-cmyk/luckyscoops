@@ -168,6 +168,33 @@
     font-size: 0.86rem;
   }
 }
+/* 320–360 px: marca, sonido, pedido con su contador y menú caben en la fila.
+   Cada pieza cede unos píxeles; ningún control baja de 44 × 44 y nada se oculta. */
+@media (max-width: 360px) {
+  .brand {
+    gap: 4px;
+    /* Con un contador muy largo, el nombre se parte antes que empujar los botones fuera */
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .brand__name {
+    min-width: 0;
+    font-size: 0.8rem;
+  }
+  .site-header__actions {
+    flex: none;
+  }
+  .cart-link {
+    padding: 0 4px;
+  }
+  .cart-link__badge {
+    padding: 0 4px;
+  }
+  .menu-toggle {
+    width: 44px;
+    height: 44px;
+  }
+}
 
 /* Mientras llega una página que se carga aparte (normalmente no se ve: se precarga) */
 .page-loading {

@@ -17,6 +17,7 @@ const Grimorio = lazy(() => loaders.grimorio().then((m) => ({ default: m.Grimori
 const Cart = lazy(() => import('./components/Cart.jsx').then((m) => ({ default: m.Cart })))
 const Checkout = lazy(() => import('./components/Checkout.jsx').then((m) => ({ default: m.Checkout })))
 const OrderComplete = lazy(() => import('./components/OrderComplete.jsx').then((m) => ({ default: m.OrderComplete })))
+const LegalPage = lazy(() => import('./components/LegalPage.jsx').then((m) => ({ default: m.LegalPage })))
 
 function preloadPages() {
   const run = () => {
@@ -32,6 +33,10 @@ const PAGES = {
   [ROUTES.carrito]: { title: 'Tu pedido', Component: Cart },
   [ROUTES.pago]: { title: 'Finalizar compra', Component: Checkout },
   [ROUTES.confirmacion]: { title: 'Pedido confirmado', Component: OrderComplete },
+  [ROUTES.privacidad]: { title: 'Aviso de Privacidad', Component: LegalPage },
+  [ROUTES.terminos]: { title: 'Términos y Condiciones', Component: LegalPage },
+  [ROUTES.entregas]: { title: 'Envíos y entregas', Component: LegalPage },
+  [ROUTES.devoluciones]: { title: 'Cambios, devoluciones y cancelaciones', Component: LegalPage },
 }
 
 export default function App() {
@@ -61,7 +66,7 @@ export default function App() {
         <Header path={path} />
         <main id="contenido" ref={mainRef} tabIndex={-1} className={`site-main${path === ROUTES.grimorio ? ' site-main--grimorio' : ''}`}>
           <Suspense fallback={<p className="page-loading" role="status">Abriendo el Grimorio…</p>}>
-            {page ? <page.Component /> : <Home section={HOME_SECTIONS[path]} stamp={stamp} />}
+            {page ? <page.Component route={path} /> : <Home section={HOME_SECTIONS[path]} stamp={stamp} />}
           </Suspense>
         </main>
         <Footer />

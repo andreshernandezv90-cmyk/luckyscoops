@@ -8,7 +8,7 @@ export const FAQ = [
   },
   {
     q: `¿Todas las ${BRAND.productNounPlural} son iguales?`,
-    a: 'No. Los artículos pueden variar según la intención, el tamaño, la personalización y el inventario disponible.',
+    a: 'No. Los artículos pueden variar según la intención, el tamaño, los extras y el inventario disponible.',
   },
   {
     q: '¿Puedo elegir exactamente qué me tocará?',
@@ -31,8 +31,8 @@ export const FAQ = [
     a: 'Sí, a toda la República Mexicana. El costo depende del tamaño de la Scoop, los productos, el peso, las dimensiones y el destino; se confirma contigo antes de pagar.',
   },
   {
-    q: '¿Mi pedido puede tener video?',
-    a: 'Dependerá de la opción seleccionada y de la disponibilidad. Si agregas “Video de tu ritual”, podrás ver cómo la Bruja Sabia prepara tu Scoop.',
+    q: '¿Qué necesito para la Carta natal?',
+    a: 'El nombre completo y la fecha de nacimiento de la persona para quien es la carta; te los pediremos al finalizar tu pedido. Con la Scoop Gran Bruja la Carta natal viene incluida; con Aprendiz y Hechicera puedes añadirla como extra.',
   },
   {
     q: '¿Cómo puedo pagar?',

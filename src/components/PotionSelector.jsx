@@ -61,7 +61,6 @@ export function PotionSelector() {
               <span className="vela-option__title">{intention.name}</span>
               <InkStroke className="vela-option__stroke" />
               <span className="vela-option__desc">{intention.description}</span>
-              <span className="vela-option__meta">{intention.themes.join(' · ')}</span>
             </span>
             <SelectionSeal show={selected} className="vela-option__seal" color="#9e2350" glyph="check" rotate={-10} />
             {selected && burst > 0 && (

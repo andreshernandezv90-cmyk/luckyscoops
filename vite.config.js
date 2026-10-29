@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { BRAND } from './src/config/brand.js'
 import { PRICES } from './src/data/prices.js'
+import { legalPending } from './src/data/legal.js'
 
 /**
  * Al compilar (`npm run build`) avisa qué datos del negocio faltan antes de
@@ -22,6 +23,16 @@ function launchCheck() {
       }
       if (PRICES.areDemo) {
         issues.push('Los precios son de demostración (src/data/prices.js → areDemo: true) y se mostrarán como reales.')
+      }
+      const pendingExtras = Object.entries(PRICES.extras).filter(([, price]) => price === null)
+      if (pendingExtras.length) {
+        issues.push(
+          `Extras sin precio (src/data/prices.js → extras): ${pendingExtras.map(([id]) => id).join(', ')}. Se muestran como "Precio por confirmar".`,
+        )
+      }
+      const legal = legalPending()
+      if (legal.length) {
+        issues.push(`Páginas legales con ${legal.length} secciones pendientes (src/data/legal.js): se ven como "Información en preparación".`)
       }
       if (issues.length === 0) return
       console.warn(

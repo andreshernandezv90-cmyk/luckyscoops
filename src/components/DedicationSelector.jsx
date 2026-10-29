@@ -16,10 +16,10 @@ const OPTIONS = [
 ]
 
 /**
- * Capítulo V: ¿para quién es la Scoop? Dedicatoria opcional si es un regalo.
+ * Capítulo IV: ¿para quién es la Scoop? Dedicatoria opcional si es un regalo.
  * «Luz de vela»: una carta. Las dos opciones son el destinatario del sobre; si es
  * un regalo se despliega la hoja con renglones para la dedicatoria y una posdata
- * con la casilla del empaque (el mismo extra que en el Capítulo IV).
+ * con la casilla del empaque (el mismo extra que en el Capítulo III).
  */
 export function DedicationSelector() {
   const { builder, actions } = useShop()

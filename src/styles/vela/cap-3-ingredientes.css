@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Capítulo IV: herbario. Cada ingrediente es un espécimen de la lámina, con
+   Capítulo III: herbario. Cada ingrediente es un espécimen de la lámina, con
    su símbolo dibujado a tinta y una casilla nativa; toda la entrada es su
    etiqueta. La recomendación del Grimorio es una nota al margen, en rúbrica.
    ========================================================================== */
@@ -234,6 +234,41 @@
     grid-template-columns: 44px minmax(0, 1fr);
   }
   .vela .vela-especimen__precio {
+    grid-column: 2;
+    grid-row: auto;
+    margin-top: 4px;
+  }
+}
+
+/* Lo que el tamaño incluye: marcado y sin casilla que quitar. Se lee como una
+   anotación en rúbrica bajo la descripción, igual que la nota del Grimorio. */
+.vela .vela-especimen.is-included .vela-especimen__entrada {
+  cursor: default;
+}
+.vela .vela-especimen.is-included .vela-especimen__entrada:hover .vela-especimen__icono {
+  transform: none;
+}
+.vela .vela-especimen__aviso {
+  margin-top: 6px;
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--vela-rubrica);
+}
+.vela .vela-especimen__aviso-incluida {
+  font-style: normal;
+  font-weight: 700;
+}
+@media (max-width: 560px) {
+  .vela .vela-especimen__aviso {
+    grid-column: 2 / -1;
+  }
+  /* «Precio por confirmar» es largo: baja bajo la descripción, como en los
+     teléfonos más angostos, y el nombre conserva su renglón */
+  .vela .vela-especimen.is-price-pending .vela-especimen__entrada {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+  .vela .vela-especimen.is-price-pending .vela-especimen__precio {
     grid-column: 2;
     grid-row: auto;
     margin-top: 4px;

@@ -1,6 +1,10 @@
 import { PRICES } from './prices.js'
 
-/** Ingredientes adicionales para el ritual (Capítulo IV). Se puede elegir más de uno o ninguno. */
+/**
+ * Ingredientes adicionales para el ritual (Capítulo III). Se puede elegir más de uno o ninguno.
+ * Algunos tamaños ya incluyen un extra (ver `includedExtras` en sizes.js): entonces no se cobra.
+ * `price: null` = precio pendiente de confirmar (ver prices.js).
+ */
 export const EXTRAS = [
   {
     id: 'cristal',
@@ -17,11 +21,13 @@ export const EXTRAS = [
     colorName: 'chispas doradas',
   },
   {
-    id: 'video',
-    name: 'Video de tu ritual',
-    description: 'Si tu pedido incluye esta opción, podrás ver cómo la Bruja Sabia prepara tu Scoop.',
+    id: 'carta_natal',
+    name: 'Carta natal',
+    description: 'Una carta natal hecha por la Bruja Sabia a partir del nombre completo y la fecha de nacimiento.',
     color: '#8cc8e6',
     colorName: 'reflejos de plata azul',
+    /** Pide datos de la persona para quien se hace (ver Checkout → «Datos para tu Carta natal»). */
+    needsBirthData: true,
   },
   {
     id: 'regalo',
@@ -30,6 +36,7 @@ export const EXTRAS = [
     color: '#ec5fa6',
     colorName: 'listones rosas',
   },
-].map((extra) => ({ ...extra, price: PRICES.extras[extra.id] ?? 0 }))
+  // `null` se conserva (precio por confirmar); un extra sin entrada en la tabla cuesta 0.
+].map((extra) => ({ ...extra, price: extra.id in PRICES.extras ? PRICES.extras[extra.id] : 0 }))
 
 export const getExtra = (id) => EXTRAS.find((e) => e.id === id) ?? null

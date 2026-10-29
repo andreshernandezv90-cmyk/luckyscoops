@@ -4,6 +4,7 @@ import { BRAND } from '../config/brand.js'
 import { CHAPTERS } from '../data/chapters.js'
 import { getIntention } from '../data/intentions.js'
 import { formatPrice } from '../lib/format.js'
+import { priceBreakdown } from '../lib/pricing.js'
 import { navigate } from '../lib/router.js'
 import { playSound } from '../lib/sound.js'
 import { ANIMATION, CHAPTER, canEnterChapter, useShop } from '../state/ShopContext.jsx'
@@ -15,7 +16,6 @@ import { RecipeCard, recipeSummary } from './Recipe.jsx'
 import { PotionSelector } from './PotionSelector.jsx'
 import { SizeSelector } from './SizeSelector.jsx'
 import { ExtrasSelector } from './ExtrasSelector.jsx'
-import { FocusSelector } from './FocusSelector.jsx'
 import { DedicationSelector } from './DedicationSelector.jsx'
 import { RitualAnimation } from './RitualAnimation.jsx'
 import { Revelation } from './Revelation.jsx'
@@ -25,10 +25,6 @@ const INTROS = {
   [CHAPTER.INTENCION]: {
     text: 'Toca la botella que más resuene contigo. Podrás cambiarla cuando quieras.',
     Selector: PotionSelector,
-  },
-  [CHAPTER.ENFOQUE]: {
-    text: '¿Qué buscas específicamente? Es opcional: si prefieres la sorpresa, déjalo en manos de la Bruja Sabia.',
-    Selector: FocusSelector,
   },
   [CHAPTER.TAMANO]: {
     text: 'Cada círculo es un tamaño de Scoop: entre más alto, más completa la experiencia.',
@@ -48,9 +44,7 @@ const INTROS = {
 function nextStep(chapter, builder) {
   switch (chapter) {
     case CHAPTER.INTENCION:
-      return { label: 'Siguiente: Personaliza', short: 'Siguiente', ready: Boolean(builder.intention), hint: 'Elige una intención para continuar.' }
-    case CHAPTER.ENFOQUE:
-      return { label: 'Siguiente: Tamaño', short: 'Siguiente', ready: true, hint: 'Elegir un enfoque es opcional.' }
+      return { label: 'Siguiente: Tamaño', short: 'Siguiente', ready: Boolean(builder.intention), hint: 'Elige una intención para continuar.' }
     case CHAPTER.TAMANO:
       return { label: 'Siguiente: Extras', short: 'Siguiente', ready: Boolean(builder.size), hint: 'Elige un tamaño para continuar.' }
     case CHAPTER.INGREDIENTES:
@@ -70,12 +64,12 @@ function nextStep(chapter, builder) {
 }
 
 /** Capítulos opcionales: se muestra la pista aunque se pueda avanzar. */
-const OPTIONAL_HINT = new Set([CHAPTER.ENFOQUE, CHAPTER.INGREDIENTES, CHAPTER.DEDICATORIA])
+const OPTIONAL_HINT = new Set([CHAPTER.INGREDIENTES, CHAPTER.DEDICATORIA])
 
 /**
- * El grimorio abierto: estructura narrativa de toda la compra personalizada.
- * Capítulos I–V: página izquierda (instrucciones + receta) y derecha (opciones).
- * Capítulos VI–VII: página desplegada para el caldero y la revelación.
+ * El grimorio abierto: estructura narrativa de toda la compra en el Grimorio.
+ * Capítulos I–IV: página izquierda (instrucciones + receta) y derecha (opciones).
+ * Capítulos V–VI: página desplegada para el caldero y la revelación.
  */
 export function Grimorio() {
   const { builder, price, actions } = useShop()
@@ -116,11 +110,14 @@ export function Grimorio() {
     else goTo(chapter - 1)
   }
   const prevLabel = chapter === CHAPTER.INTENCION ? 'Cerrar el Grimorio' : `Anterior: ${CHAPTERS[chapter - 1].title}`
-  // «Luz de vela» (DESIGN.md): el libro de los capítulos I–V. El caldero y la
+  // «Luz de vela» (DESIGN.md): el libro de los capítulos I–IV. El caldero y la
   // revelación llegan en una etapa posterior. La intención elegida tiñe la luz
   // de las páginas con el color de su poción.
   const vela = chapter <= CHAPTER.DEDICATORIA
   const tint = vela ? getIntention(builder.intention)?.colors.glow : null
+  // Un extra sin precio confirmado (la Carta natal) no se suma: se avisa junto al precio.
+  const pending = priceBreakdown(builder).pendingExtras
+  const pendingText = pending.length ? ` + ${pending.join(', ')} (por confirmar)` : ''
 
   return (
     <section
@@ -185,7 +182,10 @@ export function Grimorio() {
             ) : price === null ? (
               <span className="recipe-bar__pending">El precio aparece al elegir tamaño</span>
             ) : (
-              <strong className="recipe-bar__price">{formatPrice(price)}</strong>
+              <strong className="recipe-bar__price">
+                {formatPrice(price)}
+                {pendingText && <span className="recipe-bar__extra">{pendingText}</span>}
+              </strong>
             )}
           </div>
           <div className="recipe-bar__actions">
@@ -205,7 +205,7 @@ export function Grimorio() {
       )}
 
       <p className="sr-only" aria-live="polite">
-        {price === null ? '' : `Precio actual por ${BRAND.productNoun}: ${formatPrice(price)}`}
+        {price === null ? '' : `Precio actual por ${BRAND.productNoun}: ${formatPrice(price)}${pendingText}`}
       </p>
     </section>
   )

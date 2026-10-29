@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { BRAND } from '../config/brand.js'
+import { CHAPTERS } from '../data/chapters.js'
 import { getIntention } from '../data/intentions.js'
 import { buildRitual, liquidFor, scoopColors } from '../lib/ritual.js'
 import { REVEAL_STEPS, revealScene } from '../lib/motion.js'
@@ -37,7 +38,7 @@ const HEADINGS = {
 const PHASE_SOUND = { dip: 'spoon', lift: 'splash', summon: 'reveal' }
 
 /**
- * Capítulo VII: el momento de la revelación (ver REVEAL_STEPS).
+ * Capítulo VI: el momento de la revelación (ver REVEAL_STEPS).
  * El caldero se calma, nace una luz, la cuchara baja y sube con una cucharada
  * brillante, la Scoop se invoca sobre ella (<ScoopReveal>) y aparece su nombre.
  * Después la escena se recoge y entra la tarjeta con toda la información de
@@ -128,7 +129,7 @@ export function Revelation({ autoFocus }) {
       </div>
 
       <div className="revelation__result">
-        <p className="chapter-intro__kicker">Capítulo VII · Revelación</p>
+        <p className="chapter-intro__kicker">Capítulo {CHAPTERS[CHAPTER.REVELACION].numeral} · Revelación</p>
         <ChapterHeading autoFocus={autoFocus} className={seq.finished ? 'revelation__title' : 'revelation__heading'}>
           {seq.finished ? `Tu ${BRAND.productNoun} ha sido revelada` : HEADINGS[phase]}
         </ChapterHeading>
@@ -218,7 +219,6 @@ export function Revelation({ autoFocus }) {
 
 const EDIT_LINKS = [
   [CHAPTER.INTENCION, 'Intención'],
-  [CHAPTER.ENFOQUE, 'Enfoque'],
   [CHAPTER.TAMANO, 'Tamaño'],
   [CHAPTER.INGREDIENTES, 'Extras'],
   [CHAPTER.DEDICATORIA, 'Dedicatoria'],

@@ -11,7 +11,13 @@ Estado: **dirección aprobada.** Se extiende por etapas:
 - **3C, bloque 2:** interior de IV (herbario: casillas nativas y la recomendación como nota al
   margen) y V (carta: destinatario, dedicatoria sobre renglones y posdata con la casilla del
   empaque). Se borró el CSS viejo de las opciones de los capítulos I–V.
-- **Pendiente:** caldero (VI), revelación (VII), checkout, confirmación,
+- **Cambios de negocio (prelanzamiento):** se quitó el capítulo «Personaliza» (índice de
+  matices). El Grimorio queda en seis capítulos: I Intención, II Tamaño, III Extras,
+  IV Dedicatoria, V Caldero, VI Revelación; los archivos `cap-*.css` siguen esa numeración. En el
+  herbario, la Carta natal sustituye al video y, con Gran Bruja, se muestra incluida: casilla
+  marcada y deshabilitada con la anotación en rúbrica. Las etapas anteriores usan la numeración
+  de siete capítulos.
+- **Pendiente:** caldero (V), revelación (VI), checkout, confirmación,
   secciones de la portada y pie, que conservan el sistema anterior hasta su etapa.
 
 Los colores `--vela-*` se declaran en `:root` (`src/styles/vela/tokens.css`). El orden de las
@@ -168,7 +174,7 @@ Base de 4 px. Escala: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128`.
   - El contador del pedido lleva un aro de oro.
   - En escritorio "Inicio" se oculta, porque el logo lleva al inicio con el nombre accesible
     "Scoops de la Bruja Sabia: ir al inicio". En el menú del celular sí aparece.
-- **Marcapáginas I–VII:**
+- **Marcapáginas I–VI:**
   - Actual: halo y llama.
   - Completado: aro y marca de verificación en oro, el único estado con oro.
   - Disponible: aro de cera sólido.

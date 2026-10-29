@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { BRAND, contactLinks } from '../../config/brand.js'
 import { VIDEOS } from '../../data/videos.js'
-import { linkTo, ROUTES } from '../../lib/router.js'
-import { ExtraIcon } from '../illustrations/Sigils.jsx'
 import { SHOW_PENDING } from '../../config/env.js'
 import { PendingTag } from '../PendingTag.jsx'
 import { SectionTitle } from './SectionTitle.jsx'
@@ -62,6 +60,10 @@ export function Videos() {
       <SectionTitle id="videos-title" kicker="Mira cómo se hace la magia">
         Desde el Caldero de la Bruja
       </SectionTitle>
+      {/* Sin videos publicados todavía, la sección no se queda vacía */}
+      {videos.length === 0 && (
+        <p className="section__lead">Pronto compartiremos aquí preparaciones de Scoops, empaques y novedades.</p>
+      )}
       {videos.length > 0 && (
         <>
           <p className="section__lead">
@@ -74,20 +76,6 @@ export function Videos() {
           </ul>
         </>
       )}
-
-      <aside className="ritual-video parchment-panel" aria-labelledby="ritual-video-title">
-        <ExtraIcon id="video" color="#8cc8e6" className="ritual-video__icon" />
-        <div>
-          <h3 id="ritual-video-title" className="panel-title">Video de tu ritual</h3>
-          <p>
-            Si tu pedido incluye esta opción, podrás ver cómo {BRAND.witch} prepara tu {BRAND.productNoun}. Puedes
-            agregarla en el capítulo de extras del Grimorio, según disponibilidad.
-          </p>
-          <a className="btn btn--ink" {...linkTo(ROUTES.grimorio)}>
-            Preparar mi {BRAND.productNoun}
-          </a>
-        </div>
-      </aside>
 
       {(tiktok || SHOW_PENDING) && (
         <p className="section__cta">

@@ -213,10 +213,11 @@
 }
 
 @media (max-width: 360px) {
-  /* 320 px: marca y botones caben sin desplazamiento horizontal */
+  /* 320 px: marca y botones caben sin desplazamiento horizontal (ver también
+     el bloque de 360 px en brand.css, que ajusta los botones) */
   .site-header__inner {
-    gap: 8px;
-    padding: 0 10px;
+    gap: 4px;
+    padding: 0 6px;
   }
 }
 
@@ -253,7 +254,8 @@
 }
 .site-footer__inner {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
+  /* Marca, tienda, legal y contacto (este último solo si hay datos reales) */
+  grid-template-columns: 1.4fr 1fr 1.2fr 1fr;
   gap: 32px;
   max-width: 1180px;
   margin: 0 auto;
@@ -288,6 +290,11 @@
   padding-top: 20px;
   border-top: 1px solid rgba(201, 162, 74, 0.2);
   font-size: 0.95rem;
+}
+@media (max-width: 1023px) {
+  .site-footer__inner {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 @media (max-width: 760px) {
   .site-footer__inner {

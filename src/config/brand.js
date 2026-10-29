@@ -19,7 +19,7 @@ export const BRAND = {
   motto: 'Magia · Energía · Conexión',
   /** Texto de la portada. */
   heroText:
-    'Abre el Grimorio y prepara una Scoop creada especialmente para ti. Elige tu intención, personaliza tu magia y deja que la Bruja Sabia prepare el resto.',
+    'Abre el Grimorio y prepara una Scoop creada especialmente para ti. Elige tu intención, tu tamaño y tus extras, y deja que la Bruja Sabia prepare el resto.',
   /** Quien prepara las Scoops (se usa en textos como "Déjalo en manos de…"). */
   witch: 'la Bruja Sabia',
 

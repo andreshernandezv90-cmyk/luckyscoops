@@ -217,7 +217,7 @@ export function stirKeyframes({ rx = 34, ry = 7.5, turns = 1.15, samples = 14 } 
 export const STIR_SECONDS = 0.95
 
 /* ---------------------------------------------------------------------------
- * Revelación (Capítulo VII)
+ * Revelación (Capítulo VI)
  * ------------------------------------------------------------------------- */
 
 /**

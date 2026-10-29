@@ -24,7 +24,7 @@
   color: var(--vela-cera-tenue);
 }
 
-/* ---------- Progreso (marcapáginas I–VII) ----------
+/* ---------- Progreso (marcapáginas I–VI) ----------
    Línea fina y círculos sobrios. El capítulo actual tiene la vela encendida;
    los completados llevan marca de oro; los bloqueados, borde punteado. */
 .chapter-progress {
@@ -667,6 +667,15 @@
     font-size: 1.3rem;
     color: var(--vela-cera);
     white-space: nowrap;
+  }
+  /* Extra con precio por confirmar: una línea corta bajo el precio */
+  .recipe-bar__extra {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 400;
+    line-height: 1.2;
+    white-space: normal;
   }
   .recipe-bar__pending {
     font-size: 0.95rem;

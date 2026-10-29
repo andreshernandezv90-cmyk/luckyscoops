@@ -1,10 +1,9 @@
 import { BRAND } from '../config/brand.js'
-import { getFocus, getIntention } from '../data/intentions.js'
+import { getIntention } from '../data/intentions.js'
 import { PRICES } from '../data/prices.js'
 import { SHOW_PENDING } from '../config/env.js'
 import { getSize } from '../data/sizes.js'
-import { getExtra } from '../data/extras.js'
-import { priceBreakdown } from '../lib/pricing.js'
+import { priceBreakdown, recipeExtras } from '../lib/pricing.js'
 import { formatExtraPrice, formatPrice } from '../lib/format.js'
 import { useShop } from '../state/ShopContext.jsx'
 import { ChapterDivider } from './illustrations/Ornaments.jsx'
@@ -23,9 +22,8 @@ function InkText({ value, placeholder = 'por elegir' }) {
 export function RecipeCard() {
   const { builder, price } = useShop()
   const intention = getIntention(builder.intention)
-  const focus = getFocus(builder.intention, builder.focus)
   const size = getSize(builder.size)
-  const extras = builder.extras.map(getExtra)
+  const extras = recipeExtras(builder)
   const { forWhom, message } = builder.dedication
   const breakdown = priceBreakdown(builder)
 
@@ -43,12 +41,6 @@ export function RecipeCard() {
           </dd>
         </div>
         <div className="recipe__line">
-          <dt>Enfoque</dt>
-          <dd>
-            <InkText value={intention ? focus?.short ?? focus?.name : null} />
-          </dd>
-        </div>
-        <div className="recipe__line">
           <dt>Tamaño</dt>
           <dd>
             <InkText value={size?.name} />
@@ -63,7 +55,8 @@ export function RecipeCard() {
               <ul>
                 {extras.map((e) => (
                   <li key={e.id}>
-                    <InkText value={e.name} /> <span className="recipe__extra-price">{formatExtraPrice(e.price)}</span>
+                    <InkText value={e.name} />{' '}
+                    <span className="recipe__extra-price">{e.included ? `Incluida con ${size.name}` : formatExtraPrice(e.price)}</span>
                   </li>
                 ))}
               </ul>
@@ -86,6 +79,7 @@ export function RecipeCard() {
           {size.name} {formatPrice(breakdown.base)}
           {breakdown.intentionAdjustment !== 0 && ` · ${intention.name} ${formatPrice(breakdown.intentionAdjustment)}`}
           {breakdown.extrasTotal > 0 && ` + ingredientes ${formatPrice(breakdown.extrasTotal)}`}
+          {breakdown.pendingExtras.length > 0 && ` + ${breakdown.pendingExtras.join(', ')} (precio por confirmar)`}
         </p>
       )}
       {SHOW_PENDING && PRICES.areDemo && <p className="demo-note">Precios de demostración (pendiente de precios reales).</p>}
@@ -96,6 +90,7 @@ export function RecipeCard() {
 /** Resumen corto de la receta para la barra fija del celular. */
 export function recipeSummary(builder) {
   const parts = [getIntention(builder.intention)?.name, getSize(builder.size)?.name]
-  if (builder.extras.length) parts.push(`${builder.extras.length} extra${builder.extras.length > 1 ? 's' : ''}`)
+  const count = recipeExtras(builder).length
+  if (count) parts.push(`${count} extra${count > 1 ? 's' : ''}`)
   return parts.filter(Boolean).join(' · ') || 'Tu receta está en blanco'
 }

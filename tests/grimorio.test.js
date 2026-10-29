@@ -1,37 +1,59 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { INTENTIONS, WITCH_CHOICE, getFocus } from '../src/data/intentions.js'
+import { INTENTIONS } from '../src/data/intentions.js'
 import { EXTRAS } from '../src/data/extras.js'
+import { SIZES } from '../src/data/sizes.js'
+import { PRICES } from '../src/data/prices.js'
+import { PRODUCTS } from '../src/data/products.js'
+import { FAQ } from '../src/data/faq.js'
 import { RECOMMENDATIONS, recommendExtra } from '../src/data/recommendations.js'
 import { CHAPTERS } from '../src/data/chapters.js'
 import { orderMessage } from '../src/lib/order.js'
 import { cartTotals } from '../src/lib/pricing.js'
 import { BRAND } from '../src/config/brand.js'
 
-test('el Grimorio tiene siete capítulos en orden', () => {
+test('el Grimorio tiene seis capítulos en orden, numerados I–VI', () => {
   assert.deepEqual(
     CHAPTERS.map((c) => c.id),
-    ['intencion', 'enfoque', 'tamano', 'ingredientes', 'dedicatoria', 'preparacion', 'revelacion'],
+    ['intencion', 'tamano', 'ingredientes', 'dedicatoria', 'preparacion', 'revelacion'],
+  )
+  assert.deepEqual(
+    CHAPTERS.map((c) => c.numeral),
+    ['I', 'II', 'III', 'IV', 'V', 'VI'],
   )
 })
 
-test('cada intención ofrece sus enfoques y siempre "Déjalo en manos de la Bruja Sabia"', () => {
+test('las cuatro intenciones son generales: sin subtipos ni «Personaliza»', () => {
+  assert.deepEqual(
+    INTENTIONS.map((i) => i.name),
+    ['Amor', 'Protección', 'Abundancia', 'Limpieza'],
+  )
   for (const intention of INTENTIONS) {
-    assert.ok(intention.focuses.length >= 5)
-    assert.equal(intention.focuses.at(-1).id, WITCH_CHOICE.id)
+    assert.equal(intention.focuses, undefined)
+    assert.equal(intention.themes, undefined)
   }
-  assert.equal(getFocus('amor', 'amor_propio').name, 'Amor propio')
-  assert.equal(getFocus('abundancia', 'dinero').name, 'Dinero')
-  assert.equal(getFocus('amor', 'dinero'), null)
+  for (const product of PRODUCTS) assert.equal(product.focus, undefined, product.id)
+  const visible = JSON.stringify([CHAPTERS, INTENTIONS, EXTRAS, FAQ, BRAND.heroText])
+  assert.doesNotMatch(visible, /Personaliza|Enfoque|Sin preferencia|Video de tu ritual|Amor propio/i)
+})
+
+test('la Carta natal sustituye al video y Gran Bruja la incluye', () => {
+  const ids = EXTRAS.map((e) => e.id)
+  assert.ok(ids.includes('carta_natal'))
+  assert.ok(!ids.includes('video'))
+  assert.equal(EXTRAS.find((e) => e.id === 'carta_natal').name, 'Carta natal')
+  assert.equal(PRICES.extras.carta_natal, null, 'el precio sigue pendiente: no se inventa')
+  assert.deepEqual(
+    SIZES.map((s) => [s.id, s.includedExtras]),
+    [['aprendiz', []], ['hechicera', []], ['gran_bruja', ['carta_natal']]],
+  )
 })
 
 test('las recomendaciones apuntan a extras que existen', () => {
   const ids = new Set(EXTRAS.map((e) => e.id))
-  for (const table of Object.values(RECOMMENDATIONS)) {
-    for (const rec of Object.values(table)) assert.ok(ids.has(rec.extra), rec.extra)
-  }
-  assert.equal(recommendExtra({ intention: 'amor', focus: 'pareja' }).extra, 'regalo')
-  assert.equal(recommendExtra({ intention: 'amor', focus: 'bruja' }).extra, 'cristal', 'sin enfoque usa la recomendación general')
+  for (const rec of Object.values(RECOMMENDATIONS)) assert.ok(ids.has(rec.extra), rec.extra)
+  for (const intention of INTENTIONS) assert.ok(recommendExtra({ intention: intention.id }), intention.id)
+  assert.equal(recommendExtra({ intention: 'amor' }).extra, 'cristal')
   assert.equal(recommendExtra({}), null)
 })
 
@@ -40,7 +62,7 @@ test('la marca no inventa datos de contacto', () => {
   assert.equal(BRAND.name, 'Scoops de la Bruja Sabia')
 })
 
-test('el mensaje del pedido incluye enfoque, extras y dedicatoria', () => {
+test('el mensaje del pedido incluye extras y dedicatoria, sin enfoque', () => {
   const items = [
     {
       name: 'Scoop Gran Bruja del Amor',
@@ -62,8 +84,8 @@ test('el mensaje del pedido incluye enfoque, extras y dedicatoria', () => {
   }
   const text = orderMessage(order)
   assert.match(text, /BS-0101-1234/)
-  assert.match(text, /Enfoque: Amor propio/)
-  assert.match(text, /Extras: Cristal sorpresa/)
+  assert.doesNotMatch(text, /Enfoque|Amor propio/, 'un dato antiguo de enfoque no llega al pedido')
+  assert.match(text, /Extras: Cristal sorpresa, Carta natal \(incluida con Gran Bruja\)/)
   assert.match(text, /Dedicatoria: "Que nunca te falte magia"/)
   assert.match(text, /Envío: por cotizar/)
 })

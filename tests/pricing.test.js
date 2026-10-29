@@ -5,7 +5,8 @@ import {
   calculateUnitPrice,
   cartTotals,
   normalizeDedication,
-  normalizeFocus,
+  needsBirthData,
+  recipeExtras,
   recipeTitle,
   itemKey,
   itemUnitPrice,
@@ -55,21 +56,49 @@ test('la misma receta genera la misma clave del carrito', () => {
   assert.notEqual(itemKey({ intention: 'amor', size: 'hechicera' }), itemKey({ productId: 'corazon-propio', intention: 'amor', size: 'hechicera' }))
 })
 
-test('enfoque y dedicatoria distinguen líneas del carrito', () => {
+test('la dedicatoria distingue líneas del carrito; un enfoque antiguo no', () => {
   const base = { intention: 'amor', size: 'hechicera', extras: [] }
-  assert.notEqual(itemKey({ ...base, focus: 'pareja' }), itemKey({ ...base, focus: 'amor_propio' }))
-  assert.equal(itemKey({ ...base }), itemKey({ ...base, focus: 'bruja' }), 'sin enfoque = en manos de la Bruja Sabia')
+  assert.equal(itemKey({ ...base, focus: 'pareja' }), itemKey({ ...base, focus: 'amor_propio' }))
+  assert.equal(itemKey({ ...base }), itemKey({ ...base, focus: 'bruja' }))
   assert.notEqual(
     itemKey({ ...base, dedication: { forWhom: 'gift', message: 'Para Luz' } }),
     itemKey({ ...base, dedication: { forWhom: 'gift', message: 'Para Sol' } }),
   )
 })
 
-test('normalización de enfoque y dedicatoria', () => {
-  assert.equal(normalizeFocus('amor', 'pareja'), 'pareja')
-  assert.equal(normalizeFocus('amor', 'dinero'), 'bruja', 'un enfoque de otra intención no es válido')
+test('normalización de la dedicatoria', () => {
   assert.deepEqual(normalizeDedication({ forWhom: 'me', message: 'hola' }), { forWhom: 'me', message: '' })
   assert.equal(normalizeDedication({ forWhom: 'gift', message: 'x'.repeat(300) }).message.length, 200)
+})
+
+test('Gran Bruja incluye la Carta natal sin cobrarla ni duplicarla', () => {
+  const gran = { intention: 'amor', size: 'gran_bruja', extras: ['carta_natal', 'cristal'] }
+  assert.deepEqual(normalizeExtras(gran.extras, gran.size), ['cristal'], 'la incluida no se cobra como extra')
+  assert.equal(calculateUnitPrice(gran), PRICES.sizes.gran_bruja + PRICES.extras.cristal)
+  assert.deepEqual(priceBreakdown(gran).pendingExtras, [], 'incluida: no queda precio pendiente')
+  assert.deepEqual(
+    recipeExtras(gran).map((e) => [e.id, e.included, e.price]),
+    [['cristal', false, PRICES.extras.cristal], ['carta_natal', true, 0]],
+  )
+  assert.equal(needsBirthData({ size: 'gran_bruja', extras: [] }), true)
+  assert.equal(
+    itemKey({ ...gran, extras: ['cristal'] }),
+    itemKey(gran),
+    'con o sin la Carta natal marcada, es la misma línea',
+  )
+})
+
+test('con Aprendiz o Hechicera la Carta natal es opcional y su precio queda pendiente', () => {
+  for (const size of ['aprendiz', 'hechicera']) {
+    assert.equal(needsBirthData({ size, extras: [] }), false, size)
+    const withChart = { intention: 'limpieza', size, extras: ['carta_natal'] }
+    assert.equal(needsBirthData(withChart), true, size)
+    assert.equal(calculateUnitPrice(withChart), PRICES.sizes[size], 'el precio pendiente no se suma')
+    assert.deepEqual(priceBreakdown(withChart).pendingExtras, ['Carta natal'])
+    const t = cartTotals([{ ...withChart, quantity: 1 }])
+    assert.deepEqual(t.pendingExtras, ['Carta natal'])
+  }
+  assert.deepEqual(cartTotals([{ intention: 'amor', size: 'gran_bruja', extras: [], quantity: 1 }]).pendingExtras, [])
 })
 
 test('el envío queda por cotizar mientras no haya tarifas reales', () => {

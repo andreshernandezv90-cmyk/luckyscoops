@@ -1,11 +1,10 @@
 import { BRAND } from '../config/brand.js'
-import { getFocus, getIntention } from '../data/intentions.js'
+import { getIntention } from '../data/intentions.js'
 import { getSize } from '../data/sizes.js'
-import { getExtra } from '../data/extras.js'
 import { PRICES } from '../data/prices.js'
 import { SHOW_PENDING } from '../config/env.js'
 import { formatExtraPrice, formatPrice } from '../lib/format.js'
-import { itemUnitPrice } from '../lib/pricing.js'
+import { itemUnitPrice, priceBreakdown, recipeExtras } from '../lib/pricing.js'
 
 /** Texto corto de la dedicatoria para resúmenes. */
 export function dedicationLabel(dedication) {
@@ -15,7 +14,7 @@ export function dedicationLabel(dedication) {
 
 /**
  * Información comercial clara, sin adornos que estorben:
- * producto · intención · enfoque · tamaño · extras · dedicatoria · precio · cantidad · subtotal.
+ * producto · intención · tamaño · extras · dedicatoria · precio · cantidad · subtotal.
  */
 export function ItemDetails({
   item,
@@ -26,9 +25,9 @@ export function ItemDetails({
   showMessage = false,
 }) {
   const intention = getIntention(item.intention)
-  const focus = getFocus(item.intention, item.focus)
   const size = getSize(item.size)
-  const extras = item.extras.map(getExtra).filter(Boolean)
+  const extras = recipeExtras(item)
+  const { pendingExtras } = priceBreakdown(item)
   const gift = item.dedication?.forWhom === 'gift'
   return (
     <dl className={`summary-list${compact ? ' summary-list--compact' : ''}`}>
@@ -43,10 +42,6 @@ export function ItemDetails({
         <dd>{intention?.name}</dd>
       </div>
       <div>
-        <dt>Enfoque</dt>
-        <dd>{focus?.name ?? 'En manos de la Bruja Sabia'}</dd>
-      </div>
-      <div>
         <dt>Tamaño</dt>
         <dd>
           {size?.name} <span className="summary-list__muted">({size?.label})</span>
@@ -59,7 +54,8 @@ export function ItemDetails({
             ? 'Sin extras'
             : extras.map((e) => (
                 <span key={e.id} className="summary-list__extra">
-                  {e.name} <span className="summary-list__muted">{formatExtraPrice(e.price)}</span>
+                  {e.name}{' '}
+                  <span className="summary-list__muted">{e.included ? `Incluida con ${size?.name}` : formatExtraPrice(e.price)}</span>
                 </span>
               ))}
         </dd>
@@ -75,7 +71,12 @@ export function ItemDetails({
       </div>
       <div>
         <dt>Precio por {BRAND.productNoun}</dt>
-        <dd>{formatPrice(unitPrice)}</dd>
+        <dd>
+          {formatPrice(unitPrice)}
+          {pendingExtras.length > 0 && (
+            <span className="summary-list__pending">+ {pendingExtras.join(', ')}: precio por confirmar</span>
+          )}
+        </dd>
       </div>
       <div>
         <dt>Cantidad</dt>
@@ -113,6 +114,12 @@ export function OrderTotals({ totals }) {
           <dd>{formatPrice(totals.total)}</dd>
         </div>
       </dl>
+      {totals.pendingExtras?.length > 0 && (
+        <p className="order-totals__note">
+          {totals.pendingExtras.join(', ')}: precio por confirmar. No está sumado al total; te lo confirmaremos antes de
+          pagar.
+        </p>
+      )}
       {shipping.pending && (
         <p className="order-totals__note">
           Enviamos a toda la República Mexicana. El costo de envío depende del tamaño, el peso, las dimensiones y el

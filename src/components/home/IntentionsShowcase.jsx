@@ -8,7 +8,7 @@ import { SectionTitle } from './SectionTitle.jsx'
 export function IntentionsShowcase() {
   const { actions } = useShop()
   const start = (id) => {
-    actions.loadRecipe({ intention: id }, CHAPTER.ENFOQUE)
+    actions.loadRecipe({ intention: id }, CHAPTER.TAMANO)
     navigate(ROUTES.grimorio)
   }
   return (
@@ -29,7 +29,6 @@ export function IntentionsShowcase() {
             </div>
             <h3 className="intention-tile__name">{i.name}</h3>
             <p className="intention-tile__text">{i.description}</p>
-            <p className="intention-tile__themes">{i.themes.join(' · ')}</p>
             <button type="button" className="btn btn--ghost" onClick={() => start(i.id)}>
               Preparar con {i.name}
             </button>

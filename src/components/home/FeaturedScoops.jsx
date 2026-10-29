@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { BRAND } from '../../config/brand.js'
 import { PRODUCTS } from '../../data/products.js'
-import { getFocus, getIntention } from '../../data/intentions.js'
+import { getIntention } from '../../data/intentions.js'
 import { getSize } from '../../data/sizes.js'
-import { getExtra } from '../../data/extras.js'
-import { calculateUnitPrice, itemUnitPrice } from '../../lib/pricing.js'
+import { calculateUnitPrice, itemUnitPrice, recipeExtras } from '../../lib/pricing.js'
 import { formatPrice } from '../../lib/format.js'
 import { linkTo, navigate, ROUTES } from '../../lib/router.js'
 import { CHAPTER, useShop } from '../../state/ShopContext.jsx'
@@ -36,14 +35,13 @@ export function FeaturedScoops() {
         {PRODUCTS.map((product) => {
           const intention = getIntention(product.intention)
           const size = getSize(product.size)
-          const extras = product.extras.map(getExtra)
           const recipe = {
             productId: product.id,
             intention: product.intention,
-            focus: product.focus,
             size: product.size,
             extras: product.extras,
           }
+          const extras = recipeExtras(recipe)
           const price = itemUnitPrice(recipe)
           const fullPrice = calculateUnitPrice(recipe)
           const added = justAdded === product.id
@@ -57,8 +55,8 @@ export function FeaturedScoops() {
                 {BRAND.productNoun} {product.name}
               </h3>
               <p className="product-card__recipe">
-                {intention.name} · {getFocus(product.intention, product.focus)?.name ?? 'Sorpresa'} · {size.name}
-                {extras.length > 0 && ` · ${extras.map((e) => e.name).join(' · ')}`}
+                {intention.name} · {size.name}
+                {extras.length > 0 && ` · ${extras.map((e) => (e.included ? `${e.name} incluida` : e.name)).join(' · ')}`}
               </p>
               <p className="product-card__desc">{product.description}</p>
               <p className="product-card__price">
@@ -92,7 +90,7 @@ export function FeaturedScoops() {
                     navigate(ROUTES.grimorio)
                   }}
                 >
-                  Personalizar en el Grimorio
+                  Ajustar en el Grimorio
                 </button>
               </div>
               <p className="product-card__status" role="status">

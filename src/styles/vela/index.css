@@ -4,14 +4,13 @@
      tokens.css           colores y fuente de títulos, en :root
      base.css             .vela: foco, botones, trazo de tinta, @keyframes
      portada.css          .vela--hero y la transición .vela-portada
-     libro.css            .vela--capitulo: cuero, vitela, encabezado y receta (I–V)
+     libro.css            .vela--capitulo: cuero, vitela, encabezado y receta (I–IV)
      seleccion.css        piezas comunes para elegir una opción en el libro
      cap-1-intencion.css  Capítulo I: las botellas de intención
-     cap-2-enfoque.css    Capítulo II: índice de matices
-     cap-3-tamano.css     Capítulo III: los tres círculos
-     cap-4-ingredientes.css  Capítulo IV: herbario
-     cap-5-dedicatoria.css   Capítulo V: la carta lacrada
-   El encabezado, el marcapáginas I–VII y las barras del Grimorio usan estos
+     cap-2-tamano.css     Capítulo II: los tres círculos
+     cap-3-ingredientes.css  Capítulo III: herbario
+     cap-4-dedicatoria.css   Capítulo IV: la carta lacrada
+   El encabezado, el marcapáginas I–VI y las barras del Grimorio usan estos
    colores desde layout.css, brand.css y grimorio.css (Etapa 3B).
    ========================================================================== */
 
@@ -21,7 +20,6 @@
 @import './libro.css';
 @import './seleccion.css';
 @import './cap-1-intencion.css';
-@import './cap-2-enfoque.css';
-@import './cap-3-tamano.css';
-@import './cap-4-ingredientes.css';
-@import './cap-5-dedicatoria.css';
+@import './cap-2-tamano.css';
+@import './cap-3-ingredientes.css';
+@import './cap-4-dedicatoria.css';

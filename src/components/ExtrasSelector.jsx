@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { EXTRAS, getExtra } from '../data/extras.js'
 import { getIntention } from '../data/intentions.js'
+import { getSize } from '../data/sizes.js'
 import { recommendExtra } from '../data/recommendations.js'
+import { includedExtras } from '../lib/pricing.js'
 import { formatExtraPrice } from '../lib/format.js'
 import { useShop } from '../state/ShopContext.jsx'
 import { SelectionSeal } from './SelectionSeal.jsx'
@@ -14,10 +16,12 @@ import { BurstOverlay } from './ParticleBurst.jsx'
 const NOTE_ID = 'herbario-recomendacion'
 
 /**
- * Capítulo IV: ingredientes adicionales. Opcionales; se pueden añadir varios y quitarlos.
+ * Capítulo III: ingredientes adicionales. Opcionales; se pueden añadir varios y quitarlos.
  * «Luz de vela»: una lámina de herbario. Cada ingrediente es una casilla nativa y
  * toda la entrada es su etiqueta. La recomendación del Grimorio es una nota al
  * margen del ingrediente recomendado (aria-describedby), sin botón propio.
+ * Lo que el tamaño incluye (la Carta natal con Gran Bruja) queda marcado y
+ * deshabilitado, sin precio: no se puede quitar ni se cobra.
  */
 export function ExtrasSelector() {
   const { builder, actions } = useShop()
@@ -25,6 +29,8 @@ export function ExtrasSelector() {
   const recommendation = recommendExtra(builder)
   const recommended = recommendation ? getExtra(recommendation.extra) : null
   const intention = getIntention(builder.intention)
+  const size = getSize(builder.size)
+  const included = includedExtras(builder.size)
 
   const toggle = (id) => {
     const wasAdded = builder.extras.includes(id)
@@ -43,7 +49,8 @@ export function ExtrasSelector() {
           key={extra.id}
           extra={extra}
           added={builder.extras.includes(extra.id)}
-          reason={recommended?.id === extra.id ? recommendation.reason : null}
+          includedWith={included.includes(extra.id) ? size.name : null}
+          reason={recommended?.id === extra.id && !included.includes(extra.id) ? recommendation.reason : null}
           justAdded={added.id === extra.id ? added.n : 0}
           onToggle={() => toggle(extra.id)}
         />
@@ -52,11 +59,21 @@ export function ExtrasSelector() {
   )
 }
 
-function Specimen({ extra, added, reason, justAdded, onToggle }) {
+function Specimen({ extra, added: chosen, includedWith, reason, justAdded, onToggle }) {
   const reduce = useReducedMotion()
+  const added = chosen || Boolean(includedWith)
+  const noteId = `herbario-aviso-${extra.id}`
+  // La Carta natal avisa que se pedirán datos al finalizar, solo si va en la receta.
+  const notice = includedWith
+    ? `${extra.name} incluida con ${includedWith}.`
+    : null
+  const asksData = extra.needsBirthData && added
+  const describedBy = [reason && NOTE_ID, (notice || asksData) && noteId].filter(Boolean).join(' ') || undefined
   return (
     <div
-      className={`vela-especimen${added ? ' is-selected' : ''}${reason ? ' is-recommended' : ''}`}
+      className={`vela-especimen${added ? ' is-selected' : ''}${reason ? ' is-recommended' : ''}${includedWith ? ' is-included' : ''}${
+        extra.price === null && !includedWith ? ' is-price-pending' : ''
+      }`}
       style={{ '--accent': extra.color, '--accent-glow': extra.color }}
     >
       <label className={`vela-especimen__entrada${added ? ' is-selected' : ''}`}>
@@ -102,8 +119,9 @@ function Specimen({ extra, added, reason, justAdded, onToggle }) {
                 name="extras"
                 value={extra.id}
                 checked={added}
+                disabled={Boolean(includedWith)}
                 onChange={onToggle}
-                aria-describedby={reason ? NOTE_ID : undefined}
+                aria-describedby={describedBy}
                 className="sr-only"
               />
             <InkCheckbox className="vela-casilla" />
@@ -111,8 +129,14 @@ function Specimen({ extra, added, reason, justAdded, onToggle }) {
           </span>
           <InkStroke className="vela-trazo vela-especimen__trazo" />
           <span className="vela-especimen__desc">{extra.description}</span>
+          {(notice || asksData) && (
+            <span className="vela-especimen__aviso" id={noteId}>
+              {notice && <strong className="vela-especimen__aviso-incluida">{notice}</strong>}{' '}
+              {asksData && 'Al finalizar tu pedido te pediremos el nombre completo y la fecha de nacimiento.'}
+            </span>
+          )}
         </span>
-        <span className="vela-especimen__precio">{formatExtraPrice(extra.price)}</span>
+        <span className="vela-especimen__precio">{includedWith ? 'Incluida' : formatExtraPrice(extra.price)}</span>
         <SelectionSeal show={added} className="vela-sello vela-especimen__sello" glyph="star" rotate={12} />
         {added && justAdded > 0 && <BurstOverlay key={justAdded} effect="sparkles" colors={[extra.color, '#fff4d6']} />}
       </label>
